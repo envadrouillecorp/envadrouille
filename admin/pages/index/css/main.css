@@ -1,0 +1,122 @@
+table {
+	width:100%;
+}
+
+td {
+	padding:2px;
+	color:#555555;
+}
+
+td a {
+	color:#555555;
+}
+
+.dir .dirtable {
+	/*border: 1px black solid;*/
+	padding:3px; padding-left:10px; font-style:normal; border: 1px solid #999;
+	background-color:#EAEAD7;
+	display:block;
+}
+.dir {
+	margin-top:7px;
+	margin-bottom:7px;
+}
+
+
+.dir .title {
+	padding-left:30px;
+	cursor:pointer;
+	font-family: Tahoma, Geneva, sans-serif;
+	/*font-weight:bold;*/
+   font-size:18px;
+	padding-top:4px;
+	background:url('tick19.png') 6px no-repeat #EAEAD7;
+}
+.to_parse .title {
+	color:#CD0000;
+	background:url('cross.png') 6px no-repeat #EAEAD7;
+}
+.to_update .title {
+	color:#CD0000;
+	background:url('warning.png') 6px no-repeat #EAEAD7;
+}
+.thumb {
+	width:200px;
+	height:150px;
+	border:6px #111 solid;
+	margin-right: 20px;
+}
+.update {
+	float:right;
+	background:url('rep_up.png') no-repeat 10px 8px;
+}
+.missingt {
+	float:right;
+	background:url('rep_down.png') no-repeat 10px 8px;
+}
+.advanced {
+	float:right;
+	background:url('advanced.png') no-repeat 10px 8px;
+}
+.genb {
+	float:right;
+	background:url('file_picture.png') no-repeat 10px 8px;
+}
+
+.loader {
+	background:url('ajax-loader.gif') no-repeat 0px 30px;
+	width:15px;
+}
+.boxheight {
+	height:220px;
+}
+.tc {
+	float:right;
+	background:url("up.png") no-repeat scroll 7px 5px #EAEAD7;
+}
+
+.cancel {
+	float:right;
+	background:url("cancel.png") no-repeat scroll 10px 8px #EAEAD7;
+}
+
+.ui-slider {
+	border: 1px solid #DDDDDD;
+	background-color:#eee;
+	position:relative;
+}
+.ui-slider-handle {
+	border: 1px solid #CCCCCC;
+	color: #1C94C4;
+    	font-weight: bold;
+	left:-4px;
+	cursor: pointer;
+	height: 1.2em;
+	position: absolute;
+	width: 1.2em;
+	z-index: 2;
+	background-color:#FFF;
+}
+.ui-slider .ui-state-hover {
+	background-color:#FDF5CE;
+}
+.ui-slider .ui-state-focus {
+	background-color:#FFF6DE;
+}
+
+
+.gpx {
+	background:url("track-gpx.png") no-repeat scroll 10px 8px #EAEAD7;
+   margin:0px !important;
+   margin-left:10px !important;
+   height:25px !important;
+   line-height: 2px !important;
+}
+
+.rm {
+	background:url("rm.png") no-repeat scroll 10px 8px #EAEAD7;
+   margin:0px !important;
+   margin-left:10px !important;
+   height:25px !important;
+   line-height: 2px !important;
+}

@@ -1,0 +1,52 @@
+known_sentences.concat({
+   /** Index **/
+	'updating': function(params) {
+      if(params)
+         return 'Mise à jour... ('+params[0]+'/'+params[1]+')';
+      else
+         return 'Mise à jour...';
+   },
+	'writing_cache': 'Ecriture du cache...',
+	'gen_missing_thumbs':'Créer toutes les miniatures manquantes',
+	'wait_thumb':function(params) {
+      if(!params) 
+         return 'Merci de patienter, la création des miniatures peut prendre un certain temps...';
+      else
+         return 'Merci de patienter, la création des miniatures peut prendre un certain temps... (Fait: '+params[0]+'/'+params[1]+')';
+   },
+	'wait_thumb':function(params) {
+      if(!params) 
+         return 'Merci de patienter, le nettoyage du cache peut prendre un certain temps...';
+      else
+         return 'Merci de patienter, le nettoyage du cache peut prendre un certain temps... (Fait: '+params[0]+'/'+params[1]+')';
+   },
+	'rem_cache_orig':'Supprimer les données inutiles du cache',
+	'rem_cache':'{0} entrées inutiles supprimées',
+	'add_dir': 'Ajouter le répertoire',
+	'up_dir': 'Mettre à jour le repertoire',
+	'descr' : 'Descr&nbsp;:',
+	'gps' : 'GPS :',
+	'up_gpx' : 'Parcourir',
+	'rm_gpx' : 'Supprimer',
+	'Uploading...': 'Envoi...',
+	'starred': 'Étoile :',
+	'hidden': 'Caché&nbsp;:',
+	'up_thumb':'Téléverser une miniature',
+	'drop_thumb':'Déposer l\'image ici',
+	'th_dir':'Changer la miniature',
+	'sending_thumb':'Envoi de la miniature...',
+	'uploading_gpx':'Envoi du fichier GPX...',
+	't_added_gpx':'(Si vous avez placé un fichier gpx dans ce dossier, il sera ajouté automatiquement.)',
+   'cancelt_dir':'Annuler',
+	'index_button_descr':'Utilisez ces boutons pour effectuer des opérations sur tout le serveur. Ces opérations peuvent prendre quelques minutes (si vous n\'avez ajouté des photos que dans un dossier, il est préférable de mettre à jour ce dossier directement)',
+   'expl_tick':'Le dossier a déjà été ajouté (pensez à le mettre à jour lorsque vous ajoutez/supprimez des images)',
+   'expl_mod':'Les données associées au dossier ont été modifiées mais pas envoyées sur le serveur',
+   'expl_cross':'Le dossier n\'a pas encore été ajouté, personne ne peut le voir.',
+   'advanced_b':'Maintenance',
+   'gen_descr':'Crée les miniatures manquantes pour toutes les galeries. N\'utilisez cette option que si vous avez mis à jour de nombreuses galeries.',
+   'clean_descr':'Supprime les entrées inutiles du cache (ex: une miniature d\'une image supprimée).',
+   'satellite':'satellite',
+   'terrain':'relief',
+   'roadmap':'plan',
+   'no_dir':'Le répertoire photo ne contient aucun dossier. Ajoutez des dossiers dans le répertoire photo pour continuer (ou allez dans les options pour modifier l\'emplacement de ce répertoire)',
+});

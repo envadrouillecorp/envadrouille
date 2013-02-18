@@ -1,0 +1,195 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+      <title>README</title>
+      <style type="text/css">
+         body {
+            margin: 0px 8% 4em 8%;
+            padding-top: 18pt;
+            background-color:white;
+            color:black;
+         }
+         .menu, h1 {
+            color:#990000;
+         }
+         h1 a {
+            color:#000;
+         }
+         .menu a {
+            color:#000;
+            text-decoration:none;
+            border-bottom:1px dotted black;
+         }
+         li {
+            line-height:2em;
+         }
+         .envadrouille {
+            font-style:italic;
+         }
+         .title {
+            font-family:Georgia, "Times New Roman", Times, serif;
+            line-height:1.2;
+            font-size:4.4em;
+            text-align:center;
+         }
+         .languagemenu {
+            text-align:center;
+            margin:auto;
+         }
+         .languagemenu a {
+            cursor:pointer;
+         }
+         .language { 
+         }
+      </style>
+      <script>
+         function changeLang(lang) {
+            var elts = document.getElementsByClassName('language');
+            for (var i=0; i<elts.length; i++) {
+               elts[i].style.display = 'none';
+            }
+            document.getElementById(lang).style.display = 'block';
+         }
+      </script>
+   </head>
+   <body>
+      <div class="title">EnVadrouille</div>
+
+      <div class="languagemenu">
+         <a onclick="changeLang('en')">
+            <img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHzSURBVHjaYkxOP8IAB//+Mfz7w8Dwi4HhP5CcJb/n/7evb16/APL/gRFQDiAAw3JuAgAIBEDQ/iswEERjGzBQLEru97ll0g0+3HvqMn1SpqlqGsZMsZsIe0SICA5gt5a/AGIEarCPtFh+6N/ffwxA9OvP/7//QYwff/6fZahmePeB4dNHhi+fGb59Y4zyvHHmCEAAAW3YDzQYaJJ93a+vX79aVf58//69fvEPlpIfnz59+vDhw7t37968efP3b/SXL59OnjwIEEAsDP+YgY53b2b89++/awvLn98MDi2cVxl+/vl6mituCtBghi9f/v/48e/XL86krj9XzwEEEENy8g6gu22rfn78+NGs5Ofr16+ZC58+fvyYwX8rxOxXr169fPny+fPn1//93bJlBUAAsQADZMEBxj9/GBxb2P/9+S/R8u3vzxuyaX8ZHv3j8/YGms3w8ycQARmi2eE37t4ACCDGR4/uSkrKAS35B3TT////wADOgLOBIaXIyjBlwxKAAGKRXjCB0SOEaeu+/y9fMnz4AHQxCP348R/o+l+//sMZQBNLEvif3AcIIMZbty7Ly6t9ZmXl+fXj/38GoHH/UcGfP79//BBiYHjy9+8/oUkNAAHEwt1V/vI/KBY/QSISFqM/GBg+MzB8A6PfYC5EFiDAABqgW776MP0rAAAAAElFTkSuQmCC" />
+         </a>
+         &nbsp;
+         <a onclick="changeLang('fr')">
+            <img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAIAAAD5gJpuAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGzSURBVHjaYiyeepkBBv79+Zfnx/f379+fP38CyT9//jAyMiq5GP77wvDnJ8MfoAIGBoAAYgGqC7STApL///3/9++/pCTv////Qdz/QO4/IMna0vf/z+9/v379//37bUUTQACBNDD8Z/j87fffvyAVX79+/Q8GQDbQeKA9fM+e/Pv18/+vnwzCIkBLAAKQOAY5AIAwCEv4/4PddNUm3ji0QJyxW3rgzE0iLfqDGr2oYuu0l54AYvnz5x9Q6d+/QPQfyAQqAin9B3EOyG1A1UDj//36zfjr1y8GBoAAFI9BDgAwCMIw+P8Ho3GDO6XQ0l4MN8b2kUwYaLszqgKM/KHcDXwBxAJUD3TJ779A8h9Q5D8SAHoARP36+Rfo41+/mcA2AAQQy49ff0Cu//MPpAeI/0FdA1QNYYNVA/3wmwEYVgwMAAHE8uPHH5BqoD1//gJJLADoJKDS378Z//wFhhJAALF8A3rizz8uTmYg788fJkj4QOKREQyYxSWBhjEC/fcXZANAALF8+/anbcHlHz9+ffvx58uPX9KckkCn/gby/wLd8uvHjx96k+cD1UGiGQgAAgwA7q17ZpsMdUQAAAAASUVORK5CYII=" />
+         </a>
+      </div>
+
+
+      <div id="en" class="language">
+         <ul class="menu">
+            <li>1. <a href="#en-Installation">Installation</a></li>
+            <li>2. <a href="#en-Add">Add a gallery</a></li>
+            <li>3. <a href="#en-Supported">Supported file types</a></li>
+            <li>4. <a href="#en-Face">Face recognition</a></li>
+            <li>5. <a href="#en-Bugs">Bugs and feature requests</a></li>
+         </ul>
+
+         <h1>1. <a name="en-Installation">Installation</a></h1>
+         <ul>
+            <li>Upload all <span class="envadrouille">envadrouille</span> files on your server, e.g., in a directory named /envadrouille/</li>
+            <li>Open your web browser and go to the administration ( /envadrouille/admin ).</li>
+            <li>Validate the installation. You can leave all fields to their default value. The only important point is to set a <b>global administration settings > password</b>. If you leave the password field empty, anyone can modify your galleries. We also recommend that you check the "Check update" checkbox to be notified when a new version of the gallery is available.</li>
+            <li>You're done, now you can add galleries (see next section).</li>
+         </ul>
+
+         <h1>2. <a name="en-Add">Add a gallery</a></h1>
+         <ul>
+            <li>Upload photos in your 'picture directory'. E.g., create a directory '/envadrouille/pics/2013-01-24 My Gallery/' and put pictures in it.</li>
+            <li>Go to the index of the administration (if you are already in the administration, click on the green button on the top left of the administration).</li>
+            <li>Complete the description of one gallery and click the update button.</li>
+            <li>Done!</li>
+         </ul>
+         <ul>
+            <li>If you want to update a gallery, click on the directory name and modify what you want.</li>
+            <li>You can also upload .gpx files (or simply put them with photos in your pictures directory) to show the place you visited, hide the directory (it will not appear in the index of the gallery), or 'star' it (will add a little star on the gallery in the index so that the gallery is more visible).</li>
+            <li>Don't forget to update a gallery after adding pictures in it.</li>
+         </ul>
+
+         <h1>3. <a name="en-Supported">Supported file types</a></h1>
+         You can put files with these extensions in your galleries. Other files will be ignored.
+         <ul>
+            <li>Pictures: jpg, png, gif</li>
+            <li>Videos: mp4, ogg, ogv</li>
+            <li>GPS files: gpx</li>
+         </ul>
+
+         <h1>4. <a name="en-Face">Face recognition</a></h1>
+         The gallery can recognize faces in your photos. To start face recognition:
+         <ul>
+            <li>Activate face recognition in the administration</li>
+            <li>Register to one of the 'face recognition' service (rekognition.com, api.animetrics.com, ...)</li>
+            <li>Go to the face recognition tab (blue button next to the option button at the top of the screen - should appear once face recognition is activated).</li>
+            <li>Click the help button and follow the instructions.</li>
+            <li>Note that only pictures already added to the gallery are eligible for face recognition.</li>
+            <li>Keep in mind that:
+            <ul>
+               <li>Your photos will be send to the selected face recognition provider. Read their policy concerning the privacy of recognized faces.</li>
+               <li>Face detection can take some time, be patient.</li>
+            </ul>
+            </li>
+         </ul>
+
+         <h1>5. <a name="en-Bugs">Bugs and feature requests</a></h1>
+         Please submit your bugs and feature requests <a href="http://feedback.envadrouille.org">here</a>.
+      </div>
+
+
+
+      <div id="fr" class="language" style="display:none">
+         <ul class="menu">
+            <li>1. <a href="#fr-Installation">Installation</a></li>
+            <li>2. <a href="#fr-Add">Ajouter une galerie</a></li>
+            <li>3. <a href="#fr-Supported">Fichiers reconnus</a></li>
+            <li>4. <a href="#fr-Face">Reconnaissance faciale</a></li>
+            <li>5. <a href="#fr-Bugs">Bugs et demande de fonctionnalités</a></li>
+         </ul>
+
+         <h1>1. <a name="fr-Installation">Installation</a></h1>
+         <ul>
+            <li>Envoyez tous les fichiers de la galerie <span class="envadrouille">envadrouille</span> sur votre serveur, par exemple dans un dossier /envadrouille/</li>
+            <li>Ouvrez votre navigateur et allez dans l'administration ( /envadrouille/admin ).</li>
+            <li>Validez l'installation. 
+               <ul>
+                  <li>Le seul point important est de remplir le champ <b>global administration settings > password</b> (ou "mot de passe" dans la section "Paramètres de l'administration" en français). Lorsque le mot de passe est vide, tout le monde peut modifier la galerie.</li>
+                  <li>Pour passer l'administration en français, utilisez le paramètre <b>language</b> dans les paramètres globaux de l'administration.</li>
+                  <li>Vous pouvez également passer la galerie elle même en français (en plus de l'administration). Dans les paramètres de la galerie.</li>
+                  <li>Vous pouvez cocher la cache "Check update" ("Rechercher les mises à jour") pour être notifié lorsque des mises à jour pour la galerie sont disponibles (recommandé).</li>
+               </ul>
+            </li>
+            <li>Vous pouvez maintenant ajouter votre première galerie (cf. section suivante) !</li>
+         </ul>
+
+         <h1>2. <a name="fr-Add">Ajouter une galerie</a></h1>
+         <ul>
+            <li>Uploadez des dossiers photos dans le "répertoire photos". Par exemple, créez un dossier '/envadrouille/pics/2013-01-24 My Gallery/' et mettez des photos dedans.</li>
+            <li>Allez dans l'index de l'administration (bouton vert en haut à gauche).</li>
+            <li>Complétez la description d'un dossier et mettez le à jour (bonton "mise à jour" ou "update")</li>
+            <li>Voilà !</li>
+         </ul>
+         <ul>
+            <li>Vous pouvez modifier une galerie déjà ajoutée en cliquant sur son nom.</li>
+            <li>Vous pouvez ajouter des fichiers .gpx (uploadez le avec vos images dans le même dossier), des vidéos, etc. Vous pouvez cacher une galerie, ou lui rajouter une étoile (qui permet de la rendre plus visible sur la page principale de la galerie).</li>
+            <li>N'oubliez pas de mettre à jour une galerie lorsque vous rajoutez des photos.</li>
+         </ul>
+
+         <h1>3. <a name="fr-Supported">Fichiers reconnus</a></h1>
+         La galerie reconnait les extensions suivantes :
+         <ul>
+            <li>Photos : jpg, png, gif</li>
+            <li>Vidéos : mp4, ogg, ogv</li>
+            <li>GPS : gpx</li>
+         </ul>
+
+         <h1>4. <a name="fr-Face">Reconnaissance faciale</a></h1>
+         La galerie reconnait les visages de vos photos. Pour activer la reconnaissance faciale :
+         <ul>
+            <li>Cochez la cache correspondance dans les options</li>
+            <li>Inscrivez vous sur un site de reconnaissance faciale (rekognition.com, api.animetrics.com, ...)</li>
+            <li>Allez dans l'onglet de reconnaissance faciale.</li>
+            <li>Cliquez sur le bouton d'aide et suivez les instructions.</li>
+            <li>Attention: seules les images déjà ajoutées dans une galerie seront reconnues.</li>
+            <li>Notez également :
+            <ul>
+               <li>Vos photos seront envoyées au service de reconnaissance faciale sélectionné. Vérifiez leur politique concernant la vie privée.</li>
+               <li>Certains services de reconnaissance faciale sont très lents. Soyez patients.</li>
+            </ul>
+            </li>
+         </ul>
+
+         <h1>5. <a name="fr-Bugs">Bugs et demande de fonctionnalités</a></h1>
+         Soumettez vos bugs et demandes de fonctionnalités <a href="http://feedback.envadrouille.org">ici</a>.
+      </div>
+   </body>
+</html>
