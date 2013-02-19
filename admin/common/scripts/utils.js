@@ -7,6 +7,7 @@
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
  */
+var jGallery = {};
 
 /*
  * JS Data::Dumper. Essential to debug the unknown.

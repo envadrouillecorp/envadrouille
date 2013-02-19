@@ -12,7 +12,7 @@ ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 
 
-$VERSION = '130215';
+$VERSION = '130219';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
