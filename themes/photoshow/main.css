@@ -22,11 +22,12 @@ a { text-decoration:none; color:#000; }
 	opacity:0;
 }
 #content {
-	position:absolute;
+	position:relative;
 	padding-left:270px;
 	top:40px;
+	margin-bottom:50px;
+	overflow:auto;
 }
-
 .subheader {
    background-color:#454D50;
    position:absolute;

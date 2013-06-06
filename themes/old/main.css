@@ -14,7 +14,7 @@ font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12
 	opacity:0;
 }
 #header {
-	position:absolute;
+	position:relative;
 	top:10px;
 }
 #header #search {
@@ -43,13 +43,13 @@ font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12
 }
 
 #content {
-	position:absolute;
+	position:relative;
 	top:50px;
 	width:1100px;
 	margin:auto;
 	padding-left:10px;
+   margin-bottom:100px;
 }
-
 
 #tpl ul {
 	position:absolute;

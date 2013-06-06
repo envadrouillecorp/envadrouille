@@ -5,7 +5,7 @@
  */
 var animateContent = false;
 var jGallery_default_show_all = false;
-var month = ['', 'Jan', 'Fev', 'Mar', 'Avr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+var _month = ['', 'Jan', 'Fev', 'Mar', 'Avr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function changeThemeLang(l) {
 	if(l == 'fr') {
 		config.tr['SHOW ALL PICTURES'] = 'AFFICHER TOUTES LES GALERIES';
@@ -15,10 +15,11 @@ function changeThemeLang(l) {
 
 function showHeader(data) {
 	$('#breadcrumbs').remove();
-	$('#header').prepend('<ul id="breadcrumbs"><li><a href="#">.</a></li></ul>');
+	$('#header').prepend('<ul id="breadcrumbs"><li><a href="#!">.</a></li></ul>');
 
    if(data) {
-      var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage).split('/');
+      var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+      var dirUrl = jGalleryModel.pageToUrl(defaultURL).split('/');
       document.title = 'Photos :: '+((dirUrl=='')?'Index':dirUrl[dirUrl.length-2]);
       for(var i = 0; i < dirUrl.length - 1; i++) {
          var link = '';
@@ -46,7 +47,8 @@ function showDirs(data, all, div, height) {
 		nbDirs = 4;
 	$(div?('#'+div):'#content').html('<div style="width:'+(nbDirs*220)+'px; margin:auto"><div id="'+(div?div:'')+'contentb" class="dir_container" style="height:'+(height?height:(data.pics?(164*Math.ceil(data.dirs.length/4)+5):($(window).height()-50)))+'px;'+(data.pics?"vertical-align:top;":"")+'"></div></div>');
 
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 
 	var previousYear = null;
 	var toLoad = [];
@@ -58,7 +60,7 @@ function showDirs(data, all, div, height) {
 			var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
 			if(m) {  
 				data.dirs[i].day = m[3];
-				data.dirs[i].month = parseInt(m[3], 10)+' '+month[parseInt(m[2], 10)];
+				data.dirs[i].month = parseInt(m[3], 10)+' '+_month[parseInt(m[2], 10)];
 				data.dirs[i].year = m[1];
 				data.dirs[i].title = m[4];
 				if(previousYear === null)
@@ -140,10 +142,11 @@ function showPics(data) {
 	if(!data.pics)
 		return;
 	var pics = [];
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
 	for (var i in data.pics) {
 		pics[i] = {
 			ID:i,
-			url:(data.pics[i].fullpath?data.pics[i].fullpath:jGallery.currentPage),
+			url:(data.pics[i].fullpath?data.pics[i].fullpath:defaultURL),
 			big:data.pics[i].url,
 			thumb:data.pics[i].url.replace(/\.([^\.]+)$/, "_c.$1"),
 			original:data.pics[i].original
@@ -177,7 +180,8 @@ function showVids(data) {
 		return;
 
 	$('#content').append('<div id="vids"></div>');
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 	var vids = [];
 	for (var i in data.vids) {
 		vids[i] = {
@@ -216,7 +220,7 @@ function showSearchResults(data, regs) {
 
 		var m = data[i].url.match( jGalleryModel.dirPattern );
 		if(m) {  
-			res.month = jGallery.highlightText(parseInt(m[3], 10)+' '+month[parseInt(m[2], 10)], regs);
+			res.month = jGallery.highlightText(parseInt(m[3], 10)+' '+_month[parseInt(m[2], 10)], regs);
 			res.title = jGallery.highlightText(m[4], regs);
       } else {
          res.title = jGallery.highlightText(data[i].url, regs);

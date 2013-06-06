@@ -120,7 +120,10 @@ class Pages_Options_Index {
       );
       $template->assignTag('BALISE', '1', UserOptions::getThemes());
       $template->assignTag('BALISE', '2', $langs);
-      $template->assignTag('BALISE', '3', UserOptions::getPlugins($new_values));
+
+      $plugins = UserOptions::getPlugins($new_values);
+      $template->assignTag('BALISE', '3', $plugins['variables']);
+      $template->assignTag('BALISE', '4', $plugins['scripts']);
 
       $content = file_get_contents('../index.html');
       @rename('../index.html', '../index.html.bak');

@@ -16,7 +16,9 @@ function changeThemeLang(l) {
 function showHeader(data) {
 	if(!data)
 		return;
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage).split('/');
+
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL).split('/');
 	document.title = 'Photos :: '+((dirUrl=='')?'Index':dirUrl[dirUrl.length-2]);
 	if(dirUrl.length > 1) {
 		dirUrl = dirUrl[dirUrl.length-2];
@@ -24,7 +26,7 @@ function showHeader(data) {
 		var title = dirUrl;
 		if(m) 
 			title = m[4];
-		$('#content').append('<div class="subheader"><span class="title">'+title+'</span>'+(dirUrl!=''?'<span class="back"><a href="#" class="translate">['+jGalleryModel.translate('Back to the index')+']</a></span>':'')+'</div>');
+		$('#content').append('<div class="subheader"><span class="title">'+title+'</span>'+(dirUrl!=''?'<span class="back"><a href="#!" class="translate">['+jGalleryModel.translate('Back to the index')+']</a></span>':'')+'</div>');
 	}
 }
 function centerPic(dir) {
@@ -37,7 +39,8 @@ function showDirs(data) {
 	if(!data.dirs)
 		return;
 
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 	for (var i in data.dirs) {
 		var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
 		if(m) {  
@@ -68,10 +71,11 @@ function showPics(data) {
 	if(!data.pics)
 		return;
 	var pics = [];
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
 	for (var i in data.pics) {
 		pics[i] = {
 			ID:i,
-			url:(data.pics[i].fullpath?data.pics[i].fullpath:jGallery.currentPage),
+			url:(data.pics[i].fullpath?data.pics[i].fullpath:defaultURL),
 			big:data.pics[i].url,
 			thumb:data.pics[i].url.replace(/\.(.*)$/, "_b.$1"),
 			original:data.pics[i].original
@@ -92,7 +96,8 @@ function showVids(data) {
 	if(!data.vids)
 		return;
 
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 	var vids = [];
 	for (var i in data.vids) {
 		vids[i] = {

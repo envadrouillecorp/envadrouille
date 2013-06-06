@@ -116,7 +116,8 @@ class IndexDir extends File_Dir {
          $movs = array();
          $previous_name = "";
          foreach($movies as $m) {
-            $current_name = substr($m->name, 0, -4);
+            $mov_ext = $m->extension;
+            $current_name = preg_replace("/\.$mov_ext\$/", "", $m->name);
             if($current_name == $previous_name) {
                $movs[count($movs) - 1]['url'][] = $m->name;
             } else {

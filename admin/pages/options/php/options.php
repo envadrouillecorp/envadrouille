@@ -200,8 +200,13 @@ class UserOptions {
       return $avail_lang;
    }
 
-   public static function getPlugins($options) {
+   public static function getPlugins($new_values) {
+      $options = Options::getOptions();
       $scripts = array();
+      $plugin_variables = array(
+         'PLUGIN_VAR' => array(),
+         'PLUGIN_VAL' => array(),
+      );
 
       $dir = new File_Dir("./pages");
       foreach($dir->getDirs() as $d) {
@@ -211,7 +216,7 @@ class UserOptions {
          if(!$optional) {
             $activated = true;
          } else {
-            $activated = isset($options[$d->name.'_activated']) && $options[$d->name.'_activated'];
+            $activated = isset($new_values[$d->name.'_activated']) && $new_values[$d->name.'_activated'];
          }
          if(!$activated)
             continue;
@@ -221,8 +226,23 @@ class UserOptions {
             $plugin_scripts = call_user_func($optionFunction);
             $scripts = array_merge($scripts, $plugin_scripts);
          }
+
+         $optionFunction = "Pages_".$d->name."_Index::getOptions";
+         if(is_callable($optionFunction)) {
+            $plugin_options = call_user_func($optionFunction);
+            foreach($plugin_options as $o) {
+               if(isset($o['export'])) {
+                  $plugin_variables['PLUGIN_VAR'][] = $o['id'];
+                  $plugin_variables['PLUGIN_VAL'][] = $new_values[$o['id']];
+               }
+            }
+         }
       }
 
-      return array('PLUGIN_URL' => $scripts);
+      return array(
+         'scripts' => array('PLUGIN_URL' => $scripts),
+         'variables' => $plugin_variables,
+      );
    }
+
 };

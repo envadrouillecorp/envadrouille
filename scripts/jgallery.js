@@ -15,61 +15,77 @@ var jGalleryModel = {
 
 	/* Read a JSON object. We maintain a cache because current browsers caches don't deal very well with the TTL of JSON objects... (JSONs are often not cached at all) */
 	savedJSON : [],
-	getJSON:function(dir, callback) {
+	alternateURL:function(url, number) {
+		switch(number) {
+			case 0:
+				return url;
+			case 1:
+				return encodeURI(url);
+			case 2:
+				return decodeURIComponent(escape(url));
+			default:
+				return null;
+		}
+	},
+	getJSON:function(dir, callback, attemptNumber) {
 		var url;
 		if(dir == null || dir == '')
 			url = '';
 		else
 			url = dir+'/';
-		if(jGalleryModel.savedJSON[url]) {
+
+		if(jGalleryModel.savedJSON[url]) 
 			return jGalleryModel.savedJSON[url];
-		} else {
-			//console.debug(url+' not found in cache');
+
+		if(attemptNumber == undefined)
+			attemptNumber = 0;
+
+		if(!callback)
+			callback = function() { jGallery.switchPage(dir); /* reload */ };
+
+		realurl = jGalleryModel.alternateURL(url, attemptNumber);
+		if(realurl == null) {
+			jGalleryModel.savedJSON[url] = {
+				Error:"URL: "+jGalleryModel.urlToJSON(url)+" cannot be accessed.",
+				type:"error"
+			};
+			callback();
 		}
 
-		var suburl = url;
-		if (navigator.appName == 'Microsoft Internet Explorer') 
-			suburl = (url!='')?encodeURI(suburl):url;
-
-		$.ajax({ url:jGalleryModel.urlToJSON(suburl), 
+		$.ajax({ url:jGalleryModel.urlToJSON(realurl), 
 			dataType: 'json',
 			cache:false,
 			success:function(data) {  
 				if(data.dirs) {
 					for(var i in data.dirs) {
-						data.dirs[i].completeurl = suburl+data.dirs[i].url;
+						data.dirs[i].completeurl = realurl+data.dirs[i].url;
 						data.dirs[i].ID = i;
 						data.dirs[i].descr = data.dirs[i].descr.replace(/\n/g, "<br/>");
 					}
 				}
 				if(data.descr)
 					data.descr = data.descr.replace(/\n/g, "<br/>");
-				
+				data.realurl = realurl.replace(/\/$/,'');
 
 				jGalleryModel.savedJSON[url] = {
 					json:data,
 					type:"ok"
 				};
-				if(callback)
-					callback();
-				else
-					jGallery.switchPage(dir); //reload
+				callback();
 			},
 			error:function(JSONHttpRequest, textStatus, errorThrown) {
-				if(url == '')
+				var doAction = true;
+				if(url == '') {
 					jGalleryModel.savedJSON[url] = {
 						Error:"No gallery has been added yet. Please go in the administration and add some galleries.",
 						type:"error"
 					};
-				else
-					jGalleryModel.savedJSON[url] = {
-						Error:"URL: "+jGalleryModel.urlToJSON(url)+" cannot be accessed ("+JSONHttpRequest.status+" - "+textStatus+").",
-						type:"error"
-					};
-				if(callback)
+				} else {
+					doAction = false;
+					jGalleryModel.getJSON(dir, callback, attemptNumber + 1);
+				}
+				if(doAction) 
 					callback();
-				else
-					jGallery.switchPage(dir); //reload
 		   }
 		}); 
 		return undefined;
@@ -202,20 +218,23 @@ var jGallery = {
 			$.cookie('lang', l);
 			$script.loaded['langjs'] = false;
 			$script('scripts/lang/'+l+'.js', 'langjs', function() {
-				if(changeThemeLang) changeThemeLang(l);
+				if(window.changeThemeLang) changeThemeLang(l);
 				$('.customtranslate').trigger('languagechangeevt');
 				$('.translate').translate();
 				$('tspan').translate();
 				$('#language').attr('disabled', false);
 			});
 		} else {
-			if(changeThemeLang) changeThemeLang(l);
+			if(window.changeThemeLang) changeThemeLang(l);
 			$('#language').attr('disabled', false);
 		}
 	},
 
 	/* Change theme and set cookies accordingly */
 	switchTheme: function(t, bg, fg) {
+		if(jGallery.theme == t && !jGallery.firstThemeSwitch)
+		   return;
+
 		jGallery.theme = t;
 		$('#theme').attr('disabled', true);
 		$.cookie('bgcolor', bg);
@@ -228,10 +247,10 @@ var jGallery = {
 		page.showLoading();
 		$('#m').stop().animate({opacity:0}, jGallery.firstThemeSwitch?0:'slow', function() {
 			$('#m').children().remove();
-		$('body').stop().animate({ backgroundColor: $.cookie('bgcolor') }, jGallery.firstThemeSwitch?0:'slow', function() {
+		$('body').stop().animate({ backgroundColor: bg }, jGallery.firstThemeSwitch?0:'slow', function() {
 			function showT() {
 				page.loaded = true;
-				if(changeThemeLang) changeThemeLang(jGallery.lang);
+				if(window.changeThemeLang) changeThemeLang(jGallery.lang);
 				jGallery.addHeader();
 				jGallery.firstThemeSwitch = 0;
 				$('#m').animate({'opacity':1}, 'slow');
@@ -375,18 +394,25 @@ var jGallery = {
 			jGallery.switchPage(action);
 			return;
 		}
-		if(!(location.hash && location.hash.match( /^.?search/ ) && action == 'search'))
-			window.location = '#'+jGallery.currentPage;
+		if(!(location.hash && location.hash.match( /^.{0-2}search/ ) && action == 'search'))
+			window.location.hash = '#!'+jGallery.currentPage;
+        else
+            window.location.hash = '#!search';
 		if($.browser.msie && jQuery.browser.version.substring(0, 2) == "8.") 
 			$('#m').css('height', null); 
 
-                jGallery.lastSuccessfullSearch = null;
-                for(var plugin in jGallery.plugins) {
-                   if(jGallery.plugins[plugin].want(action)) {
-                      jGallery.plugins[plugin].handle(action);
-                      return;
-                   }
-                }
+		jGallery.lastSuccessfullSearch = null;
+		for(var plugin in jGallery.plugins) {
+			if(jGallery.plugins[plugin].change)
+				jGallery.plugins[plugin].change(action);
+		}
+		for(var plugin in jGallery.plugins) {
+			if(jGallery.plugins[plugin].want(action)) {
+				jGallery.plugins[plugin].handle(action);
+				return;
+			}
+		}
+
 		switch(action) {
 			case 'search':
 				$("#searchTpl").tmpl().appendTo('#content');
@@ -403,7 +429,7 @@ var jGallery = {
 				} else {
 					page.loaded = true;
 					$('#l').animate({opacity:0}, "fast");
-					if(animateContent)
+					if(window.animateContent)
 						$('#content').animate({opacity:1}, "fast");
 					else
 						$('#content').stop().css('opacity', 1);
@@ -495,7 +521,7 @@ $script.ready(['jquery', 'themejs', 'colorbox'],function() {
          $('#l').css('opacity',0);
 
          /* And... show the theme. */
-         jGallery.currentPage = unescape(location.hash.replace('#',''));
+         jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
          jGallery.lang = config.getLang()[0];
          jGallery.switchLang($.cookie('lang')?$.cookie('lang'):(config.getLang()[0]));
          jGallery.switchTheme(
@@ -515,7 +541,7 @@ $script.ready(['jquery', 'themejs', 'colorbox'],function() {
 
 window.onhashchange = function(){
 	var str = location.hash;
-	var s = unescape(str.replace('#',''));
+	var s = unescape(str).replace(/#!?/,'');
 	if(s!=jGallery.currentPage) {
 		jGallery.switchPage(s);
 	}

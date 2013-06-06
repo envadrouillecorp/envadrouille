@@ -16,6 +16,9 @@
 	};
    {$TR}
    {BALISE id=3}
+   config.{$PLUGIN_VAR} = '{$PLUGIN_VAL}';
+   {/BALISE}
+   {BALISE id=4}
    config.plugins.push('{$PLUGIN_URL}');
    $script('{$PLUGIN_URL}', '{$PLUGIN_URL}');
    {/BALISE}

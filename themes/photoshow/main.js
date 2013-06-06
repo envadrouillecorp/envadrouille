@@ -15,7 +15,8 @@ function changeThemeLang(l) {
 
 function showHeader(data) {
 	if(data) {
-		var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage).split('/');
+		var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+		var dirUrl = jGalleryModel.pageToUrl(defaultURL).split('/');
 		document.title = 'Photos :: '+((dirUrl=='')?'Index':dirUrl[dirUrl.length-2]);
 	}
 
@@ -26,13 +27,14 @@ function showHeader(data) {
 	} else {
 		$('#m').append('<div class="subheader" style="opacity:0"></div>');
 	}
-	$('.subheader').append('<div class="bottom"></div><div class="elt selelt"><a href="#" class="translate">'+jGalleryModel.translate('Home')+'</a></div>');
+	$('.subheader').append('<div class="bottom"></div><div class="elt selelt"><a href="#!" class="translate">'+jGalleryModel.translate('Home')+'</a></div>');
 
 	var jsons_to_load = [""];
 	var subdirs = [""];
 	var jsons_loaded = [];
 	if(jGallery.currentPage != "" && jGallery.currentPage != "search") {
-		var dirs = jGallery.currentPage.split('/');
+		var defaultURL = jGallery.currentPage;
+		var dirs = defaultURL.split('/');
 		for(var i = 0; i < dirs.length; i++) {
 			jsons_to_load.push((jsons_to_load[jsons_to_load.length-1]+'/'+dirs[i]).replace(/^\//, ''));
 			subdirs.push(dirs[i]);
@@ -83,7 +85,8 @@ function showDirs(data) {
 	if(!data.dirs)
 		return;
 
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 	for (var i in data.dirs) {
 		var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
 		if(m) {  
@@ -128,6 +131,7 @@ function showPics(data) {
 	var pics = [];
 	var width = $('body').width() - 300;
 	var random_small = 0;
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
 	for (var i in data.pics) {
 		if(i % 6 == 0) {
 			$('#content').append('<div style="height:3px"></div>');
@@ -136,7 +140,7 @@ function showPics(data) {
 
 		pics[i] = {
 			ID:i,
-			url:(data.pics[i].fullpath?data.pics[i].fullpath:jGallery.currentPage),
+			url:(data.pics[i].fullpath?data.pics[i].fullpath:defaultURL),
 			big:data.pics[i].url,
 			thumb:data.pics[i].url.replace(/\.([^\.]*)$/, "_b.$1"),
 			original:data.pics[i].original
@@ -177,7 +181,8 @@ function showVids(data) {
 	if(!data.vids)
 		return;
 
-	var dirUrl = jGalleryModel.pageToUrl(jGallery.currentPage);
+	var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
+	var dirUrl = jGalleryModel.pageToUrl(defaultURL);
 	var vids = [];
 	for (var i in data.vids) {
 		vids[i] = {

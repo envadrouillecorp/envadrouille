@@ -31,7 +31,7 @@ class File_Factory {
 
       if(in_array($extension, array("jpg", "png", "gif"))) {
          return new File_Pic($path, $name);
-      } else if(in_array($extension, array("mp4", "ogg", "ogv", "avi"))) {
+      } else if(in_array($extension, array("mp4", "ogg", "ogv", "avi", "webm"))) {
          return new File_Movie($path, $name);
       } else if(in_array($extension, array("gpx"))) {
          return new File_GPX($path, $name);

@@ -7,7 +7,7 @@ body {
 	background-color:#FFF;
 }
 #header {
-	position:absolute;
+	position:relative;
 	top:10px;
 	width:100%;
 	margin:auto;
@@ -95,13 +95,13 @@ body {
 	position:relative;
 	opacity:0;
 	width:90%;
-	height:100%;
 	margin:auto;
+   margin-bottom:30px;
 }
 
 #content {
-	position:absolute;
-	top:50px;
+	position:relative;
+	top:20px;
 	width:100%;
    text-align:center;
 }

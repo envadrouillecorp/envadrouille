@@ -161,7 +161,7 @@
        <link media="screen" rel="stylesheet" href="./themes/_common/colorbox.css" />
 	</head>
 	<body>
-		<div style="height:100%; width:100%">
+		<div id="wrapper" style="min-height:100%; width:100%">
 			<div id="l"></div>
 			<div id="o"></div>
 			<div id="m"></div>
@@ -226,9 +226,11 @@
 			{{each vid}}
 				{{if ($ext = $value.split('.').pop().toLowerCase()) == "ogg"}}
 				<source src="${jGalleryModel.picsDir}/${path}${$value}" type="application/ogg" />
-				{{else $ext == 'ogv'}}
+				{{else $ext.toLowerCase() == 'ogv'}}
 				<source src="${jGalleryModel.picsDir}/${path}${$value}" type="video/ogg" />
-				{{else $ext == 'mp4' || $ext == 'avi'}}
+				{{else $ext.toLowerCase() == 'webm'}}
+				<source src="${jGalleryModel.picsDir}/${path}${$value}" type="video/webm" />
+				{{else $ext.toLowerCase() == 'mp4' || $ext == 'avi'}}
 				<source src="${jGalleryModel.picsDir}/${path}${$value}" type="video/mp4" />
 				{{/if}}
 			{{/each}}
