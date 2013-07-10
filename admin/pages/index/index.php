@@ -21,38 +21,55 @@ class Pages_Index_Index {
 
    static public function getOptions() {
       return array(
-         array('id' => 'big_pic_width', 'type' => 'text', 'cat' => 'Index', 'default' => 900),
-         array('id' => 'big_pic_height', 'type' => 'text', 'cat' => 'Index', 'default' => 800),
-         array('id' => 'quality', 'type' => 'text', 'cat' => 'Index', 'default' => 96),
-         array('id' => 'max_parallel_jobs', 'type' => 'text', 'cat' => 'Index', 'default' => 4),
-         array('id' => 'convert', 'type' => 'text', 'cat' => 'Index', 'default' => '/usr/bin/convert'),
-         array('id' => 'gpx_type', 'type' => 'select', 'cat' => 'Index', 'default' => 'terrain', 'vals' => array('satellitte' => 'Satellitte', 'roadmap' => 'Road Map', 'terrain' => 'Terrain')),
+         array('id' => 'big_pic_width', 'type' => 'text', 'cat' => 'Thumbs', 'default' => 900),
+         array('id' => 'big_pic_height', 'type' => 'text', 'cat' => 'Thumbs', 'default' => 800),
+         array('id' => 'quality', 'type' => 'text', 'cat' => 'Thumbs', 'default' => 96),
+         array('id' => 'max_parallel_jobs', 'type' => 'text', 'cat' => 'Thumbs', 'default' => 4),
+         array('id' => 'convert', 'type' => 'text', 'cat' => 'Thumbs', 'default' => '/usr/bin/convert'),
       );
    }
 
    static public function mainAction() {
-      global $gpx_type;
+      global $gpx_type, $plugins;
+      $plugin_content = '';
       $template = new liteTemplate();
+      foreach($plugins as $plugin) {
+         require_once('./pages/'.$plugin.'/index.php');
+         $tplFunction = "Pages_".$plugin."_Index::getTpl";
+         if(is_callable($tplFunction)) 
+            $plugin_content .= call_user_func($tplFunction);
+
+         $template->extraJS[] = './pages/'.$plugin.'/scripts/lang/index_{$lang}.js';
+         $template->extraJS[] = './pages/'.$plugin.'/scripts/index.'.$plugin.'.js';
+      }
       $template->showPage('index');
-      $template->assign(array('DEFAULT_GPX' => $gpx_type));
+      $template->assign(array('PLUGIN_CONTENT' => $plugin_content));
       $template->view();
    }
 
    static public function getDirContentAction() {
+      global $plugins;
+
       $dir = new IndexDir(Controller::getParameter('dir'), '', true);
       $thumb_dir = $dir->getThumbCacheDir()->completePath;
       $main_thumbs = $dir->getThumbsPaths(1);
       $main_thumb = $main_thumbs[0];
    
-      echo File_JSON::myjson_encode(array(
+      $ret = array(
          'imgs' => File::sort($dir->getPics()),
          'dirs' => File::sort($dir->getDirs(), true),
          'thumb' => $thumb_dir.'/'.$main_thumb,
          'thumb_dir' => $thumb_dir,
          'json' => $dir->getPublicJSON()->mergeWithHiddenJSON()->get(),
          'url' => $dir->getURL(),
-         'gpx' => $dir->getGPXURL(),
-      ));
+      );
+      foreach($plugins as $plugin) {
+         require_once('./pages/'.$plugin.'/index.php');
+         $contentFunction = "Pages_".$plugin."_Index::getContent";
+         if(is_callable($contentFunction)) 
+            $ret = array_merge($ret, call_user_func($contentFunction));
+      }
+      echo File_JSON::myjson_encode($ret);
    }
 
    static public function getTodoListAction() {
@@ -109,27 +126,6 @@ class Pages_Index_Index {
       $parent_dir->writeJSON(); 
       echo File_JSON::myjson_encode(array('success' => 'ok', 'path' => $dir->getThumbCacheDir()->completePath));
    }
-
-   static public function uploadGpxAction() {
-      $dir = new IndexDir(Controller::getParameter('dir'), Controller::getParameter('updated'));
-      if(!isset($_GET['upfile']))
-         die("No GPX uploaded");
-      $input = fopen("php://input", "r");
-      $temp = tempnam(sys_get_temp_dir(), 'th').'.gpx';
-      $tempf = fopen($temp, "w");
-      $realSize = stream_copy_to_stream($input, $tempf);
-      fclose($input);
-      $dir->setGPXFromPath($temp);
-      echo File_JSON::myjson_encode(array('success' => 'ok'));
-   }
-
-   static public function removeGpxAction() {
-      $dir = new IndexDir(Controller::getParameter('dir'), Controller::getParameter('updated'));
-      $dir->removeGPX();
-      $dir->writeJSON();
-      echo File_JSON::myjson_encode(array('success' => 'ok'));
-   }
-
 
    static public function getFileAction() {
       //SECURITY

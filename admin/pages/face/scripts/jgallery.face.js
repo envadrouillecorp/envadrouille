@@ -18,10 +18,6 @@ var FacePlugin = {
       return FacePlugin.oldSearch(txt);
    },
 
-   want:function(action) {
-      return action.match(FacePlugin.pattern);
-   },
-
    savedJSON:[],
    getFaceJSON:function(name, cb, cbargs) {
       if(FacePlugin.savedJSON[name]) {
@@ -78,7 +74,7 @@ var FacePlugin = {
          return;
 
       $("#searchTpl").tmpl().appendTo($('#content').empty());
-      showHeader();
+      jGallery.theme.showHeader();
       $('#content').css('opacity',1);
       $('#searchbox').focus();
       $('#searchText').text(action);
@@ -91,19 +87,19 @@ var FacePlugin = {
 
       if(data.type == "partial") {
          $('#search_loading').css('display', 'block');
-	 $('#search_info').css('display', 'none');
+         $('#search_info').css('display', 'none');
          jGallery.lastSuccessfullSearch = null;
       } else if(data.type == "error") {
          $('#search_loading').css('display', 'none');
-	 $('#search_info').css('display', 'block');
-	 $('#search_info').html(data.Error);
+         $('#search_info').css('display', 'block');
+         $('#search_info').html(data.Error);
          jGallery.lastSuccessfullSearch = {
             search:action,
             res:null,
          };
       } else {
          $('#search_info').css('display', 'block');
-	 $('#search_loading').css('display', 'none');
+         $('#search_loading').css('display', 'none');
          $('#search_info').remove();
          
          jGallery.lastSuccessfullSearch = {
@@ -120,7 +116,7 @@ var FacePlugin = {
             };
             pics.push(pic);
          }
-         showPics({pics:pics});
+         jGallery.theme.showPics({pics:pics});
 
          $('#content').append($('<br/><div id="search_info" class="search"><span class="translate">'+jGalleryModel.translate('Search complete')+'</span> - '+data.nbMatches+' <span class="translate">'+jGalleryModel.translate('result'+(data.nbMatches>1?'s':'')+' found')+'</span></div>'));
       }
@@ -129,7 +125,7 @@ var FacePlugin = {
    handle:function(action) {
       var m = action.match(FacePlugin.pattern);
       if(!m) {
-         showError({
+         jGallery.theme.showError({
             Error:"FacePlugin cannot handle "+action,
             type:"error"
          });

@@ -8,4 +8,6 @@ ${$param} = '{$value}';
 
 $pages='{$pages}';
 
+$plugins ='{$plugins}';
+
 ?>

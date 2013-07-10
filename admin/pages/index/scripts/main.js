@@ -28,11 +28,10 @@ $(document).ready(function() {
 
 	/*
 	 * Update a directory = get the todo_list of a folder and send orders to:
-    * - Upload the GPX (if required)
+    * - Call the plugins preWrite actions
 	 * - Create thumbnails
-	 * - Do facial recognition
 	 * - Write json
-    * - Change main thumbnail
+    * - Call the plugins postWrite actions.
 	 */
 	function write_json(id, dir) {
 		$("#loadTplProgress").tmpl({descr:t('writing_cache'),done:0,total:1}).appendTo($('#rload_'+id).empty());
@@ -41,8 +40,23 @@ $(document).ready(function() {
 		dir.is_starred = $('#c_'+id).is(':checked');
 		dir.is_hidden = $('#h_'+id).is(':checked');
 
-		var batch = new Batch(SequentialBatch, function(data) { show_dir(dir, id); }, null);
-		batch.get({action:'index.write_json', 'dir':dir.path, 'updated':dir.name, 'descr':$('#d_'+id).val(), 'starred':$('#c_'+id).is(':checked'),'hidden':$('#h_'+id).is(':checked'),gpxtype:$('#sel_gps_type_'+id).val() }, function() {});
+      var nb_done = 0;
+      function end(data) { 
+         nb_done++;
+         if(nb_done >= plugins.length)
+            show_dir(dir, id); 
+      }
+
+		var batch = new Batch(SequentialBatch, function() {
+         if(plugins.length == 0)
+            end();
+         else for(var p in plugins)
+            plugins[p].postWriteJson(id, dir, end);
+      }, null);
+      var jsonParams = {action:'index.write_json', 'dir':dir.path, 'updated':dir.name, 'descr':$('#d_'+id).val(), 'starred':$('#c_'+id).is(':checked'),'hidden':$('#h_'+id).is(':checked') };
+      for(var p in plugins)
+         $.extend(jsonParams, plugins[p].getJsonParams(id, dir));
+		batch.get(jsonParams, function() {});
 		batch.launch();
 	}
 
@@ -74,27 +88,19 @@ $(document).ready(function() {
 		batch.launch();
 	}
 	
-	function upload_gpx(id, dir, cb) {
-      if(document.getElementById('gx_'+id).files.length) {
-         $("#loadTplProgress").tmpl({descr:t('uploading_gpx'),done:0,total:'?'}).appendTo($('#rload_'+id).empty());
-         var batch = new Batch(ParallelBatch);
-         batch.get({
-            params:{action:'index.upload_gpx', dir:dir.path, updated:dir.name},
-            file:document.getElementById('gx_'+id).files[0],
-            progress:function(done, total) {
-               $("#loadTplProgress").tmpl({descr:t('uploading_gpx'),done:Math.round(done/1024)+'K',total:Math.round(total/1024)+'K'}).appendTo($('#rload_'+id).empty());
-            },
-         }, cb);
-         batch.launch();
-      } else {
-         cb();
-      }
-	}
-
 	function update_directory(id, dir) {
 		$("#loadTpl").tmpl().appendTo($('#rload_'+id).empty());
 		switch_loading(id, true);
-		upload_gpx(id, dir, function() { ParallelBatch.get({action:'index.get_todo_list', dir:dir.path+'/'+dir.name, __id:id, __dir:dir}, create_thumbs) });
+      var nb_done = 0;
+      function end() {
+         nb_done++;
+         if(nb_done >= plugins.length)
+            ParallelBatch.get({action:'index.get_todo_list', dir:dir.path+'/'+dir.name, __id:id, __dir:dir}, create_thumbs);
+      };
+      if(plugins.length == 0)
+         end();
+      else for(var p in plugins)
+         plugins[p].preWriteJson(id, dir, end);
 	}	
 
 
@@ -177,39 +183,15 @@ $(document).ready(function() {
 			$('#tc_'+id).css('display', 'none');
 		}
 
-      show_rm_gpx();
-		function show_rm_gpx() {
-			if($('#gxt_'+id).val()) {
-				$('#gpx_rm_'+id).css('display', 'block');
-            $('#gpx_'+id).css('width', ($('#gpx_'+id).parent()[0].offsetWidth - $('#gpx_rm_'+id)[0].offsetWidth - $('#sel_gps_type_'+id)[0].offsetWidth - 50)+'px');
-            $('#gxt_'+id).css('width', ($('#gpx_'+id).parent()[0].offsetWidth - $('#gpxb_'+id)[0].offsetWidth - $('#gpx_rm_'+id)[0].offsetWidth - $('#sel_gps_type_'+id)[0].offsetWidth - 110)+'px');
-			} else {
-				$('#gpx_rm_'+id).css('display', 'none');
-            $('#gpx_'+id).css('width', ($('#gpx_'+id).parent()[0].offsetWidth - $('#sel_gps_type_'+id)[0].offsetWidth - 40)+'px');
-            $('#gxt_'+id).css('width', ($('#gpx_'+id).parent()[0].offsetWidth - $('#sel_gps_type_'+id)[0].offsetWidth - $('#gpxb_'+id)[0].offsetWidth - 90)+'px');
-			}
-
-			$('#gpx_rm_'+id).unbind('click').click(function() {
-				$('#gxt_'+id).val(t('Please wait...'));
-            $('#gpx_rm_'+id).attr('disabled', true);
-            $('#u_'+id).attr('disabled', true);
-            ParallelBatch.get({action:'index.remove_gpx',dir:dir.path, updated:dir.name, sel_gps:'gpx'}, function(data) {
-               $('#gxt_'+id).val('');
-               $('#gpx_rm_'+id).attr('disabled', null);
-               $('#u_'+id).attr('disabled', null);
-               show_rm_gpx();
-            });
-			});
-		}
-		show_rm_gpx();
-		$('#gx_'+id).change(function() {
-			$('#gxt_'+id).val($('#gx_'+id).val());
-			$('#gxt_'+id).change();
-		});
-	}	
+      for(var p in plugins)
+         plugins[p].addButtonActions(id, dir, data);
+   }	
 
    function add_form_hooks(dir, div) {
-      var elts = [ $('#d_'+div) , $('#sel_gps_type_'+div), $('#c_'+div), $('#h_'+div) , $('#gxt_'+div) ];
+      var elts = [ $('#d_'+div) , $('#c_'+div), $('#h_'+div) ];
+      for(var p in plugins)
+         elts.concat(plugins[p].getHooks(dir, div));
+
       var orig_values = [];
       $('#'+div).removeClass('to_update');
 
@@ -233,9 +215,6 @@ $(document).ready(function() {
    }
 
 
-
-
-
 	function show_subdir(dir, div, key) {
 		var id = 'dir'+key;
 		$("#dirTpl").tmpl({dir:dir.name, has_json:dir.json, id:id}).appendTo('#'+div);
@@ -244,12 +223,14 @@ $(document).ready(function() {
 			$('#'+id+' .title').click(function() {
 				show_dir(dir, id);
 			});
-		} else {       
-			$("#dirContentTpl").tmpl({id:id, parsed:false, gpxtype:$('#default_gpx_type').text()}).appendTo($('#rcontent_'+id).empty());
+		} else {
+         var plugin_content = '';
+         for(var p in plugins)
+            plugin_content += plugins[p].getUnparsedDirTpl(dir, div, id);
+			$("#dirContentTpl").tmpl({id:id, parsed:false, plugin_content:plugin_content}).appendTo($('#rcontent_'+id).empty());
 			$('#content_'+id).css('display', 'block');
 			add_buttons_actions(id, dir, null);
 			$('#rcontent_'+id+' .translate').translate();
-			$('#gxt_'+id).val(t('t_added_gpx')).translate();
 			add_form_hooks(dir, id);
 		}
 	}
@@ -276,9 +257,13 @@ $(document).ready(function() {
 		switch_loading(div, true);
 		ParallelBatch.get({action:'index.get_dir_content',dir:dir.path+'/'+dir.name, limit:10}, function(data) {
 			if(dir.path != '') {
+            var plugin_content = '';
+            for(var p in plugins)
+               plugin_content += plugins[p].getParsedDirTpl(dir, div, data);
+
 				$('#'+div).find('.title').animate({color:'#999'}, 'slow');
 				$('#'+div).removeClass('to_parse');
-				$("#dirContentTpl").tmpl({id:div,parsed:true,imgs:data.imgs,thumb:data.thumb+'?'+(new Date().getTime()),descr:(data.json.descr), gps:data.json.gps, starred:dir.is_starred,hidden:dir.is_hidden,url:data.url,gpx:data.gpx,gpxtype:data.json.gpxtype?data.json.gpxtype:$('#default_gpx_type').text()}).appendTo($('#rcontent_'+div).empty());
+				$("#dirContentTpl").tmpl({id:div,parsed:true,imgs:data.imgs,thumb:data.thumb+'?'+(new Date().getTime()),descr:(data.json.descr), starred:dir.is_starred,hidden:dir.is_hidden,url:data.url,plugin_content:plugin_content}).appendTo($('#rcontent_'+div).empty());
 				$('#content_'+div).css('display', 'block');
 				add_buttons_actions(div, dir, data);				
 				$('#'+div+' .translate').translate();

@@ -154,4 +154,19 @@ input[type=button][disabled='disabled'] {
    top:0px;
 }
 
+ul.sortable {
+   display:inline-block;
+   width:300px;
+   margin:0;
+   padding:0;
+}
+.sortable li {
+   list-style: none;
+   border: 1px solid #CCC;
+   margin: 5px;
+   font-weight:bold;
+   padding: 5px 5px 5px 50px;
+   background: url("arrow_move.png") no-repeat scroll 3px -7px #F6F6F6;
+   height: 22px;
+}
 

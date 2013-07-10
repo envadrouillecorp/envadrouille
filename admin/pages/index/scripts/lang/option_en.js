@@ -5,7 +5,10 @@ known_sentences.concat({
    'big_pic_height':'Thumbnail max height',
    'quality':'Thumbnail jpg quality',
    'max_parallel_jobs':'Number of thumbs to generate in parallel (keep it under 5)',
-   'gpx_type':'Default Map Style',
    'ImageMagick':'ImageMagick',
    'convert':'Path to ImageMagick',
+   'content_order':'Page content order (drag & drop to change)',
+   'dirs':'Galleries',
+   'pics':'Pictures',
+   'vids':'Videos',
 });

@@ -70,7 +70,7 @@ function update_files(files) {
 	function add_conflict_editor(file, data) {
 		var id = total_conflict;
 		$('#editorstip').css('display', 'block');
-		$('#editors').append('<div id="fileid'+id+'">'+file.file+':</div><div style="border:1px solid #CCCCCC;" id="ed'+id+'"><textarea id="code'+id+'"></textarea></div><div style="width:100%;display:inline-block"><input type="button" value="Submit changes" id="sub'+id+'" class="merge"/></div>');
+		$('#editors').append('<div id="fileid'+id+'">'+file.file+':</div><div style="border:1px solid #CCCCCC;" id="ed'+id+'"><textarea id="code'+id+'"></textarea></div><div style="width:100%;display:inline-block"><input type="button" value="Use new file version (recommended)" id="new'+id+'" class="merge"/> <input type="button" value="Use your old file version" id="old'+id+'" class="merge"/> <input type="button" value="Merge changes (using the code in the textbox)" id="sub'+id+'" class="merge"/></div>');
 		$('#code'+id).val(data);
 
 		var editor = CodeMirror.fromTextArea($('#code'+id)[0], {
@@ -78,15 +78,26 @@ function update_files(files) {
 			mode: ext2mode(file.file),
 		});
 
-		$('#sub'+id).click(function() {
-			send_file(file, editor.getValue());
+        function resolveConflict(content) {
+            send_file(file, content);
+			$('#new'+id).css('display', 'none');
+			$('#old'+id).css('display', 'none');
 			$('#sub'+id).css('display', 'none');
 			$('#ed'+id).css('display', 'none');
 			$('#fileid'+id).text(file.file+': Sent');
 			total_conflict--;
 			if(total_conflict == 0)
 				inform('failup', 'error', false, '');
-		});
+        }
+		$('#sub'+id).click(function() {
+            resolveConflict(editor.getValue());
+        });
+        $('#new'+id).click(function() {
+            resolveConflict('{new}');
+        });
+        $('#old'+id).click(function() {
+            resolveConflict('{old}');
+        });
 	}
 	
 	$('#step2').text('2. Applying patches ('+total_done+'/'+total_files+')');

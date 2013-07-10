@@ -12,7 +12,7 @@ ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 
 
-$VERSION = '130219';
+$VERSION = '130711';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
@@ -96,6 +96,11 @@ register_shutdown_function('shutdown');
 if(file_exists("config.php")) {
    require_once("config.php");
 }
+
+if(isset($plugins))
+   $plugins = File_JSON::myjson_decode($plugins);
+else
+   $plugins = array();
 
 // no config.php file or invalid file, route to the installer 
 if(!isset($CONFIG_VERSION)) {

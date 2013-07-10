@@ -6,6 +6,7 @@
  * Automatically discover all configuration options of all pages
  */
 class Options {
+   public static $defaultContent = array('dirs', 'pics', 'vids');
    // Get a list of all pages in the pages/ dir
    public static function getPages($check_activation) {
       $pages = array();
@@ -38,27 +39,73 @@ class Options {
       return $pages;
    }
 
+    public static function getPlugins() {
+      $plugins = array();
+      $dir = new File_Dir("./pages");
+      
+      foreach($dir->getDirs() as $d) {
+         require_once ("$d->path/$d->name/index.php");
+         $is_plugin = eval('return isset(Pages_'.$d->name.'_Index::$userContentName);');
+         $activated = isset($_POST[$d->name.'_activated']);
+         if($activated && $is_plugin) 
+            $plugins[] = $d->name;
+      }
+      return $plugins;
+   }
+
+
    // Get configuration hooks from all pages/ * /index.php files
    public static function getOptions() {
       $options = array();
+      $userContent = Options::$defaultContent;
+      $oldUserContent = isset($GLOBALS['content_order'])?explode(',', $GLOBALS['content_order']):$userContent;
 
       $dir = new File_Dir("./pages");
-      foreach($dir->getDirs() as $d) {
+      $dirs = $dir->getDirs();
+      usort($dirs, function($a, $b) {
+          if($a->name == "update")
+              return -1;
+          if($b->name == "update")
+              return 1;
+          if($a->name ==  "options")
+              return -1;
+          if($b->name ==  "options")
+              return 1;
+          return strcmp($a->name, $b->name);
+      });
+      foreach($dirs as $d) {
          require_once ("$d->path/$d->name/index.php");
          $optionFunction = "Pages_".$d->name."_Index::getOptions";
          $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
+         $optional_default = false;
+         if($optional && !isset($GLOBALS[$d->name.'_activated'])) {
+             $optional_default = eval('return isset(Pages_'.$d->name.'_Index::$activatedByDefault) && (Pages_'.$d->name.'_Index::$activatedByDefault);');
+         }
          $description = eval('return Pages_'.$d->name.'_Index::$description;');
          if($optional) {
-            $options[] = array('id' => $d->name.'_activated', 'type' => 'checkbox', 'cat' => $description, 'default' => false);
+            $options[] = array('id' => $d->name.'_activated', 'type' => 'checkbox', 'cat' => $description, 'default' => $optional_default?$optional_default:false);
          }
          if(is_callable($optionFunction)) {
             $page_options = call_user_func($optionFunction);
             $options = array_merge($options, $page_options);
          }
+         $userContentName = eval('return isset(Pages_'.$d->name.'_Index::$userContentName)?(Pages_'.$d->name.'_Index::$userContentName):false;');
+         $hasUserContentPos = eval('return isset(Pages_'.$d->name.'_Index::$userContentDefaultPosition)?(Pages_'.$d->name.'_Index::$userContentDefaultPosition):0;');
+         if($userContentName && !in_array($userContentName, $userContent)) 
+            array_splice( $userContent, $hasUserContentPos, 0, $userContentName ); 
+         if($userContentName && !in_array($userContentName, $oldUserContent)) 
+            array_splice( $oldUserContent, $hasUserContentPos, 0, $userContentName ); 
       }
       foreach($options as &$opt) {
          $opt['val'] = isset($GLOBALS[$opt['id']])?$GLOBALS[$opt['id']]:'';
       }
+
+      $content = array();
+      foreach($oldUserContent as $c) {
+         if(in_array($c, $userContent))
+            $content[] = $c;
+      }
+      $options[] = array('id' => 'content_order', 'type' => 'sortable', 'cat' => 'Content', 'default' => $userContent, 'val' => $content, 'export' => true);
 
       return $options;
    }
@@ -68,7 +115,7 @@ class Options {
       $opts = Options::getOptions();
       $ret = array();
       foreach($opts as $opt) {
-         if($opt['type'] == 'text' || $opt['type'] == 'select') {
+         if($opt['type'] == 'text' || $opt['type'] == 'select' || $opt['type'] == 'sortable') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
          } else if($opt['type'] == 'password') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
@@ -76,7 +123,7 @@ class Options {
                $ret[$opt['id']] = sha1($ret[$opt['id']]);
          } else if($opt['type'] == 'checkbox') {
             $ret[$opt['id']] = isset($_POST[$opt['id']]);
-         }
+         } 
       }
       return $ret;
    }
@@ -203,6 +250,7 @@ class UserOptions {
    public static function getPlugins($new_values) {
       $options = Options::getOptions();
       $scripts = array();
+      $functions = array();
       $plugin_variables = array(
          'PLUGIN_VAR' => array(),
          'PLUGIN_VAL' => array(),
@@ -227,13 +275,24 @@ class UserOptions {
             $scripts = array_merge($scripts, $plugin_scripts);
          }
 
+         $optionFunction = "Pages_".$d->name."_Index::getUserFunctions";
+         if(is_callable($optionFunction)) {
+            $plugin_fun = call_user_func($optionFunction);
+            $functions = array_merge($functions, $plugin_fun);
+         }
+
+
          $optionFunction = "Pages_".$d->name."_Index::getOptions";
          if(is_callable($optionFunction)) {
             $plugin_options = call_user_func($optionFunction);
             foreach($plugin_options as $o) {
                if(isset($o['export'])) {
                   $plugin_variables['PLUGIN_VAR'][] = $o['id'];
-                  $plugin_variables['PLUGIN_VAL'][] = $new_values[$o['id']];
+                  if($o['type'] == 'sortable') {
+                      $plugin_variables['PLUGIN_VAL'][] = '['.$new_values[$o['id']].']';
+                  } else {
+                      $plugin_variables['PLUGIN_VAL'][] = $new_values[$o['id']];
+                  }
                }
             }
          }
@@ -242,7 +301,33 @@ class UserOptions {
       return array(
          'scripts' => array('PLUGIN_URL' => $scripts),
          'variables' => $plugin_variables,
+         'functions' => array('PLUGIN_FUN' => $functions),
       );
    }
 
+   public static function getContentPlugins($new_value) {
+      $order = explode(',', $new_value);
+      $content_activated = array();
+      $ret = array();
+
+      $dir = new File_Dir("./pages");
+      $dirs = $dir->getDirs();
+      foreach($dirs as $d) {
+         require_once ("$d->path/$d->name/index.php");
+         $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
+         $userContentName = eval('return isset(Pages_'.$d->name.'_Index::$userContentName)?(Pages_'.$d->name.'_Index::$userContentName):false;');
+         if($userContentName) {
+            if(!$optional)               
+               $content_activated[$userContentName] = 1;
+            else if(isset($_POST[$d->name.'_activated']))
+               $content_activated[$userContentName] = 1;
+         }
+      }
+
+      foreach($order as $o) {
+         if(in_array($o, Options::$defaultContent) || isset($content_activated[$o]))
+            $ret[] = $o;
+      }
+      return File_JSON::myjson_encode($ret);
+   }
 };

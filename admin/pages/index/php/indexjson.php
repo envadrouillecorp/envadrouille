@@ -17,20 +17,6 @@ class IndexJSON extends File_JSON {
       return new IndexJSON($json->path, $json->name, false, $masterDirectory);
    }
 
-
-   /* Get GPX, only for current dir */
-   public function getGPX() {
-      if($this->masterDirectory->isUpdated) {
-         $gpx = $this->masterDirectory->getGPX();
-         return $gpx?File::simplifyPath('admin/'.$gpx->completePath):'';
-      }
-      return isset($this->container['gpx'])?$this->container['gpx']:'';
-   }
-
-   public function getGPXType($subdir=null) {
-      return $this->getJSONEntry('gpxtype', $subdir);
-   }
-
    /* Get Description for dir or subdir; if the dir is updated, will get info from $_POST instead */
    public function getDescription($subdir=null) {
       return $this->getJSONEntry('descr', $subdir);

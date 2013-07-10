@@ -104,7 +104,13 @@ function update_file($file, $binary) {
 
 function update_file_manually($file, $content) {
    global $patch_dir;
-   $ret = file_put_contents("$patch_dir/envadrouille/$file.merged", $content);
+   if($content === '{new}') {
+       $ret = copy("$patch_dir/envadrouille/$file.last", "$patch_dir/envadrouille/$file.merged");
+   } else if($content === '{old}') {
+       $ret = copy("../$file", "$patch_dir/envadrouille/$file.merged");
+   } else {
+       $ret = file_put_contents("$patch_dir/envadrouille/$file.merged", $content);
+   }
    return array(
       'success' => $ret,
    );

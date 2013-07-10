@@ -20,7 +20,8 @@ class LiteTemplate{
 	var $cache_isExpired;
 	var $debug;
 	var $error;
-	var $version;
+    var $preserveDollar = false;
+    var $version;
 	function LiteTemplate(){
 		$this->version = '1.9';
 		$this->tpl = '';
@@ -41,7 +42,7 @@ class LiteTemplate{
 		if($this->isExpiredCache()){
 			$this->cache_isExpired = true;
 			if (!$this->tpl = file_get_contents($file)){
-				$this->error[] = 'Warning! problème lors de la récupération du fichier '.$file;
+				$this->error[] = 'Warning! problÃ¨me lors de la rÃ©cupÃ©ration du fichier '.$file;
 			}
 		} else {
 			$this->cache_isExpired = false;
@@ -76,8 +77,12 @@ class LiteTemplate{
 				for($i=0;$i<$num_value;$i++){
 					$array[$i] = $tmp;
 					reset($tag_array);
-					for( $j=0;$j<$num_key;$j++){
-						$array[$i] = str_replace('{$'.key($tag_array).'}',str_replace('$','&#36;',$tag_array[key($tag_array)][$i]),$array[$i]);
+                    for( $j=0;$j<$num_key;$j++){
+                        if($this->preserveDollar) {
+                            $array[$i] = str_replace('{$'.key($tag_array).'}',$tag_array[key($tag_array)][$i],$array[$i]);
+                        } else {
+                            $array[$i] = str_replace('{$'.key($tag_array).'}',str_replace('&#36;&#36;', '$', str_replace('$','&#36;',$tag_array[key($tag_array)][$i])),$array[$i]);
+                        }
 						next($tag_array);
 					}
 				}
@@ -236,7 +241,7 @@ class LiteTemplate{
 				'version'=>$this->version, 
 			);
 		} else {
-			return 'Page généré avec LiteTemplate'.$this->version.', un moteur de template - création telnes';
+			return 'Page gÃ©nÃ©rÃ© avec LiteTemplate'.$this->version.', un moteur de template - crÃ©ation telnes';
 		}
 	}
 
@@ -335,10 +340,32 @@ class LiteTemplate{
 
    function createInput($meta) {
       if($meta['type'] == 'select') {
-         return $this->creatHtmlSelect($meta['id'], $meta['vals'], (empty($meta['val'])?$meta['default']:$meta['val']));
+          return $this->creatHtmlSelect($meta['id'], $meta['vals'], (empty($meta['val'])?$meta['default']:$meta['val']));
+      } else if($meta['type'] == 'sortable') {
+          return $this->createSortable($meta['id'], (empty($meta['val'])?$meta['default']:$meta['val']));
       } else {
-         return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.(empty($meta['val'])?$meta['default']:$meta['val']).'" '.(($meta['type'] == 'checkbox' && $meta['val'] == true)?'checked':'').'/>';
+         $val = empty($meta['val'])?$meta['default']:$meta['val'];
+         return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.$val.'" '.(($meta['type'] == 'checkbox' && $val == true)?'checked':'').'/>';
       }
+   }
+
+   function createSortable($name,$array){
+      $tmp = '<ul class="sortable" id="'.$name.'_ul">'."\n";
+      foreach($array as $key=>$value){
+         $tmp .= '<li id="'.$value.'" class="translate">'.$value.'</li>'."\n";
+      }
+      $tmp .= '</ul>';
+      $tmp .= '<input type="hidden" id="'.$name.'" name="'.$name.'" value="'.join(',',$array).'" />';
+      $tmp .= "<script>"
+         . "$$('#${name}_ul').sortable().bind('sortupdate', function(e, ui) {"
+         . "  var content=[];"
+         . "  $$('#${name}_ul li').each(function(i, el) {"
+         . "     content.push($$(el).attr('id'));"
+         . "  });"
+         . "  $$('#${name}').val(content.join(','));"
+         . "});"
+         . "</script>";
+      return $tmp;
    }
 
 	function creatHtmlSelect($name,$array,$selected,$attribut=''){

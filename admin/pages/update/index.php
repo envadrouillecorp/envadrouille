@@ -10,6 +10,7 @@
 class Pages_Update_Index {
    public static $description = "Update";
    public static $isOptional = true;
+   public static $activatedByDefault = true;
    public static $showOnMenu = false;
 
    public static function setupAutoload() {

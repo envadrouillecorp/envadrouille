@@ -101,6 +101,9 @@ class Pages_Options_Index {
       $pages = File_JSON::myjson_encode(Options::getPages(true));
       $template->assign(array('pages' => $pages));
 
+      $plugins = File_JSON::myjson_encode(Options::getPlugins());
+      $template->assign(array('plugins' => $plugins));
+
       @rename('config.php', 'config.php.bak');
       if(@file_put_contents('config.php', $template->returnTpl()) === FALSE) {
          Pages_Options_Index::mainAction('fail');
@@ -110,11 +113,13 @@ class Pages_Options_Index {
 
       $langs = UserOptions::getLangs();
       $template = new liteTemplate();
+      $template->preserveDollar = true;
       $template->file('pages/options/tpl/index.tpl');
       $template->assign(
          array(
             'cachedir' => File::simplifyPath('./admin/'.$new_values['cachepath']),
             'picsdir' => File::simplifyPath('./admin/'.$new_values['picpath']),
+            'content_order' => UserOptions::getContentPlugins($new_values['content_order']),
             'TR' => UserOptions::getLangContent($langs['LANG'][0])
          )
       );
@@ -124,6 +129,7 @@ class Pages_Options_Index {
       $plugins = UserOptions::getPlugins($new_values);
       $template->assignTag('BALISE', '3', $plugins['variables']);
       $template->assignTag('BALISE', '4', $plugins['scripts']);
+      $template->assignTag('BALISE', '5', $plugins['functions']);
 
       $content = file_get_contents('../index.html');
       @rename('../index.html', '../index.html.bak');

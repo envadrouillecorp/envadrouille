@@ -61,6 +61,8 @@ class IndexDir extends File_Dir {
 
    /* Write all JSONs file of this directory */
    public function writeJSON() {
+      global $plugins;
+
       $old_json = $this->getPublicJSON();
       $old_hidden_json = $this->getHiddenJSON();
 
@@ -130,9 +132,12 @@ class IndexDir extends File_Dir {
          $json['vids'] = $movs;
       }
 
-      /* GPS parsing */
-      $json['gpx'] = $old_json->getGPX();
-      $json['gpxtype'] = $old_json->getGPXType();
+      foreach($plugins as $plugin) {
+         require_once('./pages/'.$plugin.'/index.php');
+         $writeFunction = "Pages_".$plugin."_Index::writeJSON";
+         if(is_callable($writeFunction)) 
+            $json = array_merge($json, call_user_func($writeFunction, $json, $old_json));
+      } 
 
       /* Description parsing */
       $json['descr'] = $old_json->getDescription();
@@ -209,47 +214,6 @@ class IndexDir extends File_Dir {
       $pic->setAsMainThumb();
    }
 
-
-   /*
-    * GPX related functions
-    */
-   private function getGPXUploadPath() {
-      return $this->getJSONCacheDir()->completePath.'/data.gpx';
-   }
-
-   public function getGPX() {
-      $uploaded_gpx = new File($this->getGPXUploadPath());
-      if($uploaded_gpx->exists())
-         return $uploaded_gpx;
-
-      $in_pics_gpx = $this->getGPXs();
-      if(count($in_pics_gpx))
-         return $in_pics_gpx[0];
-
-      return null;
-   }
-
-   public function getGPXURL() {
-      global $picpath;
-      $gpx = $this->getGPX();
-      if(!$gpx)
-         return null;
-      $path_only = implode("/", (explode('/', $_SERVER["REQUEST_URI"], -1)));
-      return 'http://'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).str_replace('../', "", $gpx->completePath);
-   }
-
-   public function setGPXFromPath($path) {
-      $gpx = new File($this->getGPXUploadPath());
-      if(!$gpx->isWritable())
-         throw new Exception("Cannot create GPX file at $path");
-      copy($path, $this->getGPXUploadPath());
-   }
-
-   public function removeGPX() {
-      $gpx = $this->getGPX();
-      if($gpx !== null)
-         $gpx->remove();
-   }
 
    /*
     * Maintenance functions

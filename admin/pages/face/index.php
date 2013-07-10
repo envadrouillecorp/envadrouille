@@ -40,7 +40,7 @@ class Pages_Face_Index {
    }
 
    static public function getUserScripts() {
-      return array('./scripts/jgallery.face.js');
+      return array('./admin/pages/face/scripts/jgallery.face.js');
    }
 
    static public function mainAction() {

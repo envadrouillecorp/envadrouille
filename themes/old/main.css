@@ -252,6 +252,9 @@ font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12
 	width:100%;
 	margin-top:8px;
 }
+.gpsmapwrapper {
+   position:relative;
+}
 .gpsadvanced {
 	position:absolute;
     background:url(elevation.png) repeat-x center;
@@ -261,6 +264,9 @@ font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12
 	width:40px;
 	height:40px;
 	cursor:pointer;
+   display:none;
+}
+.gpsbigger {
    display:none;
 }
 
