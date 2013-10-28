@@ -93,7 +93,7 @@ var photoshowTheme = {
        for (var i in data.dirs) {
           var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
           if(m) {  
-             data.dirs[i].year = m[3]+'-'+m[2]+'-'+m[1];
+             data.dirs[i].year = m[3]+((m[3]!='')?'-':'')+m[2]+'-'+m[1];
              data.dirs[i].title = m[4];
           } else {
              data.dirs[i].title = data.dirs[i].url;
@@ -169,8 +169,8 @@ var photoshowTheme = {
              }).attr("src", $(this).attr("src"));
           });
        }
-       $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,
-          maxWidth:'90%', maxHeight:'90%'
+       $script.ready(['colorbox'], function() {
+          $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,maxWidth:'90%',maxHeight:'90%'});
        });
     },
     showVids:function(data) {
@@ -241,6 +241,13 @@ var photoshowTheme = {
             case 'gpx': return photoshowTheme.showGps(json);
             default: return jGallery.defaultContent(content, json);
         }
-    }
+    },
+
+    init:function() {
+       jGallery.addCss('./themes/_common/colorbox.css', 'colorbox');
+    },
+    clean:function() {
+    },
 };
 config.loadedThemes['photoshow'] = photoshowTheme;
+

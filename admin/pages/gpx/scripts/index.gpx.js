@@ -20,7 +20,7 @@ var GPX = {
 	},
 
    getJsonParams:function(id, dir) {
-      return { gpxtype:$('#sel_gps_type_'+id).val() };
+      return { gpxtype:$('#sel_gps_type_'+id).val(), gxtdiff:$('#gxtdiff_'+id).val(), geo_use_time:$('#geo_use_time_'+id).is(':checked') };
    },
 
    postWriteJson:function(id, dir, cb) {
@@ -60,16 +60,21 @@ var GPX = {
    },
 
    getHooks:function(dir, div) {
-      return [$('#sel_gps_type_'+div), $('#gxt_'+div)];
+      return [$('#sel_gps_type_'+div), $('#gxt_'+div), $('#gxtdiff_'+div), $('#geo_use_time_'+div)];
    },
 
    getUnparsedDirTpl:function(dir, div, id) {
-      var tpl = $("#gpxTpl").tmpl({id:id, gpx:t('t_added_gpx'), gpxtype:$('#default_gpx_type').text()});
-      return tpl.html();
+      var tpl = $("#gpxTpl").tmpl({id:id, gpx:t('t_added_gpx'), gpxtype:$('#default_gpx_type').text(), gpxtdiff:$('#default_geo_time_diff').text(), geo_use_time:true});
+      var ret = $('<div></div>');
+      tpl.appendTo(ret);
+      return ret.html();
    },
 
    getParsedDirTpl:function(dir, div, data) {
-      return $("#gpxTpl").tmpl({id:div,parsed:true,gps:data.json.gps, gpx:data.gpx,gpxtype:data.json.gpxtype?data.json.gpxtype:$('#default_gpx_type').text()}).html();
+      var tpl = $("#gpxTpl").tmpl({id:div,parsed:true,gps:data.json.gps, gpx:data.gpx,gpxtype:data.json.gpxtype?data.json.gpxtype:$('#default_gpx_type').text(),gpxtdiff:data.json.gxtdiff!==undefined?data.json.gxtdiff:$('#default_geo_time_diff').text(),geo_use_time:data.json.geo_use_time!==undefined?(data.json.geo_use_time==="true"):true});
+      var ret = $('<div></div>');
+      tpl.appendTo(ret);
+      return ret.html();
    },
 };
 plugins.push(GPX);

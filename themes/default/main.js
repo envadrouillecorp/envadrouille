@@ -68,7 +68,7 @@ var defaultTheme = {
                 var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
                 if(m) {  
                     data.dirs[i].day = m[3];
-                    data.dirs[i].month = parseInt(m[3], 10)+' '+defaultTheme._month[parseInt(m[2], 10)];
+                    data.dirs[i].month = (isNaN(parseInt(m[3], 10))?'':parseInt(m[3], 10))+' '+defaultTheme._month[parseInt(m[2], 10)];
                     data.dirs[i].year = m[1];
                     data.dirs[i].title = m[4];
                     if(previousYear === null)
@@ -149,7 +149,9 @@ var defaultTheme = {
         $("#picsTpl").tmpl({Pics:pics, Num:num}).appendTo('#pics');
         $('#pics').css('width', (num*220));
 
-        $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,maxWidth:'90%',maxHeight:'90%'});
+        $script.ready(['colorbox'], function() {
+           $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,maxWidth:'90%',maxHeight:'90%'});
+        });
 
         for (var i in data.pics) {
             $('#pic'+i+' img').load(function() {
@@ -210,7 +212,7 @@ var defaultTheme = {
 
             var m = data[i].url.match( jGalleryModel.dirPattern );
             if(m) {  
-                res.month = jGallery.highlightText(parseInt(m[3], 10)+' '+defaultTheme._month[parseInt(m[2], 10)], regs);
+                res.month = jGallery.highlightText((isNaN(parseInt(m[3], 10))?'':parseInt(m[3], 10))+' '+defaultTheme._month[parseInt(m[2], 10)], regs);
                 res.title = jGallery.highlightText(m[4], regs);
             } else {
                 res.title = jGallery.highlightText(data[i].url, regs);
@@ -237,6 +239,13 @@ var defaultTheme = {
             case 'vids': return defaultTheme.showVids(json);
             default: return jGallery.defaultContent(content, json);
         }
-    }
+    },
+
+    init:function() {
+       jGallery.addCss('./themes/_common/colorbox.css', 'colorbox');
+    },
+    clean:function() {
+    },
 };
 config.loadedThemes['default'] = defaultTheme;
+

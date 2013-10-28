@@ -35,7 +35,8 @@ class Pages_Index_Index {
       $template = new liteTemplate();
       foreach($plugins as $plugin) {
          require_once('./pages/'.$plugin.'/index.php');
-         $tplFunction = "Pages_".$plugin."_Index::getTpl";
+         $classn = Controller::getPluginIndex($plugin);
+         $tplFunction = $classn."::getTpl";
          if(is_callable($tplFunction)) 
             $plugin_content .= call_user_func($tplFunction);
 
@@ -65,7 +66,8 @@ class Pages_Index_Index {
       );
       foreach($plugins as $plugin) {
          require_once('./pages/'.$plugin.'/index.php');
-         $contentFunction = "Pages_".$plugin."_Index::getContent";
+         $classn = Controller::getPluginIndex($plugin);
+         $contentFunction = $classn."::getContent";
          if(is_callable($contentFunction)) 
             $ret = array_merge($ret, call_user_func($contentFunction));
       }

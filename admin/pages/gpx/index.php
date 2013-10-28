@@ -18,13 +18,18 @@ class Pages_Gpx_Index {
    public static function setupAutoload() {
       AutoLoader::$autoload_path[] = "./pages/index/php/";
       AutoLoader::$autoload_path[] = "./pages/gpx/php/";
+      File_Factory::registerExtension("gpx", "GPX");
    }
 
    public static function getOptions() {
       return array(
-         array('id' => 'gpx_type', 'type' => 'select', 'cat' => 'GPX', 'default' => 'terrain', 'vals' => array('satellitte' => 'Satellitte', 'roadmap' => 'Road Map', 'terrain' => 'Terrain', 'ign' => 'IGN (France)')),
+         array('id' => 'gpx_type', 'type' => 'select', 'cat' => 'GPX', 'default' => 'terrain', 'vals' => array('satellitte' => 'Satellitte', 'roadmap' => 'Road Map', 'terrain' => 'Terrain', 'ign' => 'IGN (France)', 'refuges.info' => 'Refuges.info (France)')),
+         array('id' => 'allow_refugesinfo', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
          array('id' => 'ign_key', 'type' => 'text', 'cat' => 'GPX', 'default' => '', 'export' => true),
-
+         array('id' => 'geolocalization', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
+         array('id' => 'show_map_coord', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
+         array('id' => 'geo_use_time', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
+         array('id' => 'default_geo_time_diff', 'type' => 'text', 'cat' => 'GPX', 'default' => 0, 'export' => true),
       );
    }
 
@@ -35,22 +40,73 @@ class Pages_Gpx_Index {
    }
 
    static public function getTpl() {
-      global $gpx_type;
+      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff;
       $template = new liteTemplate();
       $template->file('pages/gpx/tpl/gps.tpl');
       $template->assign(array('GPX_TYPE' => $gpx_type));
+      if($geolocalization === '1' && $geo_use_time === '1') {
+         $template->assign(array('GEOLOCALIZATION_BEG' => ''));
+         $template->assign(array('GEOLOCALIZATION_END' => ''));
+         $template->assign(array('GPX_TIME_DIFF' => $default_geo_time_diff));
+      } else {
+         $template->assign(array('GEOLOCALIZATION_BEG' => '<!--'));
+         $template->assign(array('GEOLOCALIZATION_END' => '-->'));
+         $template->assign(array('GPX_TIME_DIFF' => ''));
+      }
       return $template->returnTpl();
    }
 
-   public static function writeJSON($new_json, $old_json) {
+   public static function writeJSON($args) {
+      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff;
       Pages_Gpx_Index::setupAutoload();
 
-      $o_json = GPXJson::fromIndexJSON($old_json);
+      $o_json = GPXJson::fromIndexJSON($args['old_json']);
+      
+      $new_json = &$args['json'];
+      $new_json['gpx'] = $o_json->getGPX();
+      $new_json['gpxtype'] = $o_json->getGPXType();
 
-      $json = array();
-      $json['gpx'] = $o_json->getGPX();
-      $json['gpxtype'] = $o_json->getGPXType();
-      return $json;
+      $dir = &$args['dir'];
+      if($geolocalization === '1') {
+         if($geo_use_time === '1') {
+            if($dir->isUpdated) {
+               $new_json['gxtdiff'] = Controller::getParameter('gxtdiff');
+               $new_json['geo_use_time'] = Controller::getParameter('geo_use_time');
+            } else {
+               if(isset($old_json['gxtdiff']))
+                  $new_json['gxtdiff'] = $old_json['gxtdiff'];
+               if(isset($old_json['geo_use_time']))
+                  $new_json['geo_use_time'] = $old_json['geo_use_time'];
+            }
+         }
+         if(isset($new_json['pics'])) {
+            $old_json_date = $o_json->exists()?filemtime($o_json->completePath):0;
+
+            $hash = array();
+            $pics = $o_json->get('pics');
+            if($pics) {
+               foreach($pics as &$pic) 
+                  $hash[$pic['url']] = $pic;
+            }
+
+            foreach($new_json['pics'] as &$pic) {
+               $gpspic = new GpxPic($dir->completePath, $pic['url']);
+               if($dir->isUpdated) {
+                  if(!isset($hash[$gpspic->name]) || !isset($hash[$gpspic->name]['coords']) || (filemtime($gpspic->completePath) > $old_json_date)) {
+                     $coords = $gpspic->getCoords();
+                     if($coords !== '')
+                        $pic['coords'] = $coords;
+                  } else {
+                     if(isset($hash[$gpspic->name]) && isset($hash[$gpspic->name]['coords']))
+                        $pic['coords'] = $hash[$gpspic->name]['coords'];
+                  }
+               } else {
+                  if(isset($hash[$gpspic->name]) && isset($hash[$gpspic->name]['coords']))
+                     $pic['coords'] = $hash[$gpspic->name]['coords'];
+               }
+            }
+         }
+      }
    }
 
    public static function getContent() {

@@ -68,7 +68,7 @@ td a {
 	width:15px;
 }
 .boxheight {
-	height:220px;
+	min-height:220px;
 }
 .tc {
 	float:right;

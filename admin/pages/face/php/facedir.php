@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -49,7 +49,7 @@ class FaceDir extends IndexDir {
       $pics = $this->getPics();
 
       foreach($pics as $pic) {
-         if(!$json->containsPic($pic) && !$pic->hasMissingThumbs())
+         if(!$json->containsUptodatePic($pic) && !$pic->hasMissingThumbs())
             $ret[] = $pic;	
       }
       return $ret;
@@ -60,17 +60,22 @@ class FaceDir extends IndexDir {
       return $json->getFaceFromUID($uid);
    }
 
-   public function writeJSONPartial($pic) {
+   public function writeJSONPartial($pic, $post_faces) {
       $unknown_faces = People::getUnknownFacesJSON();
       $json = $this->getFaceJSON();
 
       $json->addPic($pic);
       $faces = $pic->getDetectedFaces();
       foreach($faces as $face) {
-         $face->recognized_people = $json->getFacePeople($face);
+         $face->recognized_people = $post_faces[$face->uid];
          $json->addFace($face);
-         if($face->recognized_people == Face::$default_name)
+         if($face->recognized_people == Face::$default_name) {
             $unknown_faces->addFace($face);
+         } else {
+            $p = new People($face->recognized_people);
+            $p->addFace($face);
+            $p->writeContent();
+         }
       }
       $json->writeContent();
       $unknown_faces->writeContent();

@@ -22,15 +22,16 @@ class Pages_Face_Index {
       AutoLoader::$autoload_path[] = "./pages/face/php/";
       AutoLoader::$autoload_path[] = "./pages/face/php/plugins";
 
-      if(!isset($GLOBALS['face_plugin']) || $GLOBALS['face_plugin'] === '')
-         Pages_Face_Index::failAction();
-      if(!file_exists('./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php'))
-         throw new Exception('Invalid face plugin'.'./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php');
-      require_once('./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php');
+      if(isset($GLOBALS['face_plugin']) && $GLOBALS['face_plugin'] !== '') {
+         if(!file_exists('./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php'))
+            throw new Exception('Invalid face plugin'.'./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php');
+         require_once('./pages/face/php/plugins/'.$GLOBALS['face_plugin'].'.php');
+      }
    }
 
    static public function getOptions() {
       return array(
+         array('id' => 'face_use_xmp', 'type' => 'checkbox', 'cat' => 'Facial Recognition', 'default' => true ),
          array('id' => 'face_plugin', 'type' => 'select', 'cat' => 'Facial Recognition', 'default' => '', 'vals' => array('' => '', 'rekognition.com' => 'rekognition.com', 'animetrics.com' => 'animetrics.com', 'skybiometry.com' => 'skybiometry.com' )),
          array('id' => 'do_recognition', 'type' => 'checkbox', 'cat' => 'Facial Recognition', 'default' => false),
          array('id' => 'face_namespace', 'type' => 'text', 'cat' => 'Facial Recognition', 'default' => ''),
@@ -109,7 +110,13 @@ class Pages_Face_Index {
    static public function writeFacesJsonPartialAction() {
       $dir = new FaceDir(Controller::getParameter('dir'));
       $facepic = new FacePic(Controller::getParameter('dir'), Controller::getParameter('img'));
-      $dir->writeJSONPartial($facepic);
+
+      $farray = Controller::getParameter('faces', array());
+      $fhash = array();
+      foreach($farray as $f)
+         $fhash[$f['uid']] = $f['people'];
+      $dir->writeJSONPartial($facepic, $fhash);
+
       echo File_JSON::myjson_encode(array(
          'success' => true,
       ));

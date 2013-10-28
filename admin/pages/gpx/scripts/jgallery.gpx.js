@@ -29,11 +29,27 @@ Date.prototype.setISO8601 = function (string) {
     this.setTime(Number(time));
    return this;
 }
+var ExifDateTimeOriginalRegex = new RegExp('([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})');
+Date.prototype.setExifDateTimeOriginal = function (string, diff) {
+   var d = string.match(ExifDateTimeOriginalRegex);
+   if(!d) {
+      this.setTime(0);
+      return this;
+   }
+
+   var date = new Date(d[1], d[2] - 1, d[3], d[4], d[5], d[6], 0);
+   var offset = -date.getTimezoneOffset();
+   offset -= diff * 60;
+   time = (Number(date) + (offset * 60 * 1000));
+   this.setTime(Number(time));
+   return this;
+}
 
 function jGPX(data) {
   var maxNbPoints = 400;
   var alwaysUseGMapsElevation = true;
   var minMeaningfulElevationDiff = 40;
+  var chartDetails = '';
 
   function distance(points, segments) {
      var ret = [];
@@ -180,18 +196,6 @@ function jGPX(data) {
      return Math.round(total);
   }
 
-  function dateTextToDate(ttimes) {
-     var times = null;
-     if(ttimes) {
-        var times = [];
-        var len = ttimes.length;
-        for(var i = 0; i < ttimes.length; i++) {
-           times[i] = new Date().setISO8601(ttimes[i]).getTime();
-        }
-     }
-     return times;
-  }
-
   function getElevations(points, i, cb, args) {
      /* Get the elevation from Google Elevation service. */
      /* Google cannot handle very long URLS => we send N requests of 200 points */
@@ -211,9 +215,8 @@ function jGPX(data) {
      });
   }
 
-  function drawElevation(elev, points, ttimes, map, segments) {
+  function drawElevation(elev, points, times, map, segments) {
      function drawChart() {
-        var times = dateTextToDate(ttimes);
         var distances = distance(points, segments);
         var speeds = speed(distances, times);
         var elevations = elevation(elev, distances);
@@ -245,7 +248,7 @@ function jGPX(data) {
               backgroundColor:'transparent',
               animation:false,
            },
-           title: { text: jGalleryModel.translate('Statistics') },
+           title: { useHTML:true, text: '<abbr title="'+chartDetails+'">'+jGalleryModel.translate('Statistics')+'</abbr>' },
            yAxis: [{
               labels: {
                  formatter: function() {
@@ -341,6 +344,57 @@ function jGPX(data) {
      $script('./scripts/highcharts.js', 'highcharts', drawChart);
   }
 
+  function binSearch(needle, haystack) {
+     if(chartDetails == '')
+        chartDetails = 'Track begins '+new Date(haystack[0])+' and ends '+new Date(haystack[haystack.length-1])+', first pic time (with offset) is '+new Date(needle)+'.';
+
+     if(needle < haystack[0])
+        return -1;
+     if(needle > haystack[haystack.length-1])
+        return -1;
+
+     var high = haystack.length - 1;
+     var low = 0;
+     while (low <= high) {
+        var mid = parseInt((low + high) / 2);
+        var element = haystack[mid];
+        if (element > needle) {
+           high = mid - 1;
+        } else if (element < needle) {
+           low = mid + 1;
+        } else {
+           return mid; 
+        }
+     }
+     return high;
+  }
+
+  function getPositionWithTime(coord, points, times, diff) {
+     var date = new Date().setExifDateTimeOriginal(coord, diff).getTime();
+     if(date === 0)
+        return null;
+
+     var index = binSearch(date, times);
+     if(index == -1)
+        return null;
+     return points[index];
+  }
+
+  function addRefugeInfo(options)  {
+     var _Ref_MapType = null;
+     if(config.allow_refugesinfo) {
+        _Ref_MapType = new google.maps.ImageMapType({
+           getTileUrl: function(coord, zoom) {
+              return 'http://maps.refuges.info/hiking/'+zoom+'/'+coord.x+'/'+coord.y+'.png';
+           },
+           tileSize: new google.maps.Size(256,256),
+           name: 'refuges.info',
+           maxZoom: 18
+        });
+        options['mapTypeControlOptions'].mapTypeIds.unshift('refuges.info');
+     }
+     return _Ref_MapType;
+  } 
   function addIGN(options) {
      var _GPX_ignMapType = null;
      if(config.ign_key && config.ign_key !== '') {
@@ -353,28 +407,35 @@ function jGPX(data) {
              name: "IGN",
              maxZoom: 18
          });
-         options['mapTypeControlOptions'] = {
-            mapTypeIds: ['IGN', google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.ROADMAP],
-            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR
-         };
+         options['mapTypeControlOptions'].mapTypeIds.unshift('IGN');
      }
      return _GPX_ignMapType;
   }
 
   function showMap(xmls) {
-     var map;
      $('#map_canvas').removeClass('canvas_loading');
 
+     var map;
      var options = {
         center: new google.maps.LatLng(-34.397, 150.644),
         zoom: 8,
         scaleControl: true,
         mapTypeId: data.gpxtype?data.gpxtype:'satellite',
+        mapTypeControlOptions: {
+           mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.ROADMAP],
+           style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR
+        },
      };
      var ign = addIGN(options);
+     var refuges = addRefugeInfo(options);
+     var bounds = new google.maps.LatLngBounds ();
+
+     /* Show map */
      map = new google.maps.Map(document.getElementById("map_canvas"), options);
      if(ign)
-         map.mapTypes.set('IGN', ign);
+        map.mapTypes.set('IGN', ign);
+     if(refuges)
+        map.mapTypes.set('refuges.info', refuges);
 
 
      var points = [];
@@ -383,7 +444,6 @@ function jGPX(data) {
      var elevations = [];
      var segments = {};
      var nbsegments = 0;
-     var bounds = new google.maps.LatLngBounds ();
 
      /* Get points */
      function tag(x) { return x.tagName.toLowerCase(); }
@@ -400,8 +460,10 @@ function jGPX(data) {
 
 
           var time = $(this).find('time');
-          if(time.length) 
-             times.push(time.text());
+          try {
+             if(time.length) 
+                times.push(new Date().setISO8601(time.text()).getTime());
+          } catch(err) {};
 
           var ele = $(this).find('ele');
           if(ele.length && parseInt(ele.text(), 10) != 32768) 
@@ -429,24 +491,110 @@ function jGPX(data) {
      }
      map.fitBounds(bounds);
 
-     /* Draw start / stop of track */
-     var start = new google.maps.Marker({
-        map:map,
-        animation: google.maps.Animation.DROP,
-        position: points[0],
-        icon:'themes/_common/flag_green.png'
-     });
-     var end = new google.maps.Marker({
-        map:map,
-        animation: google.maps.Animation.DROP,
-        position: points[points.length - 1],
-        icon:'themes/_common/flag_red.png'
-     });
+     if(xmls) {
+        /* Draw start / stop of track */
+        var start = new google.maps.Marker({
+           map:map,
+           animation: google.maps.Animation.DROP,
+           position: points[0],
+           icon:'admin/pages/gpx/css/flag_green.png'
+        });
+        var end = new google.maps.Marker({
+           map:map,
+           animation: google.maps.Animation.DROP,
+           position: points[points.length - 1],
+           icon:'admin/pages/gpx/css/flag_red.png'
+        });
+     }
 
+     if(config.geolocalization) {
+        $script('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclustererplus/src/markerclusterer_packed.js', 'gmapsclusters', function() {
+           var geopics = [];
+           for(var i in data.pics) {
+              var pic = data.pics[i];
+              if(!pic.coords)
+                 continue;
+              if(pic.coords.charAt(0) !== '@') {
+                 var latlon = pic.coords.split(',');
+                 var p = new google.maps.LatLng(latlon[0], latlon[1]);
+                 geopics.push([p, pic.url]);
+                 bounds.extend(p);
+              } else if(xmls && config.geo_use_time) {
+                 var p = getPositionWithTime(pic.coords, points, times, data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
+                 if(p) {
+                    geopics.push([p, pic.url]);
+                    bounds.extend(p);
+                 }
+              }
+           }
+
+           var markers = [];
+           function findCluster(marker) {
+              var clusters = mc.getClusters();
+              for(var i = 0; i < clusters.length;++i){
+                 if(clusters[i].markers_.length > 1 && clusters[i].clusterIcon_.div_){
+                    if(clusters[i].markers_.indexOf(marker)>-1){
+                       return clusters[i].clusterIcon_.div_;
+                    } 
+                 }
+              }
+              return null;
+           }
+           function bounce(cluster) {
+              if(cluster.attr('bounce') == "false")
+                 return;
+
+              cluster.stop().animate({marginTop: '-='+5},370)
+                 .animate({marginTop: '+='+5},370, function() {
+                    setTimeout(function() { bounce(cluster)}, 20);
+                 });
+           }
+
+           for(var i in geopics) {
+              var marker = new google.maps.Marker({
+                 position: geopics[i][0],
+                 icon:'admin/pages/gpx/css/picture.png'
+              });
+              marker.set('geopicid', i);
+              google.maps.event.addListener(marker, 'click', function() {
+                 $('a[href$="'+geopics[this.get('geopicid')][1]+'"]').click();
+              });
+              $('a[href$="'+geopics[i][1]+'"]').find('img').mouseenter({marker:marker}, function(event) {
+                 event.data.marker.setAnimation(google.maps.Animation.BOUNCE);
+                 var cluster = findCluster(event.data.marker);
+                 if(cluster) {
+                    cluster = $(cluster);
+                    if(!cluster.attr('bounce') || cluster.attr('bounce') == "false") {
+                       $(cluster).attr('bounce', "true");
+                       bounce($(cluster));
+                    }
+                 }
+              }).mouseout({marker:marker}, function(event) {
+                 event.data.marker.setAnimation(null);
+                 var cluster = findCluster(event.data.marker);
+                 if(cluster) {
+                    cluster = $(cluster);
+                    if(cluster.attr('bounce') == "true") {
+                       $(cluster).attr('bounce', "false");
+                       $(cluster).stop().stop().css('marginTop', '0');
+                    }
+                 }
+              });
+              markers.push(marker);
+           }
+           var mc = new MarkerClusterer(map, markers);
+           mc.setZoomOnClick(false);
+           google.maps.event.addListener(mc, 'click', function(cluster) {
+              var markers = cluster.getMarkers();
+              google.maps.event.trigger(markers[0], 'click');
+           });
+           map.fitBounds(bounds);
+        });
+     }
      
      var first_chart_show = true;
      var chart_shown = false;
-     $('.gpsadvanced').css('display', 'block').unbind('click').click(function() {
+     $('.gpsadvanced').css('display', xmls?'block':'none').unbind('click').click(function() {
         if(chart_shown) {
            $('#chart_div').css('display', 'none');
            chart_shown = false;
@@ -461,23 +609,24 @@ function jGPX(data) {
         chart_shown = true;
         first_chart_show = false;
 
+        var _points = points, _times = times, _elevations = elevations, _segments = segments;
         /* Only consider a subset of the points for the graph */
         if(points.length > maxNbPoints) {
-           var len = points.length;
-           points = reduce(points, segments);
-           times = reduce(times, segments);
-           elevations = reduce(elevations, segments);
-           segments = reduceSegments(segments, len);
+           var len = _points.length;
+           _points = reduce(_points, segments);
+           _times = reduce(_times, segments);
+           _elevations = reduce(_elevations, segments);
+           _segments = reduceSegments(_segments, len);
         }
 
-        if(times.length != points.length)
-           times = null;
-        if(alwaysUseGMapsElevation || elevations.length != points.length)  { 
-           getElevations(points, 0, function(args) {
-              drawElevation(args.result, args.points, args.times, args.map, segments);
-           }, { result:[], points:points, times:times, map:map });
+        if(_times.length != _points.length)
+           _times = null;
+        if(alwaysUseGMapsElevation || _elevations.length != _points.length)  { 
+           getElevations(_points, 0, function(args) {
+              drawElevation(args.result, args.points, args.times, args.map, _segments);
+           }, { result:[], points:_points, times:_times, map:map });
         } else {
-           drawElevation(elevations, points, times, map, segments);
+           drawElevation(_elevations, _points, _times, map, _segments);
         }
      });
 
@@ -490,6 +639,7 @@ function jGPX(data) {
         google.maps.event.trigger(map, "resize");
         map.fitBounds(bounds);
      });
+
   }
 
   window.realShowGPX = function(b) {
@@ -500,22 +650,41 @@ function jGPX(data) {
 
      $('#map_canvas').addClass('canvas_loading');
 
-     var urls = [].concat(data.gpx);
-     var xmls = [];
-     for(var url in urls) {
-        $.ajax({
-          type: "GET",
-          url: urls[url],
-          success: function(xml) {
-             xmls.push(xml);
-             if(xmls.length == urls.length)
-               showMap(xmls);
-          },
-          error:function(e, f) {
-             $('#map_canvas').removeClass('canvas_loading').html('Error while loading '+urls[url]+' ('+f+')');
-          },
-        });
+     if(data.gpx) {
+        var urls = [].concat(data.gpx);
+        var xmls = [];
+        for(var url in urls) {
+           $.ajax({
+             type: "GET",
+             url: urls[url],
+             success: function(xml) {
+                xmls.push(xml);
+                if(xmls.length == urls.length)
+                  showMap(xmls);
+             },
+             error:function(e, f) {
+                $('#map_canvas').removeClass('canvas_loading').html('Error while loading '+urls[url]+' ('+f+')');
+             },
+           });
+        }
+     } else {
+        showMap(null);
      }
   }
+  gpxChangeLang();
   $script('http://maps.google.com/maps/api/js?sensor=false&callback=realShowGPX', 'gmaps', window.realShowGPX);
 }
+
+function gpxChangeLang() {
+   if(jGallery.lang == 'fr') {
+      var tr = {
+         'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
+         'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
+         'during':'pendant',
+         'hours':'heures',
+         'Statistics':'Statistiques',
+      };
+      config.tr = $.extend(config.tr, tr);
+   }
+}
+$('<div class="customtranslate"/>').bind('languagechangeevt', gpxChangeLang).appendTo($('body'));

@@ -144,7 +144,7 @@ class LiteTemplate{
 
    function view(){
       $this->assign(array(
-         'RANDOM_SID' => isset($_SESSION['random_sid'])?$_SESSION['random_sid']:'rand_sid',
+         'RANDOM_SID' => isset(Controller::$sid)?Controller::$sid:'rand_sid',
          'update_activated' => (isset($GLOBALS['update_activated']) && $GLOBALS['update_activated'])?'true':'false',
          'max_parallel_jobs' => (isset($GLOBALS['max_parallel_jobs']) && is_numeric($GLOBALS['max_parallel_jobs']) && $GLOBALS['max_parallel_jobs'] > 0)?$GLOBALS['max_parallel_jobs']:3,
 		));
@@ -344,7 +344,7 @@ class LiteTemplate{
       } else if($meta['type'] == 'sortable') {
           return $this->createSortable($meta['id'], (empty($meta['val'])?$meta['default']:$meta['val']));
       } else {
-         $val = empty($meta['val'])?$meta['default']:$meta['val'];
+         $val = (!isset($meta['val']) || $meta['val'] === null)?$meta['default']:$meta['val'];
          return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.$val.'" '.(($meta['type'] == 'checkbox' && $val == true)?'checked':'').'/>';
       }
    }

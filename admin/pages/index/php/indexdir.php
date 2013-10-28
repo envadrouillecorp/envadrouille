@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -19,7 +19,7 @@ class IndexDir extends File_Dir {
    public function getURL() {
       global $picpath;
       $path_only = implode("/", (explode('/', $_SERVER["REQUEST_URI"], -1)));
-      return 'http://'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).'#'.str_replace($picpath."/", "", $this->completePath);
+      return 'http://'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).'#!'.str_replace($picpath."/", "", $this->completePath);
    }
 
 
@@ -99,44 +99,56 @@ class IndexDir extends File_Dir {
          $hidden_json['dirs'] = $hidden_dirs;
       } 
 
-      /* Pictures parsing */
-      $pictures = File::sort($this->getPics());
-      if(count($pictures) > 0) {
-         $pics = array();
-         foreach($pictures as $p) {
-            $pics[] = array(
-               'url' => $p->name,
-               'original' => $p->isBiggerThanThumbnail()
-            );
-         }
-         $json['pics'] = $pics;
-      } 
-
-      /* Video parsing */
-      $movies = File::sort($this->getMovies());
-      if(count($movies) > 0) {
-         $movs = array();
-         $previous_name = "";
-         foreach($movies as $m) {
-            $mov_ext = $m->extension;
-            $current_name = preg_replace("/\.$mov_ext\$/", "", $m->name);
-            if($current_name == $previous_name) {
-               $movs[count($movs) - 1]['url'][] = $m->name;
-            } else {
-               $movs[] = array(
-                  'url' => array($m->name),
+      if($this->isUpdated) {
+         /* Pictures parsing */
+         $pictures = File::sort($this->getPics());
+         if(count($pictures) > 0) {
+            $pics = array();
+            foreach($pictures as $p) {
+               $pics[] = array(
+                  'url' => $p->name,
+                  'original' => $p->isBiggerThanThumbnail()
                );
             }
-            $previous_name = $current_name;
+            $json['pics'] = $pics;
+         } 
+
+         /* Video parsing */
+         $movies = File::sort($this->getMovies());
+         if(count($movies) > 0) {
+            $movs = array();
+            $previous_name = "";
+            foreach($movies as $m) {
+               $mov_ext = $m->extension;
+               $current_name = preg_replace("/\.$mov_ext\$/", "", $m->name);
+               if($current_name == $previous_name) {
+                  $movs[count($movs) - 1]['url'][] = $m->name;
+               } else {
+                  $movs[] = array(
+                     'url' => array($m->name),
+                  );
+               }
+               $previous_name = $current_name;
+            }
+            $json['vids'] = $movs;
          }
-         $json['vids'] = $movs;
+      } else {
+         if(isset($old_json['pics']))
+            $json['pics'] = $old_json['pics'];
+         if(isset($old_json['vids']))
+            $json['vids'] = $old_json['vids'];
       }
 
+      $args = array(
+         'json' => &$json,
+         'old_json' => &$old_json,
+         'dir' => &$this,
+      );
       foreach($plugins as $plugin) {
          require_once('./pages/'.$plugin.'/index.php');
          $writeFunction = "Pages_".$plugin."_Index::writeJSON";
          if(is_callable($writeFunction)) 
-            $json = array_merge($json, call_user_func($writeFunction, $json, $old_json));
+            call_user_func($writeFunction, $args);
       } 
 
       /* Description parsing */

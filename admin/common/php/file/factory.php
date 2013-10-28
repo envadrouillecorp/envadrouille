@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -33,8 +33,6 @@ class File_Factory {
          return new File_Pic($path, $name);
       } else if(in_array($extension, array("mp4", "ogg", "ogv", "avi", "webm"))) {
          return new File_Movie($path, $name);
-      } else if(in_array($extension, array("gpx"))) {
-         return new File_GPX($path, $name);
       } else if(in_array($extension, array("json"))) {
          return new File_JSON($path, $name);
       } 

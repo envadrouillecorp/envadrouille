@@ -1,9 +1,14 @@
-<?
+<?php
 
 class GPXDir extends IndexDir {
    /*
     * GPX related functions
     */
+   public function getGPXs($limit = 0) {
+      return $this->_getFilesFiltered('GPX', $limit);
+   }
+
+
    private function getGPXUploadPath() {
       return $this->getJSONCacheDir()->completePath.'/data.gpx';
    }

@@ -48,7 +48,7 @@ var oldTheme = {
        for (var i in data.dirs) {
           var m = data.dirs[i].url.match( jGalleryModel.dirPattern );
           if(m) {  
-             data.dirs[i].year = m[3]+'-'+m[2]+'-'+m[1];
+             data.dirs[i].year = m[3]+((m[3]!='')?'-':'')+m[2]+'-'+m[1];
              data.dirs[i].title = m[4];
           } else {
              data.dirs[i].title = data.dirs[i].url;
@@ -74,8 +74,8 @@ var oldTheme = {
           };
        }
        $("#picsTpl").tmpl({Pics:pics, Num:3}).appendTo('#content');
-       $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,
-          maxWidth:'90%', maxHeight:'90%'
+       $script.ready(['colorbox'], function() {
+          $("a[rel*='gal']").colorbox({slideshow:true, slideshowSpeed:3500, slideshowAuto:false, loop:false,maxWidth:'90%',maxHeight:'90%'});
        });
 
        for (var i in data.pics) {
@@ -152,6 +152,13 @@ var oldTheme = {
             case 'vids': return oldTheme.showVids(json);
             default: return jGallery.defaultContent(content, json);
         }
-    }
+    },
+
+    init:function() {
+       jGallery.addCss('./themes/_common/colorbox.css', 'colorbox');
+    },
+    clean:function() {
+    },
 };
 config.loadedThemes['old'] = oldTheme;
+

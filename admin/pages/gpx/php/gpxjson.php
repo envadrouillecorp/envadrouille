@@ -1,4 +1,4 @@
-<?
+<?php
 
 class GPXJson extends IndexJson {
    public static function fromIndexJSON($json) {

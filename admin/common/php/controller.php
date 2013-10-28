@@ -18,7 +18,7 @@
 class Controller {
    static private $logged_in = false;
    static private $sid_match = false;
-   static private $sid = 'nosid';
+   static public  $sid = 'nosid';
 
    static public function getParameter($name, $default_value = '') {
       global $picpath;
@@ -68,19 +68,12 @@ class Controller {
       return $ret_val;
    }
 
-   static public function route($route=null) {
+   static public function route($route=null, $auth_login_redirect=false) {
       global $pages, $adm_pwd;
-
-      session_start();
-      if(isset($_SESSION['logged_in']))
-         Controller::$logged_in = true;
-      if(isset($_SESSION['random_sid']) && Controller::getParameter('random_sid') == $_SESSION['random_sid']) {
-         Controller::$sid_match = true;
-         Controller::$sid = $_SESSION['random_sid'];
-      }
-
       $pages['login'] = array('descr' => 'Login', 'pwdfree' => array('login', 'validate', 'logout'));
       $pages['index']['pwdfree'] = array('get_file');
+
+      session_start();
 
       if($route == null)
          $route = Controller::getParameter('action', 'index.main');
@@ -93,9 +86,30 @@ class Controller {
       if(!isset($action[1]))
          $action[1] = 'main';
 
-      if($adm_pwd!='' && (!isset($pages[$action[0]]['pwdfree']) || !in_array($action[1], $pages[$action[0]]['pwdfree']))) {
+      if(isset($_SESSION['logged_in']))
+         Controller::$logged_in = true;
+      if(isset($_SESSION['random_sid']) && Controller::getParameter('random_sid') == $_SESSION['random_sid']) {
+         Controller::$sid_match = true;
+         Controller::$sid = $_SESSION['random_sid'];
+      }
+      /* Special case for main pages and gallery update:                   *
+       * When no password was set, consider that the user is logged in     *
+       * + set the random_sid if the user is logged in.                    */
+      if((!isset($adm_pwd) || $adm_pwd === '' || Controller::$logged_in) && ($action[1] === "main" || $route === "options.update")) {
+         $_SESSION['logged_in'] = true;
+         Controller::$logged_in = true;
+         if(!isset($_SESSION['random_sid'])) {
+            $_SESSION['random_sid'] = rand();
+            Controller::$sid_match = true;
+         }
+      }
+      if(isset($_SESSION['random_sid']))
+         Controller::$sid = $_SESSION['random_sid'];
+
+
+      if((!isset($pages[$action[0]]['pwdfree']) || !in_array($action[1], $pages[$action[0]]['pwdfree']))) {
          if(!Controller::$logged_in) {
-            if($action[1] !== "main" && $route !== "options.change" && $route !== "options.changed") {
+            if(($action[1] !== "main" && $route !== "options.change" && $route !== "options.changed") && !$auth_login_redirect) {
                throw new Exception("Your session has expired, please reload the page");
             } else {
                require_once('pages/login/index.php');
@@ -103,23 +117,15 @@ class Controller {
                return;
             }
          }
-         if($action[1] !== "main" && !Controller::$sid_match)
+         if($action[1] !== "main" && $route !== "options.update" && !Controller::$sid_match)
             throw new Exception("Tried to perform AJAX request without providing the random SID");
-         if($action[1] === "main" 
+         if(($action[1] === "main" || $route === "options.update")
             && !Controller::$sid_match 
             && (!isset($_SESSION['random_sid']) || !is_numeric($_SESSION['random_sid']))) {
             $_SESSION['random_sid'] = rand();
+            Controller::$sid_match = true;
+            Controller::$sid = $_SESSION['random_sid'];
          }
-      }
-      // Special case for options.main. When we change the options and are pwdfree, that means we just successfully finished
-      // an install. Consider that the user is logged in that case.
-      // (Otherwise the user might be prompted with a "please log in screen" after leaving the install, which is wierd.
-      if($action[0] === "options"
-         && $action[1] === "main"
-         && (isset($pages[$action[0]]['pwdfree']) && in_array($action[1], $pages[$action[0]]['pwdfree']))) {
-            if(!isset($_SESSION['random_sid']) || !is_numeric($_SESSION['random_sid']))
-               $_SESSION['random_sid'] = rand();
-            $_SESSION['logged_in'] = true;
       }
 
       if($action[0] != 'login')
@@ -151,6 +157,10 @@ class Controller {
          'msg' => $msg,
          'arg' => $arg,
       );
+   }
+
+   public static function getPluginIndex($plugin) {
+      return "Pages_".ucfirst($plugin)."_Index";
    }
 };
 

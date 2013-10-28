@@ -77,7 +77,7 @@ function Dir(json) {
                detected_faces += json.faces.length;
                button.val(t('analyse_dir_p', [processed_pics, total_pics, detected_faces]));
                var writebatch = new Batch(SequentialBatch);
-               writebatch.get({action:'face.write_faces_json_partial',dir:face.path, img:face.name}, function() {
+               writebatch.get({action:'face.write_faces_json_partial',dir:face.path, img:face.name, faces:json.faces}, function() {
                   if(progresscb)
                      progresscb(total_pics, processed_pics, detected_faces);
                   $.each(json.faces, function(id, json) {

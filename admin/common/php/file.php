@@ -117,10 +117,14 @@ class File {
       return $ret;
    }
 
+   private static function fileSort1($a, $b) {
+      return strcmp($b->name, $a->name);
+   }
+   private static function fileSort2($a, $b) {
+      return strcmp($a->name, $b->name);
+   }
    public static function sort($fileArray, $reverse=false) {
-      usort($fileArray, function($a, $b) use($reverse) {
-         return $reverse?strcmp($b->name, $a->name):strcmp($a->name, $b->name);
-      });
+      usort($fileArray, $reverse?'File::fileSort1':'File::fileSort2');
       return $fileArray;
    }
 

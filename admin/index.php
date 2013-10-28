@@ -12,7 +12,7 @@ ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 
 
-$VERSION = '130711';
+$VERSION = '131019';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
@@ -117,11 +117,10 @@ if(!isset($CONFIG_VERSION)) {
       $pages = array(
          'options' => array(
             'descr' => "Update",
-            'pwdfree' => array('update', 'change'),
             'url' => "index.php?action=options.update",
          )
       );
-      Controller::route(Controller::getParameter('action', 'options.update'));
+      Controller::route(Controller::getParameter('action', 'options.update'), true);
 // everything looks ok, route the request 
 } else {
    $pages = File_JSON::myjson_decode($pages);

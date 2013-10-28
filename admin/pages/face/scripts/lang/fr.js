@@ -1,5 +1,5 @@
 known_sentences.concat({
-   'configure_face':'Veuillez vérifier la configuration de l\'API de reconnaissance faciale. Il manque probablement la clef privée, publique ou le namespace.',
+   'configure_face':'Veuillez vérifier la configuration de l\'API de reconnaissance faciale. Il manque probablement la clef privée, publique ou le namespace. Si vous voulez reconnaître les visages en utilisant les metadonnées des photos uniquement, ne spécifiez pas d\'API de reconnaissance faciale.',
    'analyse_dir': 'Rechercher des visages',
    'analyse_dir_p': 'Recherche... ({0} images analysées / {1}; {2} visages trouvés)',
    'expand_dir':'Afficher les sous-répertoires',

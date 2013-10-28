@@ -7,7 +7,7 @@
 var jGalleryModel = {
    cacheDir:'./cache',
    picsDir:'./pics',
-   dirPattern:/(\d+)-(\d+)-(\d+)[\s_](.*?)$/,
+   dirPattern:/(\d+)[-_\.\s](\d+)[-_\.\s]((?:\d+-?)?\d*)[-_\.\s]*(.*?)$/,
    
    urlToJSON: function(dir) {
       return jGalleryModel.cacheDir+'/json/'+dir+'cache.json';
@@ -265,27 +265,10 @@ var jGallery = {
             if(++done == 2)
                showT();
          }
-         function addCss(url) {
-            var link = document.createElement('link');
-            link.type = 'text/css';
-            link.rel = 'stylesheet';
-            link.id = 'themecssb';
-            link.href = url;
-
-            document.getElementsByTagName('head')[0].appendChild(link);
-
-            var img = document.createElement('img');
-            img.onerror = function(){
-               $('#themecss').remove();
-               $('#themecssb').attr('id', 'themecss');
-               tryShowT();
-            }
-            img.src = url;
-         }
          if(!jGallery.firstThemeSwitch) {
             /*if(navigator.appName == 'Microsoft Internet Explorer') 
                window.location.reload();*/
-            addCss('themes/'+t+'/main.css');
+            jGallery.addCss('themes/'+t+'/main.css', 'themecss', tryShowT);
             $('#themejs').remove();
             $script.loaded['themejs'] = false;
             $script('themes/'+t+'/main.js', 'themejs', function() { tryShowT(); });
@@ -296,6 +279,24 @@ var jGallery = {
       });
       });
       return false;
+   },
+
+   addCss:function(url, name, cb) {
+      var link = document.createElement('link');
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      link.id = name+'_tmp';
+      link.href = url;
+
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+      var img = document.createElement('img');
+      img.onerror = function(){
+         $('#'+name).remove();
+         $('#'+name+'_tmp').attr('id', name);
+         if(cb) cb();
+      }
+      img.src = url;
    },
 
    /* Common search stuff between all themes. */
@@ -501,6 +502,8 @@ var jGallery = {
             jGallery.search($(this).val());
          }
       });
+      colorbox(jQuery, window);
+      jGallery.theme.init();
       jGallery.theme.showHeader();
    },
 
@@ -510,7 +513,7 @@ var jGallery = {
    },
 };
 
-$script.ready(['jquery', 'themejs', 'colorbox'],function() {
+$script.ready(['jquery', 'themejs'],function() {
    if(config.picsDir)
       jGalleryModel.picsDir = config.picsDir;
    if(config.cacheDir)
@@ -535,7 +538,6 @@ $script.ready(['jquery', 'themejs', 'colorbox'],function() {
       })(jQuery);
 
       $(document).ready(function() {
-         colorbox(jQuery, window);
          if(config.pluginsInstances)
             for(var p in config.pluginsInstances)
                config.pluginsInstances[p].init();
@@ -569,3 +571,4 @@ window.onhashchange = function(){
       jGallery.switchPage(s);
    }
 };
+

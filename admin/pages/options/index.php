@@ -77,7 +77,7 @@ class Pages_Options_Index {
 
 
 
-   function changeAction() {
+   public static function changeAction() {
       global $VERSION;
 
       $template = new liteTemplate();

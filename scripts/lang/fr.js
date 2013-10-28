@@ -11,9 +11,4 @@ config.tr = {
 	'(No item matching search exactly found)':'(Aucun résultat exact trouvé)',
 	'(No search result)':'(Aucun résultat)',
 	'Search results for:':'Recherche de : ',
-	'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
-	'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
-	'during':'pendant',
-	'hours':'heures',
-	'Statistics':'Statistiques',
 };

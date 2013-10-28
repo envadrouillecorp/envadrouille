@@ -2,45 +2,88 @@
 ColorBox Core Style:
 The following CSS is consistent between example themes and should not be altered.
  */
-#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
-#cboxOverlay{position:fixed; width:100%; height:100%;}
-#cboxMiddleLeft, #cboxBottomLeft{clear:left;}
-#cboxContent{position:relative;}
-#cboxLoadedContent{overflow:auto; -webkit-overflow-scrolling: touch;}
-#cboxTitle{margin:0;}
+#colorbox{}
+#cboxOverlay{background:#000;}
 #cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%; height:100%;}
 #cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow, #cboxFullScreen {cursor:pointer;}
-.cboxPhoto{float:left; margin:auto; border:0; display:block; max-width:none;}
-.cboxIframe{width:100%; height:100%; display:block; border:0;}
-#colorbox, #cboxContent, #cboxLoadedContent{box-sizing:content-box; -moz-box-sizing:content-box; -webkit-box-sizing:content-box;}
-#cboxOverlay{background:#000;}
-#colorbox{}
-#cboxTopLeft{width:14px; height:14px; background:url(controls.png) no-repeat 0 0;}
-#cboxTopCenter{height:14px; background:url(border.png) repeat-x top left;}
-#cboxTopRight{width:14px; height:14px; background:url(controls.png) no-repeat -36px 0;}
-#cboxBottomLeft{width:14px; height:43px; background:url(controls.png) no-repeat 0 -32px;}
-#cboxBottomCenter{height:43px; background:url(border.png) repeat-x bottom left;}
-#cboxBottomRight{width:14px; height:43px; background:url(controls.png) no-repeat -36px -32px;}
-#cboxMiddleLeft{width:14px; background:url(controls.png) repeat-y -175px 0;}
-#cboxMiddleRight{width:14px; background:url(controls.png) repeat-y -211px 0;}
-#cboxContent{background:#fff; overflow:visible;}
-.cboxIframe{background:#fff;}
-#cboxError{padding:50px; border:1px solid #ccc;}
-#cboxLoadedContent{margin-bottom:5px;}
 #cboxLoadingOverlay{background:url(loading_background.png) no-repeat center center;}
 #cboxLoadingGraphic{background:url(loading.gif) no-repeat center center;}
-#cboxTitle{position:absolute; bottom:-25px; left:0; text-align:center; width:100%; font-weight:bold; color:#7C7C7C;}
-#cboxCurrent{position:absolute; bottom:-25px; left:58px; font-weight:bold; color:#7C7C7C;}
-#cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow, #cboxFullScreen{position:absolute; bottom:-29px; background:url(controls.png) no-repeat 0px 0px; width:23px; height:23px; text-indent:-9999px;}
-#cboxPrevious{left:0px; background-position: -51px -25px;}
-#cboxPrevious:hover{background-position:-51px 0px;}
-#cboxNext{left:27px; background-position:-75px -25px;}
-#cboxNext:hover{background-position:-75px 0px;}
-#cboxClose{right:0; background-position:-100px -25px;}
-#cboxClose:hover{background-position:-100px 0px;}
-#cboxFullScreen{right:27px; background-position:-150px -50px;}
-#cboxFullScreen:hover{right:27px; background-position:-125px -50px;}
+#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
+#cboxOverlay{position:fixed; width:100%; height:100%;}
+
+.nfs #cboxMiddleLeft, #cboxBottomLeft{clear:left;}
+.nfs #cboxContent{position:relative;}
+.nfs #cboxLoadedContent{overflow:auto; -webkit-overflow-scrolling: touch;}
+.nfs #cboxTitle{margin:0;}
+.nfs .cboxPhoto{float:left; margin:auto; border:0; display:block; max-width:none;}
+.nfs .cboxIframe{width:100%; height:100%; display:block; border:0;}
+.nfs #colorbox, .nfs #cboxContent, .nfs #cboxLoadedContent{box-sizing:content-box; -moz-box-sizing:content-box; -webkit-box-sizing:content-box;}
+.nfs #cboxTopLeft{width:14px; height:14px; background:url(controls.png) no-repeat 0 0;}
+.nfs #cboxTopCenter{height:14px; background:url(border.png) repeat-x top left;}
+.nfs #cboxTopRight{width:14px; height:14px; background:url(controls.png) no-repeat -36px 0;}
+.nfs #cboxBottomLeft{width:14px; height:43px; background:url(controls.png) no-repeat 0 -32px;}
+.nfs #cboxBottomCenter{height:43px; background:url(border.png) repeat-x bottom left;}
+.nfs #cboxBottomRight{width:14px; height:43px; background:url(controls.png) no-repeat -36px -32px;}
+.nfs #cboxMiddleLeft{width:14px; background:url(controls.png) repeat-y -175px 0;}
+.nfs #cboxMiddleRight{width:14px; background:url(controls.png) repeat-y -211px 0;}
+.nfs #cboxContent{background:#fff; overflow:visible;}
+.nfs .cboxIframe{background:#fff;}
+.nfs #cboxError{padding:50px; border:1px solid #ccc;}
+.nfs #cboxLoadedContent{margin-bottom:5px;}
+.nfs #cboxTitle{position:absolute; bottom:-25px; left:0; text-align:center; width:100%; font-weight:bold; color:#7C7C7C;}
+.nfs #cboxCurrent{position:absolute; bottom:-25px; left:58px; font-weight:bold; color:#7C7C7C;}
+.nfs #cboxPrevious, .nfs #cboxNext, .nfs #cboxClose, .nfs #cboxSlideshow, .nfs #cboxFullScreen, .nfs #cboxShowOriginal{position:absolute; bottom:-29px; background:url(controls.png) no-repeat 0px 0px; width:23px; height:23px; text-indent:-9999px;}
+.nfs #cboxPrevious{left:0px; background-position: -51px -25px;}
+.nfs #cboxPrevious:hover{background-position:-51px 0px;}
+.nfs #cboxNext{left:27px; background-position:-75px -25px;}
+.nfs #cboxNext:hover{background-position:-75px 0px;}
+.nfs #cboxClose{right:0; background-position:-100px -25px;}
+.nfs #cboxClose:hover{background-position:-100px 0px;}
+.nfs #cboxShowOriginal{right:27px; background-position:-75px -50px;}
+.nfs #cboxShowOriginal:hover{right:27px; background-position:-101px -50px;}
+.nfs #cboxFullScreen{right:27px; background-position:-150px -50px;}
+.nfs #cboxFullScreen:hover{right:27px; background-position:-125px -50px;}
 .cboxSlideshow_on #cboxSlideshow{background-position:-125px 0px; right:27px;}
 .cboxSlideshow_on #cboxSlideshow:hover{background-position:-150px 0px;}
 .cboxSlideshow_off #cboxSlideshow{background-position:-150px -25px; right:27px;}
 .cboxSlideshow_off #cboxSlideshow:hover{background-position:-125px 0px;}
+
+.fullscreen #cboxPrevious, .fullscreen #cboxNext {
+    height: 100%;
+    position: fixed;
+    text-indent: -9999px;
+    top: 0;
+    width: 150px;
+    opacity:0.8;
+}
+.fullscreen #cboxPrevious:hover, .fullscreen #cboxNext:hover {
+   opacity:1;
+}
+.fullscreen #cboxPrevious {
+    background: url("fsprev.png") no-repeat scroll 0 center transparent;
+    left: 0;
+}
+.fullscreen #cboxNext {
+    background: url("fsnext.png") no-repeat scroll 100px center transparent;
+    right: 0;
+}
+.fullscreen #cboxClose{ 
+    position: fixed;
+    right:10px;
+    top:10px; 
+    background: url("fsclose.png") no-repeat scroll 11px 8px transparent;
+    width:50px;
+    height:50px;
+    text-indent: -9999px;
+}
+.fullscreen #cboxSlideshow{ position: fixed; left:10%; bottom:20px; opacity:0.1;width:80%;height:70px; text-indent:-9999px;}
+.fullscreen #cboxSlideshow:hover { opacity:1 }
+.cboxSlideshow_on .fullscreen #cboxSlideshow{
+    background: url("pause.png") no-repeat scroll center center transparent;
+}
+.cboxSlideshow_off .fullscreen #cboxSlideshow{
+    background: url("play.png") no-repeat scroll center center transparent;
+}
+
+.fullscreen #cboxTitle, .fullscreen #cboxCurrent { display:none!important }
+.fullscreen #cboxLoadingOverlay, .fullscreen #cboxLoadingGraphic { position:fixed }

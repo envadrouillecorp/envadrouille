@@ -1,5 +1,5 @@
 known_sentences.concat({
-   'configure_face':'Please check the facial recognition configuration options in the "options" menu. Either the facial API provider is incorrect or you miss the API namespace, private or public keys.',
+   'configure_face':'Please check the facial recognition configuration options in the "options" menu. You have set a facial recognition API but you miss either the API namespace, the private or the public key. If you want to use XMP based detection only, do not select an API provider.',
    'analyse_dir': 'Detect faces in directory',
    'analyse_dir_p': 'Detecting faces... ({0} pictures analysed / {1}; {2} faces found)',
    'expand_dir':'Show subdirectories',

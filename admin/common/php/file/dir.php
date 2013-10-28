@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -65,10 +65,6 @@ class File_Dir extends File {
 
    public function getMovies($limit = 0) {
       return $this->_getFilesFiltered('File_Movie', $limit);
-   }
-
-   public function getGPXs($limit = 0) {
-      return $this->_getFilesFiltered('File_GPX', $limit);
    }
 
    public function getJSONs($limit = 0) {

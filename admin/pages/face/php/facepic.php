@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -17,16 +17,81 @@ class FacePic extends IndexPic {
    }
 
    public function detectFaces() {
-      $api = $this->getFaceAPI();
       $thumbs = $this->getThumbList();
       $thumb = $thumbs[0];
 
       if(!$thumb->exists())
          throw new Exception("Cannot detect face on $this->completePath (missing thumbnail)");
 
-      $i = 0;
-      $facesrect = $api->faces_detect($thumb->getPublicUrl());
       $faces = array();
+      if(isset($GLOBALS['face_use_xmp']) && $GLOBALS['face_use_xmp'] !== '')
+         $faces = $this->detectFacesXmp($thumb);
+      if(count($faces) === 0 && isset($GLOBALS['face_plugin']) && $GLOBALS['face_plugin'] !== '') 
+         $faces = $this->detectFacesApi($thumb);
+
+      return $faces;
+   }
+
+   public function detectFacesXmp($thumb) {
+      $facesrect = array();
+      $dir = new FaceDir($this->path);
+
+      ob_start();
+      readfile($this->completePath);
+      $source = ob_get_contents();
+      ob_end_clean();
+
+      $xmpdata_start = strpos($source,"<x:xmpmeta");
+      $xmpdata_end = strpos($source,"</x:xmpmeta>");
+      if($xmpdata_start === FALSE || $xmpdata_end === FALSE)
+         return $facesrect;
+      $xmplength = $xmpdata_end-$xmpdata_start;
+      $xmpdata = substr($source,$xmpdata_start,$xmplength+12);
+
+      $dom = new DOMDocument;
+      $dom->loadXML($xmpdata);
+
+      $xpath = new DOMXPath($dom);
+      $xpath->registerNamespace('mwg-rs', "http://www.metadataworkinggroup.com/schemas/regions/");
+      $xpath->registerNamespace('stDim', "http://ns.adobe.com/xap/1.0/sType/Dimensions#");
+
+      $query = '//*[@mwg-rs:Type="Face"]';
+      $elements = $xpath->query($query);
+      foreach ($elements as $field) {
+         $face = array(
+            'peoplename' => $field->getAttribute('mwg-rs:Name'),
+         );
+
+         //for some reason getElementsByTagName does not work here...
+         foreach($field->childNodes as $child) {
+            if(!isset($child->tagName) || $child->tagName != 'mwg-rs:Area')
+               continue;
+            $face['width'] = $child->getAttribute('stArea:w') * 100;
+            $face['height'] = $child->getAttribute('stArea:h') * 100;
+            $face['x'] =  $child->getAttribute('stArea:x') * 100 - $face['width'] / 2;
+            $face['y'] = $child->getAttribute('stArea:y') * 100 - $face['height'] / 2;
+            $face['scaled'] = ($child->getAttribute('stArea:unit') === 'normalized');
+            if(!$face['scaled'])
+               throw new Exception("Unsupported XMP metadata - facerect is not scaled\n");
+         }
+
+         if(isset($face['x']))
+            $facesrect[] = $face;
+      }
+
+      return $this->facesFromFacerect($thumb, $facesrect);
+   }      
+
+   public function detectFacesApi($thumb) {
+      $api = $this->getFaceAPI();
+      $facesrect = $api->faces_detect($thumb->getPublicUrl());
+      return $this->facesFromFacerect($thumb, $facesrect);
+   }
+
+   private function facesFromFacerect($thumb, $facesrect) {
+      $faces = array();
+
+      $i = 0;
       foreach($facesrect as $facerect) {
          if(isset($facerect['scaled']) && $facerect['scaled']) {
             $size = $thumb->getSize();
@@ -40,7 +105,7 @@ class FacePic extends IndexPic {
             $dir->getFaceCacheDir(),
             $this->getFaceName($i),
             $thumb,
-            null,
+            isset($facerect['peoplename'])?$facerect['peoplename']:null,
             null,
             150,
             150,

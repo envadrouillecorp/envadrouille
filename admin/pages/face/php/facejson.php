@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
@@ -16,6 +16,7 @@
 class FaceJSON extends File_JSON {
    public $use_full_path = false;
    public $masterDirectory = null; // Directory that is represented by this JSON
+   private $modifTimeName = 'lastupdate'; //should be static but that makes APC crash...
 
    public function __construct($path, $name = '', $check_existence = '', $masterDirectory = null) {
       parent::__construct($path, $name, $check_existence);
@@ -32,6 +33,8 @@ class FaceJSON extends File_JSON {
 
       $ret = array();
       foreach($this->container['pics'][$selector] as $faceuid=>$bool) {
+         if($faceuid == $this->modifTimeName)
+            continue;
          $face = $this->container['faces'][$faceuid];
          $ret[] = new Face(
             $face['path'],
@@ -47,6 +50,11 @@ class FaceJSON extends File_JSON {
    public function containsPic($pic) {
       $selector = $this->use_full_path?$pic->completePath:$pic->name;
       return (isset($this->container['pics']) && isset($this->container['pics'][$selector]));
+   }
+
+   public function containsUptodatePic($pic) {
+      $selector = $this->use_full_path?$pic->completePath:$pic->name;
+      return $this->containsPic($pic) && ($this->container['pics'][$selector][$this->modifTimeName] >= filemtime($pic->completePath));
    }
 
    public function containsFace($face) {
@@ -72,6 +80,7 @@ class FaceJSON extends File_JSON {
          $this->container['pics'] = array();
       if(!isset($this->container['pics'][$selector]))
          $this->container['pics'][$selector] = array();
+      $this->container['pics'][$selector][$this->modifTimeName] = filemtime($pic->completePath);
    }
 
    public function addFace($face) {
@@ -178,6 +187,8 @@ class FaceJSON extends File_JSON {
                unset($this->container['pics'][$pic]);
             } else {
                foreach($faces as $f=>$bool) {
+                   if($f == $this->modifTimeName)
+                      continue;
                   if(!isset($this->container['faces'])
                     || !isset($this->container['faces'][$f]))
                      unset($this->container['pics'][$pic][$f]);

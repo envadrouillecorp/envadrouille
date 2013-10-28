@@ -19,9 +19,10 @@ class Options {
       // Add a page for each directory in /pages
       foreach($dir->getDirs() as $d) {
          require_once ("$d->path/$d->name/index.php");
-         $description = eval('return Pages_'.$d->name.'_Index::$description;');
-         $include = eval('return Pages_'.$d->name.'_Index::$showOnMenu;');
-         $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
+         $classn = Controller::getPluginIndex($d->name);
+         $description = eval('return '.$classn.'::$description;');
+         $include = eval('return '.$classn.'::$showOnMenu;');
+         $optional = eval('return '.$classn.'::$isOptional;');
          $activated = false;
          if(!$optional) {
             $activated = true;
@@ -45,7 +46,8 @@ class Options {
       
       foreach($dir->getDirs() as $d) {
          require_once ("$d->path/$d->name/index.php");
-         $is_plugin = eval('return isset(Pages_'.$d->name.'_Index::$userContentName);');
+         $classn = Controller::getPluginIndex($d->name);
+         $is_plugin = eval('return isset('.$classn.'::$userContentName);');
          $activated = isset($_POST[$d->name.'_activated']);
          if($activated && $is_plugin) 
             $plugins[] = $d->name;
@@ -55,14 +57,7 @@ class Options {
 
 
    // Get configuration hooks from all pages/ * /index.php files
-   public static function getOptions() {
-      $options = array();
-      $userContent = Options::$defaultContent;
-      $oldUserContent = isset($GLOBALS['content_order'])?explode(',', $GLOBALS['content_order']):$userContent;
-
-      $dir = new File_Dir("./pages");
-      $dirs = $dir->getDirs();
-      usort($dirs, function($a, $b) {
+   private static function optSort($a, $b) {
           if($a->name == "update")
               return -1;
           if($b->name == "update")
@@ -72,16 +67,26 @@ class Options {
           if($b->name ==  "options")
               return 1;
           return strcmp($a->name, $b->name);
-      });
+      }
+
+   public static function getOptions() {
+      $options = array();
+      $userContent = Options::$defaultContent;
+      $oldUserContent = isset($GLOBALS['content_order'])?explode(',', $GLOBALS['content_order']):$userContent;
+
+      $dir = new File_Dir("./pages");
+      $dirs = $dir->getDirs();
+      usort($dirs, 'Options::optSort');
       foreach($dirs as $d) {
          require_once ("$d->path/$d->name/index.php");
-         $optionFunction = "Pages_".$d->name."_Index::getOptions";
-         $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
+         $classn = Controller::getPluginIndex($d->name);
+         $optionFunction = $classn."::getOptions";
+         $optional = eval('return '.$classn.'::$isOptional;');
          $optional_default = false;
          if($optional && !isset($GLOBALS[$d->name.'_activated'])) {
-             $optional_default = eval('return isset(Pages_'.$d->name.'_Index::$activatedByDefault) && (Pages_'.$d->name.'_Index::$activatedByDefault);');
+             $optional_default = eval('return isset('.$classn.'::$activatedByDefault) && ('.$classn.'::$activatedByDefault);');
          }
-         $description = eval('return Pages_'.$d->name.'_Index::$description;');
+         $description = eval('return '.$classn.'::$description;');
          if($optional) {
             $options[] = array('id' => $d->name.'_activated', 'type' => 'checkbox', 'cat' => $description, 'default' => $optional_default?$optional_default:false);
          }
@@ -89,15 +94,15 @@ class Options {
             $page_options = call_user_func($optionFunction);
             $options = array_merge($options, $page_options);
          }
-         $userContentName = eval('return isset(Pages_'.$d->name.'_Index::$userContentName)?(Pages_'.$d->name.'_Index::$userContentName):false;');
-         $hasUserContentPos = eval('return isset(Pages_'.$d->name.'_Index::$userContentDefaultPosition)?(Pages_'.$d->name.'_Index::$userContentDefaultPosition):0;');
+         $userContentName = eval('return isset('.$classn.'::$userContentName)?('.$classn.'::$userContentName):false;');
+         $hasUserContentPos = eval('return isset('.$classn.'::$userContentDefaultPosition)?('.$classn.'::$userContentDefaultPosition):0;');
          if($userContentName && !in_array($userContentName, $userContent)) 
             array_splice( $userContent, $hasUserContentPos, 0, $userContentName ); 
          if($userContentName && !in_array($userContentName, $oldUserContent)) 
             array_splice( $oldUserContent, $hasUserContentPos, 0, $userContentName ); 
       }
       foreach($options as &$opt) {
-         $opt['val'] = isset($GLOBALS[$opt['id']])?$GLOBALS[$opt['id']]:'';
+         $opt['val'] = isset($GLOBALS[$opt['id']])?$GLOBALS[$opt['id']]:null;
       }
 
       $content = array();
@@ -259,7 +264,8 @@ class UserOptions {
       $dir = new File_Dir("./pages");
       foreach($dir->getDirs() as $d) {
          require_once ("$d->path/$d->name/index.php");
-         $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
+         $classn = Controller::getPluginIndex($d->name);
+         $optional = eval('return '.$classn.'::$isOptional;');
          $activated = false;
          if(!$optional) {
             $activated = true;
@@ -269,20 +275,20 @@ class UserOptions {
          if(!$activated)
             continue;
 
-         $optionFunction = "Pages_".$d->name."_Index::getUserScripts";
+         $optionFunction = $classn."::getUserScripts";
          if(is_callable($optionFunction)) {
             $plugin_scripts = call_user_func($optionFunction);
             $scripts = array_merge($scripts, $plugin_scripts);
          }
 
-         $optionFunction = "Pages_".$d->name."_Index::getUserFunctions";
+         $optionFunction = $classn."::getUserFunctions";
          if(is_callable($optionFunction)) {
             $plugin_fun = call_user_func($optionFunction);
             $functions = array_merge($functions, $plugin_fun);
          }
 
 
-         $optionFunction = "Pages_".$d->name."_Index::getOptions";
+         $optionFunction = $classn."::getOptions";
          if(is_callable($optionFunction)) {
             $plugin_options = call_user_func($optionFunction);
             foreach($plugin_options as $o) {
@@ -314,8 +320,9 @@ class UserOptions {
       $dirs = $dir->getDirs();
       foreach($dirs as $d) {
          require_once ("$d->path/$d->name/index.php");
-         $optional = eval('return Pages_'.$d->name.'_Index::$isOptional;');
-         $userContentName = eval('return isset(Pages_'.$d->name.'_Index::$userContentName)?(Pages_'.$d->name.'_Index::$userContentName):false;');
+         $classn = Controller::getPluginIndex($d->name);
+         $optional = eval('return '.$classn.'::$isOptional;');
+         $userContentName = eval('return isset('.$classn.'::$userContentName)?('.$classn.'::$userContentName):false;');
          if($userContentName) {
             if(!$optional)               
                $content_activated[$userContentName] = 1;

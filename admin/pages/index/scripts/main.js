@@ -190,7 +190,7 @@ $(document).ready(function() {
    function add_form_hooks(dir, div) {
       var elts = [ $('#d_'+div) , $('#c_'+div), $('#h_'+div) ];
       for(var p in plugins)
-         elts.concat(plugins[p].getHooks(dir, div));
+         elts = elts.concat(plugins[p].getHooks(dir, div));
 
       var orig_values = [];
       $('#'+div).removeClass('to_update');
