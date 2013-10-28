@@ -1,4 +1,4 @@
-EnVadrouille is a fast and powerful photo gallery that works without an SQL database. It does not even require PHP, once it has been set up. Live demo: http://demo.envadrouille.org
+EnVadrouille is a fast and powerful photo gallery that works without an SQL database. It does not even require PHP, once it has been set up. Live demo: http://envadrouille.org
 
 As other photo galleries, EnVadrouille displays pictures. But it also has more cool features, EnVadrouille:
 * Displays videos (ogv, mp4)
