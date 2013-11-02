@@ -50,6 +50,8 @@ function jGPX(data) {
   var alwaysUseGMapsElevation = true;
   var minMeaningfulElevationDiff = 40;
   var chartDetails = '';
+  var chart;
+  var distances;
 
   function distance(points, segments) {
      var ret = [];
@@ -126,6 +128,19 @@ function jGPX(data) {
            newpoint++;
         if(segments[i])
            ret[newpoint - 1] = 1;
+     }
+     return ret;
+  }
+
+  function indexesToReducedIndexes(points, segments) {
+     var len = points.length;
+     var stripe = Math.floor(len / maxNbPoints);
+     var ret = [];
+     var j = -1;
+     for(var i = 0; i < len; i++) {
+        if(i%(stripe+1)==0 || segments[i] == 1 || segments[i+1] == 1)
+           j++;
+        ret[i] = j;
      }
      return ret;
   }
@@ -217,7 +232,7 @@ function jGPX(data) {
 
   function drawElevation(elev, points, times, map, segments) {
      function drawChart() {
-        var distances = distance(points, segments);
+        distances = distance(points, segments);
         var speeds = speed(distances, times);
         var elevations = elevation(elev, distances);
 
@@ -241,7 +256,7 @@ function jGPX(data) {
         var elevationName = '<span>'+jGalleryModel.translate('Altitude - Total Elevation: ')+'</span>'+totalElevation(elev, segments)+'m';
         var speedName = '<span>'+jGalleryModel.translate('Speed - Average: ')+'</span>'+averageSpeed(distances, times, segments)+'km/h (<span>'+jGalleryModel.translate('during')+'</span> '+totalTime(times, segments, true)+' <span>'+jGalleryModel.translate('hours')+'</span>)';
 
-        var chart = new Highcharts.Chart({
+        chart = new Highcharts.Chart({
            chart: {
               renderTo: 'chart_div',
               zoomType: 'xy',
@@ -377,7 +392,7 @@ function jGPX(data) {
      var index = binSearch(date, times);
      if(index == -1)
         return null;
-     return points[index];
+     return index;
   }
 
   function addRefugeInfo(options)  {
@@ -508,6 +523,7 @@ function jGPX(data) {
      }
 
      if(config.geolocalization) {
+        var reducedIndexes = null;
         $script('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclustererplus/src/markerclusterer_packed.js', 'gmapsclusters', function() {
            var geopics = [];
            for(var i in data.pics) {
@@ -521,9 +537,9 @@ function jGPX(data) {
                  bounds.extend(p);
               } else if(xmls && config.geo_use_time) {
                  var p = getPositionWithTime(pic.coords, points, times, data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
-                 if(p) {
-                    geopics.push([p, pic.url]);
-                    bounds.extend(p);
+                 if(p !== null) {
+                    geopics.push([points[p], pic.url, p]);
+                    bounds.extend(points[p]);
                  }
               }
            }
@@ -559,7 +575,7 @@ function jGPX(data) {
               google.maps.event.addListener(marker, 'click', function() {
                  $('a[href$="'+geopics[this.get('geopicid')][1]+'"]').click();
               });
-              $('a[href$="'+geopics[i][1]+'"]').find('img').mouseenter({marker:marker}, function(event) {
+              $('a[href$="'+geopics[i][1]+'"]').find('img').mouseenter({index:geopics[i][2],marker:marker}, function(event) {
                  event.data.marker.setAnimation(google.maps.Animation.BOUNCE);
                  var cluster = findCluster(event.data.marker);
                  if(cluster) {
@@ -569,7 +585,17 @@ function jGPX(data) {
                        bounce($(cluster));
                     }
                  }
-              }).mouseout({marker:marker}, function(event) {
+		 if(chart && distances) {
+                    if(reducedIndexes == null)
+                       reducedIndexes = indexesToReducedIndexes(points, segments);
+	            var index = reducedIndexes[event.data.index];
+                    if(index >= 0 && (index + 1 < distances.length)) {
+                       var from = distances[index];
+                       var to = distances[index + 1];
+                       chart.xAxis[0].addPlotBand({from:from, to:to, color:'#F00', id:'pichover'+event.data.index});
+		    }
+		 }
+              }).mouseout({index:geopics[i][2],marker:marker}, function(event) {
                  event.data.marker.setAnimation(null);
                  var cluster = findCluster(event.data.marker);
                  if(cluster) {
@@ -579,6 +605,9 @@ function jGPX(data) {
                        $(cluster).stop().stop().css('marginTop', '0');
                     }
                  }
+		 if(chart && distances) {
+                    chart.xAxis[0].removePlotBand('pichover'+event.data.index);
+		 }
               });
               markers.push(marker);
            }
