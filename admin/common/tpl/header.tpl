@@ -11,20 +11,20 @@
       var plugins = [];
       </script>
 
-		<script type="text/javascript" src="common/scripts/jquery.min.js"></script>
-		<script type="text/javascript" src="common/scripts/jquery.tmpl.js"></script>
+		<script type="text/javascript" src="common/scripts/jquery.min.js?{$VERSION}"></script>
+		<script type="text/javascript" src="common/scripts/jquery.tmpl.js?{$VERSION}"></script>
       <script type="text/javascript" src="common/scripts/utils.js"></script>
 
-      <script type="text/javascript" src="common/scripts/lang/{$lang}.js"></script>
-      <script type="text/javascript" src="common/scripts/lang/common.js"></script>
-      <script type="text/javascript" src="pages/{$page}/scripts/main.js"></script>
-      <script type="text/javascript" src="pages/{$page}/scripts/lang/{$lang}.js"></script>
+      <script type="text/javascript" src="common/scripts/lang/{$lang}.js?{$VERSION}"></script>
+      <script type="text/javascript" src="common/scripts/lang/common.js?{$VERSION}"></script>
+      <script type="text/javascript" src="pages/{$page}/scripts/main.js?{$VERSION}"></script>
+      <script type="text/javascript" src="pages/{$page}/scripts/lang/{$lang}.js?{$VERSION}"></script>
       {SCRIPT id=1}
-      <script type="text/javascript" src="{$js_url}"></script>
+      <script type="text/javascript" src="{$js_url}?{$VERSION}"></script>
       {/SCRIPT}
 
-		<link media="all" type="text/css" href="common/css/utils.css" rel="stylesheet">
-      <link media="all" type="text/css" href="pages/{$page}/css/main.css" rel="stylesheet">
+		<link media="all" type="text/css" href="common/css/utils.css?{$VERSION}" rel="stylesheet">
+      <link media="all" type="text/css" href="pages/{$page}/css/main.css?{$VERSION}" rel="stylesheet">
       <script type="text/javascript">
 		$(document).ready(function() {
 			var __saved_current = $('#head #current').html();

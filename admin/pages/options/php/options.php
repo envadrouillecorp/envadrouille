@@ -253,6 +253,8 @@ class UserOptions {
    }
 
    public static function getPlugins($new_values) {
+      global $VERSION;
+
       $options = Options::getOptions();
       $scripts = array();
       $functions = array();
@@ -303,6 +305,9 @@ class UserOptions {
             }
          }
       }
+
+      $plugin_variables['PLUGIN_VAR'][] = 'VERSION';
+      $plugin_variables['PLUGIN_VAL'][] = $VERSION;
 
       return array(
          'scripts' => array('PLUGIN_URL' => $scripts),

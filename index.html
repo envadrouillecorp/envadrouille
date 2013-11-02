@@ -57,7 +57,8 @@
             for (var i = 0, j = ar.length; i < j; ++i) { fn(ar[i]) };
          }
          function first(ar) { for (var firstKey in ar) break; return firstKey; }
-         $script = function(path, name, cb) {
+	 $script = function(path, name, cb) {
+            if(path.indexOf('http') !== 0) path = path + '?' + config.VERSION;
             if($script.loaded[name]) { if(cb) cb(false); return; }
             var e = document.createElement('script'); $script.loaded[name] = false;
             e.onload = e.onerror = e['onreadystatechange'] = function () {

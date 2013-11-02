@@ -282,6 +282,8 @@ var jGallery = {
    },
 
    addCss:function(url, name, cb) {
+      url = url + '?' + config.VERSION;
+
       var link = document.createElement('link');
       link.type = 'text/css';
       link.rel = 'stylesheet';
