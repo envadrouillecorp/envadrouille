@@ -490,17 +490,17 @@ var jGallery = {
       var lastSearchboxVal = '';
       $('#searchbox').val(lastSearchboxVal);
       $('#searchbox').example(function() { return jGalleryModel.translate('Type here to search for a gallery...') }, {className: 'example'});
-      $('#searchbox').change(function() {
-         if($(this).val() != lastSearchboxVal) {
-            lastSearchboxVal = $(this).val();
-            jGallery.search($(this).val());
+      function searchboxChange(val, force) {
+         if(force || (val != lastSearchboxVal && val != jGalleryModel.translate('Type here to search for a gallery...'))) {
+            lastSearchboxVal = val;
+            jGallery.search(val);
          }
+      }
+      $('#searchbox').change(function() {
+         searchboxChange($(this).val(), false);
       });
       $('#searchbox').keyup(function(ev) {
-         if($(this).val() != lastSearchboxVal || ev.keyCode == 13) {
-            lastSearchboxVal = $(this).val();
-            jGallery.search($(this).val());
-         }
+         searchboxChange($(this).val(), ev.keyCode == 13);
       });
       colorbox(jQuery, window);
       jGallery.theme.init();
