@@ -5,15 +5,15 @@ The following CSS is consistent between example themes and should not be altered
 #colorbox{}
 #cboxOverlay{background:#000;}
 #cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%; height:100%;}
-#cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow, #cboxFullScreen {cursor:pointer;}
+#cboxPrevious2, #cboxNext2, #cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow, #cboxFullScreen {cursor:pointer;}
 #cboxLoadingOverlay{background:url(loading_background.png) no-repeat center center;}
 #cboxLoadingGraphic{background:url(loading.gif) no-repeat center center;}
-#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
+#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:visible;}
 #cboxOverlay{position:fixed; width:100%; height:100%;}
 
 .nfs #cboxMiddleLeft, #cboxBottomLeft{clear:left;}
 .nfs #cboxContent{position:relative;}
-.nfs #cboxLoadedContent{overflow:auto; -webkit-overflow-scrolling: touch;}
+.nfs #cboxLoadedContent{overflow:auto; }
 .nfs #cboxTitle{margin:0;}
 .nfs .cboxPhoto{float:left; margin:auto; border:0; display:block; max-width:none;}
 .nfs .cboxIframe{width:100%; height:100%; display:block; border:0;}
@@ -48,7 +48,10 @@ The following CSS is consistent between example themes and should not be altered
 .cboxSlideshow_off #cboxSlideshow{background-position:-150px -25px; right:27px;}
 .cboxSlideshow_off #cboxSlideshow:hover{background-position:-125px 0px;}
 
-.fullscreen #cboxPrevious, .fullscreen #cboxNext {
+.fullscreen #cboxPrevious2, .fullscreen #cboxNext2 {
+    display:none !important;
+}
+.fullscreen #cboxPrevious, .fullscreen #cboxNext, .nfs #cboxPrevious2, .nfs #cboxNext2 {
     height: 100%;
     position: fixed;
     text-indent: -9999px;
@@ -56,14 +59,14 @@ The following CSS is consistent between example themes and should not be altered
     width: 150px;
     opacity:0.8;
 }
-.fullscreen #cboxPrevious:hover, .fullscreen #cboxNext:hover {
+.fullscreen #cboxPrevious:hover, .fullscreen #cboxNext:hover, .nfs #cboxPrevious2:hover, .nfs #cboxNext2:hover {
    opacity:1;
 }
-.fullscreen #cboxPrevious {
+.fullscreen #cboxPrevious, .nfs #cboxPrevious2 {
     background: url("fsprev.png") no-repeat scroll 0 center transparent;
     left: 0;
 }
-.fullscreen #cboxNext {
+.fullscreen #cboxNext, .nfs #cboxNext2 {
     background: url("fsnext.png") no-repeat scroll 100px center transparent;
     right: 0;
 }
@@ -75,6 +78,7 @@ The following CSS is consistent between example themes and should not be altered
     width:50px;
     height:50px;
     text-indent: -9999px;
+    z-index:999999;
 }
 .fullscreen #cboxSlideshow{ position: fixed; left:10%; bottom:20px; opacity:0.1;width:80%;height:70px; text-indent:-9999px;}
 .fullscreen #cboxSlideshow:hover { opacity:1 }
