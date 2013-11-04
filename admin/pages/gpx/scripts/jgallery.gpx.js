@@ -262,7 +262,7 @@ function jGPX(data) {
               backgroundColor:'transparent',
               animation:false,
            },
-           title: { useHTML:true, text: '<abbr title="'+chartDetails+'" style="text-decoration:none">'+jGalleryModel.translate('Statistics')+'</abbr>' },
+           title: { useHTML:true, text: '<abbr title="'+chartDetails+'" style="border-bottom-width:0">'+jGalleryModel.translate('Statistics')+'</abbr>' },
            xAxis: { title: {text:jGalleryModel.translate('Distance')+' (km)'} },
            yAxis: [{
               labels: {

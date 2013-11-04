@@ -15,6 +15,7 @@ var jGalleryModel = {
 
    /* Read a JSON object. We maintain a cache because current browsers caches don't deal very well with the TTL of JSON objects... (JSONs are often not cached at all) */
    savedJSON : [],
+   currentDir: '',
    alternateURL:function(url, number) {
       switch(number) {
          case 0:
@@ -38,12 +39,15 @@ var jGalleryModel = {
             return null;
       }
    },
+   stripModifiers:function(hash) {
+      return hash.replace(/([^&])#.*$/, '$1');
+   },
    getJSON:function(dir, callback, attemptNumber) {
       var url;
       if(dir == null || dir == '')
          url = '';
       else
-         url = dir.replace(/#.*$/, '')+'/';
+         url = jGalleryModel.stripModifiers(dir)+'/';
 
       if(jGalleryModel.savedJSON[url]) 
          return jGalleryModel.savedJSON[url];
@@ -61,6 +65,9 @@ var jGalleryModel = {
             type:"error"
          };
          callback();
+	 return;
+      } else {
+         jGalleryModel.currentDir = realurl.replace(/\/$/, '');
       }
 
       $.ajax({ url:jGalleryModel.urlToJSON(realurl), 
@@ -296,6 +303,12 @@ var jGallery = {
       return false;
    },
 
+   loadedCss:{},
+   loadedCssCb:{},
+   cssReady:function(name, cb) {
+      if(jGallery.loadedCss[name]) cb();
+      else (jGallery.loadedCssCb[name])?jGallery.loadedCssCb[name].push(cb):(jGallery.loadedCssCb[name]=[cb]);
+   },
    addCss:function(url, name, cb) {
       url = url + '?' + config.VERSION;
 
@@ -311,6 +324,8 @@ var jGallery = {
       img.onerror = function(){
          $('#'+name).remove();
          $('#'+name+'_tmp').attr('id', name);
+         jGallery.loadedCss[name] = true;
+         every(jGallery.loadedCssCb[name], function(cb) { cb(); });
          if(cb) cb();
       }
       img.src = url;
@@ -398,19 +413,25 @@ var jGallery = {
    },
 
    parseHash: function(hash) {
-      /* Open pic when url is #!dir#pic */
-      var selectors = hash.match(/#[^#]+/g);
-      jGallery.currentPage = jGallery.currentPage.replace(/#.*/, '');
+      var currP = jGallery.currentPage;
+      jGallery.cssReady('colorbox', function() {
+         if(jGallery.currentPage != currP)
+            return;
 
-      $("a[rel*='gal']").each(function(id, pic) {
-         var href = $(pic).attr('href').replace(/^.*\/([^\/]+)$/, '$1');
-         for(var i in selectors) {
-            var sel = selectors[i].replace(/#/, '');
-            if(sel == href) {
-               $(pic).click();
-               break;
+         /* Open pic when url is #!dir#pic */
+         var selectors = hash.match(/#[^#]+/g);
+         jGallery.currentPage = jGalleryModel.stripModifiers(jGallery.currentPage);
+
+         $("a[rel*='gal']").each(function(id, pic) {
+            var href = $(pic).attr('href').replace(/^.*\/([^\/]+)$/, '$1');
+            for(var i in selectors) {
+               var sel = selectors[i].replace(/#/, '');
+               if(sel == href) {
+                  $(pic).click();
+                  break;
+               }
             }
-         }
+         });
       });
    },
 
@@ -548,7 +569,7 @@ var jGallery = {
    },
 };
 
-$script.ready(['jquery', 'themejs'],function() {
+$script.ready(['jquery', 'colorbox', 'themejs'],function() {
    if(config.picsDir)
       jGalleryModel.picsDir = config.picsDir;
    if(config.cacheDir)

@@ -21,7 +21,7 @@
           return;
        config.changeLangDLAll();
 
-       var content = '<div style="text-align:right;width:100%" class="dlall"><a id="dlall" class="b-btn" href="./admin/pages/download/php/dl.php?dir='+encodeURIComponent(jGallery.currentPage)+'">'
+       var content = '<div style="text-align:right;width:100%" class="dlall"><a id="dlall" class="b-btn" href="./admin/pages/download/php/dl.php?dir='+encodeURIComponent(jGalleryModel.currentDir)+'">'
 				+'<span class="b-btn-text translate">'+jGalleryModel.translate('dlall')+'</span>'
             +'<span class="b-btn-icon-right"><span></span></span>';
       $('#content').append(content);
