@@ -139,7 +139,8 @@ var defaultTheme = {
                 url:(data.pics[i].fullpath?data.pics[i].fullpath:defaultURL),
                 big:data.pics[i].url,
                 thumb:data.pics[i].url.replace(/\.([^\.]+)$/, "_c.$1"),
-                original:data.pics[i].original
+                original:data.pics[i].original,
+                title:data.pics[i].title,
             };
         }
         var num = parseInt($(window).width()*0.9/220, 10);

@@ -3,6 +3,9 @@ body {
 	color:#000;
 	overflow-y:scroll;
 }
+a {
+   text-decoration:none; color:#000;
+}
 #loading {
 	background-color:#000;
 }

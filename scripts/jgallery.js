@@ -43,7 +43,7 @@ var jGalleryModel = {
       if(dir == null || dir == '')
          url = '';
       else
-         url = dir+'/';
+         url = dir.replace(/#.*$/, '')+'/';
 
       if(jGalleryModel.savedJSON[url]) 
          return jGalleryModel.savedJSON[url];
@@ -67,6 +67,10 @@ var jGalleryModel = {
          dataType: 'json',
          cache:false,
          success:function(data) {  
+            if(data === null) {
+               jGalleryModel.getJSON(dir, callback, attemptNumber + 1);
+               return;
+            }
             if(data.dirs) {
                for(var i in data.dirs) {
                   data.dirs[i].completeurl = realurl+data.dirs[i].url;
@@ -393,6 +397,23 @@ var jGallery = {
       });
    },
 
+   parseHash: function(hash) {
+      /* Open pic when url is #!dir#pic */
+      var selectors = hash.match(/#[^#]+/g);
+      jGallery.currentPage = jGallery.currentPage.replace(/#.*/, '');
+
+      $("a[rel*='gal']").each(function(id, pic) {
+         var href = $(pic).attr('href').replace(/^.*\/([^\/]+)$/, '$1');
+         for(var i in selectors) {
+            var sel = selectors[i].replace(/#/, '');
+            if(sel == href) {
+               $(pic).click();
+               break;
+            }
+         }
+      });
+   },
+
    /* Change view */
    switchPage:function(action) {
       if(action==jGallery.currentPage && !jGallery.canReload)
@@ -469,6 +490,7 @@ var jGallery = {
                }
             }
       }
+      jGallery.parseHash(jGallery.currentPage);
    },
 
    addHeader: function() {
@@ -504,7 +526,7 @@ var jGallery = {
       $('#searchbox').val(lastSearchboxVal);
       $('#searchbox').example(function() { return jGalleryModel.translate('Type here to search for a gallery...') }, {className: 'example'});
       function searchboxChange(val, force) {
-         if(force || (val != lastSearchboxVal && val != jGalleryModel.translate('Type here to search for a gallery...'))) {
+         if((force && val != '') || (val != lastSearchboxVal && val != jGalleryModel.translate('Type here to search for a gallery...'))) {
             lastSearchboxVal = val;
             jGallery.search(val);
          }

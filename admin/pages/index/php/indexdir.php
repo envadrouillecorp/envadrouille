@@ -100,15 +100,26 @@ class IndexDir extends File_Dir {
       } 
 
       if($this->isUpdated) {
+         /* Transform hash */
+         $hash = array();
+         $pics = $old_json['pics'];
+         if($pics) {
+            foreach($pics as &$pic) 
+               $hash[$pic['url']] = $pic;
+         }
+
          /* Pictures parsing */
          $pictures = File::sort($this->getPics());
          if(count($pictures) > 0) {
             $pics = array();
             foreach($pictures as $p) {
-               $pics[] = array(
+               $pic = array(
                   'url' => $p->name,
                   'original' => $p->isBiggerThanThumbnail()
                );
+               if(isset($hash[$p->name]) && isset($hash[$p->name]['title']))
+                  $pic['title'] = $hash[$p->name]['title'];
+               $pics[] = $pic;
             }
             $json['pics'] = $pics;
          } 

@@ -4,7 +4,7 @@
  * Released under MIT License
  */
 var FacePlugin = {
-   pattern:/^face:(.+)$/,
+   pattern:/^face:([^#]+)(#?.*?)$/,
    oldSearch:null,
    realSearch:function(txt) {
       if(txt == null)
@@ -119,6 +119,8 @@ var FacePlugin = {
          jGallery.theme.showContent('pics', {pics:pics});
 
          $('#content').append($('<br/><div id="search_info" class="search"><span class="translate">'+jGalleryModel.translate('Search complete')+'</span> - '+data.nbMatches+' <span class="translate">'+jGalleryModel.translate('result'+(data.nbMatches>1?'s':'')+' found')+'</span></div>'));
+
+         jGallery.parseHash(window.location.hash.replace(/^#!?/, ''));
       }
    },
 

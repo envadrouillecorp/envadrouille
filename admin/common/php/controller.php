@@ -139,7 +139,7 @@ class Controller {
       if(is_callable($autoload_function))
          call_user_func($autoload_function);
 
-      $action[1] = preg_replace('/_([a-z])/e', 'strtoupper("$1")', $action[1]);
+      $action[1] = preg_replace_callback('/_([a-z])/', 'Controller::upperMatches', $action[1]);
       $action_to_call = "Pages_$action[0]_Index::$action[1]Action";
       if(!is_callable($action_to_call))
          die('Action does not exist');
@@ -161,6 +161,10 @@ class Controller {
 
    public static function getPluginIndex($plugin) {
       return "Pages_".ucfirst($plugin)."_Index";
+   }
+
+   public static function upperMatches($matches) {
+      return strtoupper($matches[1]);
    }
 };
 

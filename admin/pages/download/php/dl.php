@@ -18,8 +18,13 @@ class AutoLoader {
 };
 spl_autoload_register('AutoLoader::loadClass');
 
+/* Check rights */
+if(!file_exists('../../../config.php'))
+   die("Gallery is not installed");
 require_once('../../../config.php');
 
+if(!isset($download_activated) || $download_activated !== '1')
+   die("Plugin disabled");
 
 if(!isset($_GET['dir']) || is_array($_GET['dir']))
    die("Wrong parameters");
@@ -35,6 +40,7 @@ if(!is_dir($path)) {
       die("Wrong directory");
 }
 
+/* Zip files */
 $dir = new File_Dir($path);
 $pics = $dir->getPics();
 $vids = $dir->getMovies();

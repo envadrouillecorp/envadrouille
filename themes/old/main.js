@@ -70,7 +70,8 @@ var oldTheme = {
              url:(data.pics[i].fullpath?data.pics[i].fullpath:defaultURL),
              big:data.pics[i].url,
              thumb:data.pics[i].url.replace(/\.(.*)$/, "_b.$1"),
-             original:data.pics[i].original
+             original:data.pics[i].original,
+             title:data.pics[i].title,
           };
        }
        $("#picsTpl").tmpl({Pics:pics, Num:3}).appendTo('#content');

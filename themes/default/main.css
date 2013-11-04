@@ -3,6 +3,9 @@ body {
    color:#FFF;
    overflow-y:scroll;
 }
+a {
+   color:#FFF;
+}
 #loading {
    background-color:#FFF;
 }
@@ -279,6 +282,9 @@ body {
    height:40px;
    cursor:pointer;
    display:none;
+}
+.gpssmaller {
+   background:url(smaller.png) repeat-x center;
 }
 
 #pics {
