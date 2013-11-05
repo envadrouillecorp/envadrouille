@@ -326,7 +326,7 @@ function jGPX(data) {
                     + jGalleryModel.translate('Speed') + ': '+ (Math.round(speeds[this.id].y*10)/10) + 'km/h<br/>'
                     + jGalleryModel.translate('Distance') + ': ' + (Math.round(distances[this.id]*10)/10) + 'km';
                  if(times != null) {
-                    ret += '<br/>'+jGalleryModel.translate('Time since beginning')+': ';
+                    ret += '<br/>'+jGalleryModel.translate('Elapsed time')+': ';
                     var time_s = Math.round((times[this.id]-times[0])/1000);
                     var time_min = Math.floor(time_s / 60);
                     var time_h = Math.floor(time_min / 60);
@@ -740,7 +740,7 @@ function gpxChangeLang() {
       var tr = {
          'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
          'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
-         'Time since beginning':'Durée depuis le début',
+         'Elapsed time':'Temps écoulé',
          'during':'pendant',
          'hours':'heures',
          'Statistics':'Statistiques',
