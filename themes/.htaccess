@@ -1,2 +1,0 @@
-AddOutputFilterByType DEFLATE text/html text/xml application/xhtml+xml text/plain application/javascript text/css
-AddDefaultCharset UTF-8
