@@ -90,7 +90,7 @@ class Pages_Options_Index {
       $values = array();
       foreach($new_values as $id=>$v) {
          $params[] = $id;
-         $values[] = $v;
+         $values[] = str_replace("'", "\\'", $v);
       }
       $template->assignTag('BALISE', '1', array(
          'param' => $params,

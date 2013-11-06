@@ -9,7 +9,7 @@ a {
 #loading {
 	background-color:#000;
 }
-font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
+font,th,td,p, .copyright { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
 
 #m {
 	width:1100px;
@@ -282,3 +282,5 @@ font,th,td,p { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12
 #map_canvas .gmnoprint:nth-of-type(3) {
    display:none;
 }
+.copyright { font-weight:bold; color:#555; }
+.copyright a {   text-decoration:none; }

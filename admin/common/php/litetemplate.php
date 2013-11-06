@@ -345,7 +345,7 @@ class LiteTemplate{
           return $this->createSortable($meta['id'], (empty($meta['val'])?$meta['default']:$meta['val']));
       } else {
          $val = (!isset($meta['val']) || $meta['val'] === null)?$meta['default']:$meta['val'];
-         return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.$val.'" '.(($meta['type'] == 'checkbox' && $val == true)?'checked':'').'/>';
+         return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.htmlspecialchars($val).'" '.(($meta['type'] == 'checkbox' && $val == true)?'checked':'').'/>';
       }
    }
 

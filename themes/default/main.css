@@ -386,3 +386,13 @@ a {
 #map_canvas > div > .gmnoprint:nth-of-type(3) > div {
    display:none;
 }
+
+.copyright {
+   font-family:'Trebuchet MS', Helvetica, sans-serif;
+   font-size:13px;
+   font-weight:bold;
+   color:#DDD;
+}
+.copyright a {
+   text-decoration:none;
+}

@@ -263,6 +263,7 @@ var jGallery = {
       $.cookie('bgcolor', bg);
       $.cookie('fgcolor', fg);
       $.cookie('theme', t);
+      $('.customtheme').trigger('themebeginevt');
       $('#l').css('backgroundColor', $.cookie('fgcolor'));
       /* If the internal representation of the bgcolor is wrong, then animate won't work... */
       $('body').css('backgroundColor', $('body').css('backgroundColor')); // ^Stupid bug fix !
@@ -279,6 +280,7 @@ var jGallery = {
             jGallery.firstThemeSwitch = 0;
             $('#m').animate({'opacity':1}, 'slow');
             $('#theme').attr('disabled', false);
+            $('.customtheme').trigger('themeendevt');
             jGallery.canReload = 1;
             jGallery.switchPage(jGallery.currentPage);
          }

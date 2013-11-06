@@ -297,9 +297,9 @@ class UserOptions {
                if(isset($o['export'])) {
                   $plugin_variables['PLUGIN_VAR'][] = $o['id'];
                   if($o['type'] == 'sortable') {
-                      $plugin_variables['PLUGIN_VAL'][] = '['.$new_values[$o['id']].']';
+                      $plugin_variables['PLUGIN_VAL'][] = '['. str_replace("'", "\\'", $new_values[$o['id']]).']';
                   } else {
-                      $plugin_variables['PLUGIN_VAL'][] = $new_values[$o['id']];
+                      $plugin_variables['PLUGIN_VAL'][] =  str_replace("'", "\\'", $new_values[$o['id']]);
                   }
                }
             }

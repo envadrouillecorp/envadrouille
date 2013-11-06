@@ -53,7 +53,7 @@ var defaultTheme = {
         var nbDirs = data.dirs.length;
         if(nbDirs > 4 || height)
             nbDirs = 4;
-        $(div?('#'+div):'#content').html('<div style="width:'+(nbDirs*220)+'px; margin:auto"><div id="'+(div?div:'')+'contentb" class="dir_container" style="height:'+(height?height:(data.pics?(164*Math.ceil(data.dirs.length/4)+5):($(window).height()-50)))+'px;'+(data.pics?"vertical-align:top;":"")+'"></div></div>');
+        $(div?('#'+div):'#content').html('<div style="width:'+(nbDirs*220)+'px; margin:auto"><div id="'+(div?div:'')+'contentb" class="dir_container" style="height:'+(height?height:(data.pics?(164*Math.ceil(data.dirs.length/4)+5):($('#wrapper').height()-60)))+'px;'+(data.pics?"vertical-align:top;":"")+'"></div></div>');
 
         var defaultURL = data.realurl?data.realurl:jGallery.currentPage;
         var dirUrl = jGalleryModel.pageToUrl(defaultURL);

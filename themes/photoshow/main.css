@@ -40,6 +40,7 @@ a { text-decoration:none; color:#000; }
    width:250px;
    font-size:11pt;
    padding-top:20px;
+   box-sizing:border-box;
 }
 .subheader .bottom {
    position:absolute;              
@@ -257,4 +258,12 @@ a { text-decoration:none; color:#000; }
 }
 #map_canvas .gmnoprint:nth-of-type(3) {
    display:none;
+}
+.copyright {
+   padding-left:135px;
+   color:#555;
+   box-sizing:border-box;
+}
+.copyright a {
+   text-decoration:none;
 }
