@@ -62,6 +62,10 @@ td a {
 	float:right;
 	background:url('file_picture.png') no-repeat 10px 8px;
 }
+.addb {
+	float:right;
+	background:url('rep_up.png') no-repeat 10px 8px;
+}
 
 .loader {
 	background:url('ajax-loader.gif') no-repeat 0px 30px;

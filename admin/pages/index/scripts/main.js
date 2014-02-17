@@ -298,8 +298,8 @@ $(document).ready(function() {
 	/*
 	 * Advanced functions
 	 */
-   function apply_action_on_all_dirs(action, button, text, cb) {
-		var batch = new Batch(ParallelBatch, function(data) {
+   function apply_action_on_all_dirs(action, button, text, cb, sequential, update_all_dirs) {
+		var batch = new Batch(sequential?SequentialBatch:ParallelBatch, function(data) {
 			cb();
 			show_dir({path:'',name:''}, 'directories');
 		}, null);
@@ -316,7 +316,7 @@ $(document).ready(function() {
 			batch.get({action:'index.get_dir_content',dir:dir.path+'/'+dir.name, limit:10}, function(data) {
 				show_load(0, 1);
 				$.each(data.dirs, function(key, val) {
-					if(json_contains_dir(val, json2hash(data.json))) {
+					if(update_all_dirs || json_contains_dir(val, json2hash(data.json))) {
 						show_load(2, 0);
 						update_dir(val);
 					}
@@ -332,10 +332,12 @@ $(document).ready(function() {
    function disable_all_global_actions() {
 		$('#u_all').attr("disabled", true);
 		$('#c_all').attr("disabled", true);
+		$('#a_all').attr("disabled", true);
    }
    function enable_all_global_actions() {
 		$('#u_all').attr("disabled", null).val(t('gen_missing_thumbs'));
 		$('#c_all').attr("disabled", null).val(t('rem_cache_orig'));
+		$('#a_all').attr("disabled", null).val(t('add_all'));
    }
    function update_all() {
       function dir_work(dir, batch, show_load) {
@@ -356,6 +358,32 @@ $(document).ready(function() {
       }
       apply_action_on_all_dirs(dir_work, '#u_all', 'wait_thumb', enable_all_global_actions);
    }
+   function add_all() {
+      function dir_work(dir, batch, show_load) {
+         if(dir.path === "") {
+            batch.launch();
+            return;
+         }
+
+         batch.get({action:'index.get_todo_list', dir:dir.path+'/'+dir.name}, function(data) {
+            var batch2 = new Batch(ParallelBatch, function() {
+               var jsonParams = {action:'index.write_json', 'dir':dir.path, 'updated':dir.name, 'descr':'', 'starred':false,'hidden':false };
+               batch.get(jsonParams, function() {
+                  show_load(0, 1);
+               });
+               batch.launch();
+            });
+            $.each(data.imgs, function(key, val) {
+               show_load(1, 0);
+               batch2.get({action:'index.create_thumbs', 'img':val.name, 'dir':val.path}, function(data) { show_load(0, 1); });
+               batch2.launch();
+            });
+            batch2.launch();
+         });
+      }
+      apply_action_on_all_dirs(dir_work, '#a_all', 'wait_all', enable_all_global_actions, true, true);
+   }
+
 
    function clean_all() {
       var nb_del = 0;
@@ -400,6 +428,9 @@ $(document).ready(function() {
 	});
 	$('#c_all').click(function() {
       clean_all();
+   });
+	$('#a_all').click(function() {
+      add_all();
    });
 	
 });

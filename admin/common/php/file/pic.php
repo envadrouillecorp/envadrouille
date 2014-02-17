@@ -12,6 +12,11 @@ class File_Pic extends File {
       if($this->exif !== null)
          return $this->exif;
 
+      if(!is_callable('exif_read_data')) {
+         $this->exif = FALSE;
+         return $this->exif;
+      }
+
       $this->exif = @exif_read_data($this->completePath, 'EXIF', true);
       return $this->exif;
    }

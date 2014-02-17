@@ -44,17 +44,31 @@ class Thumb extends File_Pic {
    protected function getSourceImgGD() {
       $base_ext = strtolower($this->extension);
       if($base_ext == "jpg") {
-         $source = @imagecreatefromjpeg($this->basepic->completePath); 
+         $source = @imagecreatefromjpeg($this->basepic->completePath);
       } else if ($base_ext == "gif") {
          $source = @imagecreatefromgif($this->basepic->completePath);
       } else if ($base_ext == "png") {
          $source = @imagecreatefrompng($this->basepic->completePath);
       } else {
-         $source = @imagecreatefromjpeg($this->basepic->completePath); 
+         $source = @imagecreatefromjpeg($this->basepic->completePath);
       }
       if($source == NULL) {
          $err = error_get_last();
          throw new Exception("Error when working on ".$this->basepic->completePath.": ".$err['message']);
+      }
+      $exif = $this->basepic->readExif();
+      if($exif !== FALSE && isset($exif['IFD0']['Orientation'])) {
+         switch($exif['IFD0']['Orientation']) {
+         case 8:
+            $source = imagerotate($source,90,0);
+            break;
+         case 3:
+            $source = imagerotate($source,180,0);
+            break;
+         case 6:
+            $source = imagerotate($source,-90,0);
+            break;
+         }
       }
       return $source;
    }
@@ -66,9 +80,9 @@ class Thumb extends File_Pic {
          throw new Exception("PHP was compiled without GD support. Install GD or configure ImageMagick in the options.");
 
       $source = $this->getSourceImgGD();
-      
-      $orig_w = $src_width  = imagesx($source); 
-      $orig_h = $src_height = imagesy($source); 
+
+      $orig_w = $src_width  = imagesx($source);
+      $orig_h = $src_height = imagesy($source);
 
       $dest_width = $this->width;
       $dest_height = $this->height;
@@ -83,7 +97,7 @@ class Thumb extends File_Pic {
 
          if($src_width > $orig_w)
             $src_width = $orig_w;
-         if($src_height > $orig_h)			
+         if($src_height > $orig_h)
             $src_height = $orig_h;
 
          if(((int)(100*$src_width/$src_height)) < ((int)(100*$dest_width/$dest_height))) {
@@ -108,9 +122,9 @@ class Thumb extends File_Pic {
       }
 
       $im = imagecreatetruecolor ($dest_width, $dest_height);
-      imagecopyresampled($im, $source, 0, 0, $orig_x, $orig_y, $dest_width, $dest_height, $src_width, $src_height); 
+      imagecopyresampled($im, $source, 0, 0, $orig_x, $orig_y, $dest_width, $dest_height, $src_width, $src_height);
 
-      imagejpeg ($im, $this->completePath, $quality);  
+      imagejpeg ($im, $this->completePath, $quality);
       imagedestroy($im);
       imagedestroy($source);
    }
@@ -127,10 +141,10 @@ class Thumb extends File_Pic {
       if($size === FALSE || $size[0] == 0 || $size[1] == 0) {
          $err = error_get_last();
          throw new Exception("Error when working on ".$this->basepic->completePath.": Cannot determine image size. Check that the picture is not corrupted.");
-      } 
+      }
       $src_width = $size[0];
       $src_height = $size[1];
-      if ($src_width < $dest_width) 
+      if ($src_width < $dest_width)
          $dest_width = $src_width;
 
       $ret = 0;
@@ -142,12 +156,12 @@ class Thumb extends File_Pic {
          } else {
             $dest_height = $tmp_dest_height;
          }
-         exec($convert.' -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize '.$dest_width.'x'.$dest_height.' "'.$this->completePath.'"', $output, $ret);
+         exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize '.$dest_width.'x'.$dest_height.' "'.$this->completePath.'"', $output, $ret);
       } else {
          if($dest_width > $src_width || $dest_height > $src_height)
-            exec($convert.' -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
+            exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
          else
-            exec($convert.' -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize "'.$dest_width.'x'.$dest_height.'^" -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
+            exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize "'.$dest_width.'x'.$dest_height.'^" -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
       }
       if(!$this->exists())
          throw new Exception("Failed to create picture $this->completePath\nThis is probably due to temporary server overload.\nTry to update the directory again.\nImageMagick output (return value $ret):\n".implode("\n", $output)."\n");

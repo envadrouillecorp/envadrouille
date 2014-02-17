@@ -17,6 +17,8 @@
             <td><input id='c_all' class='missingt translate' type="button" value="rem_cache_orig" /></td><td class="translate" id="clean_all_d">clean_descr</td>
          </tr><tr>
             <td><input id='u_all' class='genb translate' type="button" value="gen_missing_thumbs" /></td><td class="translate">gen_descr</td>
+         </tr><tr>
+            <td><input id='a_all' class='addb translate' type="button" value="add_all" /></td><td class="translate">add_all_descr</td>
          </tr>
       </table>
    </div>

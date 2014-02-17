@@ -8,6 +8,13 @@ known_sentences.concat({
    },
 	'writing_cache': 'Writing cache...',
 	'gen_missing_thumbs':'Generate Missing Thumbs',
+	'add_all':'Add all new directories',
+	'wait_all':function(params) {
+      if(!params) 
+         return 'Please wait, adding all directories might take a long time...';
+      else
+         return 'Please wait, adding all directories might take a long time... (Done: '+params[0]+'/'+params[1]+')';
+   },
 	'wait_thumb':function(params) {
       if(!params) 
          return 'Please wait, generating thumbs might take a long time...';
@@ -38,7 +45,8 @@ known_sentences.concat({
    'expl_mod':'The directory information has been modified but not sent on the server',
    'expl_cross':'The directory has not yet been added. Nobody can access it.',
    'advanced_b':'Advanced Options',
-   'gen_descr':'Look in all directories for missing thumbnails and create them if needed. Use this option if you have added pictures in multiple directories',
+   'gen_descr':'Look in all directories for missing thumbnails and create them if needed. Use this option if you have added pictures in multiple directories.',
+   'add_all_descr':'Add all directories that are not yet added in the gallery.',
    'clean_descr':'Look in the cache directories for entries that are no longer required (e.g., thumbnails of deleted pictures) and remove them',
    'no_dir':'Your picture directory does not contain any gallery. Upload directories with photos in your "picture directory" to continue. (See options to modify the picture directory.)',
 });

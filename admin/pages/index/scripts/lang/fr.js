@@ -8,13 +8,21 @@ known_sentences.concat({
    },
 	'writing_cache': 'Ecriture du cache...',
 	'gen_missing_thumbs':'Créer toutes les miniatures manquantes',
-	'wait_thumb':function(params) {
+	'add_all':'Ajouter tous les dossiers',
+	'wait_all':function(params) {
+      if(!params) 
+         return 'Merci de patienter, l\'ajout de tous les dossiers peut prendre un certain temps...';
+      else
+         return 'Merci de patienter, l\'ajout de tous les dossiers peut prendre un certain temps... (Fait: '+params[0]+'/'+params[1]+')';
+   },
+   'wait_thumb':function(params) {
       if(!params) 
          return 'Merci de patienter, la création des miniatures peut prendre un certain temps...';
       else
          return 'Merci de patienter, la création des miniatures peut prendre un certain temps... (Fait: '+params[0]+'/'+params[1]+')';
    },
-	'wait_thumb':function(params) {
+
+	'wait_clean':function(params) {
       if(!params) 
          return 'Merci de patienter, le nettoyage du cache peut prendre un certain temps...';
       else
@@ -39,6 +47,7 @@ known_sentences.concat({
    'expl_cross':'Le dossier n\'a pas encore été ajouté, personne ne peut le voir.',
    'advanced_b':'Maintenance',
    'gen_descr':'Crée les miniatures manquantes pour toutes les galeries. N\'utilisez cette option que si vous avez mis à jour de nombreuses galeries.',
+   'add_all_descr':'Ajoute tous les dossiers qui n\'ont pas encore été ajoutés.',
    'clean_descr':'Supprime les entrées inutiles du cache (ex: une miniature d\'une image supprimée).',
    'satellite':'satellite',
    'terrain':'relief',

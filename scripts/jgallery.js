@@ -234,6 +234,15 @@ var jGallery = {
    lang:'en',
    plugins:[],
 
+   replaceHash:function(hash) {
+      var i = 0, url;
+      while(url = jGalleryModel.alternateURL(hash, i++)) {
+         if(url == window.location.hash || url == unescape(window.location.hash))
+            return;
+      }
+      window.location.hash = hash;
+   },
+
    switchLang:function(l) {
       $('#language').attr('disabled', true);
       if(jGallery.lang != l) {
@@ -342,9 +351,9 @@ var jGallery = {
       if(txt != '') {
           if(!(location.hash && location.hash.match( /^.{0,2}search/ ))) {
              if(window.history && window.history.replaceState) { 
-                window.location.hash = '#!search-'+jGallery.searchedText;
+                jGallery.replaceHash('#!search-'+jGallery.searchedText);
              } else {
-                window.location.hash = '#!search';
+                jGallery.replaceHash('#!search');
              }
           } else if(window.history && window.history.replaceState) {
              history.replaceState('', '', '#!search-'+jGallery.searchedText);
@@ -466,7 +475,7 @@ var jGallery = {
 
       if(action != 'search') {
          $.doTimeout( 'searchID' ); // cancel pending searches
-         window.location.hash = '#!'+jGallery.currentPage; // for search the hash is changed in search()
+         jGallery.replaceHash('#!'+jGallery.currentPage); // for search the hash is changed in search()
       } 
 
       if($.browser.msie && jQuery.browser.version.substring(0, 2) == "8.") 
