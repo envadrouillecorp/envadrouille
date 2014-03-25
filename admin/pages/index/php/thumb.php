@@ -142,8 +142,21 @@ class Thumb extends File_Pic {
          $err = error_get_last();
          throw new Exception("Error when working on ".$this->basepic->completePath.": Cannot determine image size. Check that the picture is not corrupted.");
       }
+
       $src_width = $size[0];
       $src_height = $size[1];
+
+      $exif = $this->basepic->readExif();
+      if($exif !== FALSE && isset($exif['IFD0']['Orientation'])) {
+         switch($exif['IFD0']['Orientation']) {
+         case 6:
+         case 8:
+            $tmp = $src_height;
+            $src_height = $src_width;
+            $src_width = $tmp;
+         }
+      }
+
       if ($src_width < $dest_width)
          $dest_width = $src_width;
 
@@ -158,10 +171,11 @@ class Thumb extends File_Pic {
          }
          exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize '.$dest_width.'x'.$dest_height.' "'.$this->completePath.'"', $output, $ret);
       } else {
-         if($dest_width > $src_width || $dest_height > $src_height)
+         if($dest_width > $src_width || $dest_height > $src_height) {
             exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
-         else
+         } else {
             exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize "'.$dest_width.'x'.$dest_height.'^" -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
+         }
       }
       if(!$this->exists())
          throw new Exception("Failed to create picture $this->completePath\nThis is probably due to temporary server overload.\nTry to update the directory again.\nImageMagick output (return value $ret):\n".implode("\n", $output)."\n");

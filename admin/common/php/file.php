@@ -21,9 +21,15 @@ class File {
       $this->completePath = File::simplifyPath("$path/$name");
       $this->path = dirname($this->completePath);
       $this->name = basename($this->completePath);
+      if("$this->path/$this->name" !== $this->completePath) { //PHP bug with files starting with unicode chars, e.g äa.jpg
+         $path_array = explode("/", $this->completePath);
+         $this->name = end($path_array);
+         $this->path = substr($this->completePath, 0, -(strlen($this->name) + 1));
+      }
+
       $path_array = explode(".", $this->completePath);
       $this->extension = end($path_array);
-      if($check_existence && !$this->exists()) 
+      if($check_existence && !$this->exists())
          throw new Exception("File $this->completePath does not exist");
    }
 
@@ -84,7 +90,7 @@ class File {
       $r = array();
       foreach(explode('/', $path) as $p) {
          if($p == '..') {
-            if(count($r) == 0 || $r[count($r) - 1] == '..') 
+            if(count($r) == 0 || $r[count($r) - 1] == '..')
                $r[] = $p;
             else
                array_pop($r);

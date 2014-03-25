@@ -6,13 +6,17 @@
  * A directory containing pictures
  */
 class IndexDir extends File_Dir {
-   public $isUpdated;   // Are we updating thumbs/json of this dir?
+   public $isUpdated;   // Are we updating json of this dir?
                         // If true, info on the dir (description, etc.) will be read from $_POST and not from cache
+   public $thumbsChanged;   // Are we updating thumbs of this dir?
 
    public function __construct($path, $name = '', $check_existence = false, $ignore_hidden = true) {
       parent::__construct($path, $name, $check_existence, $ignore_hidden);
       $this->isUpdated = (
          File::simplifyPath(Controller::getParameter('dir', '').'/'.Controller::getParameter('updated', '--')) === $this->completePath
+      );
+      $this->thumbsChanged = (
+         File::simplifyPath(Controller::getParameter('dir', '').'/'.Controller::getParameter('partialupdated', '--')) === $this->completePath
       );
    }
 

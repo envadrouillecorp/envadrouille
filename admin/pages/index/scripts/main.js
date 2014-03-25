@@ -113,7 +113,7 @@ $(document).ready(function() {
 
          var batch = new Batch(ParallelBatch);
          batch.get({
-               params:{action:'index.set_thumb', dir:dir.path, updated:dir.name},
+               params:{action:'index.set_thumb', dir:dir.path, partialupdated:dir.name},
                file:document.getElementById('up_thumb_'+id).files[0],
                progress:function(done, total) {
                   $("#loadTplProgress").tmpl({descr:t('sending_thumb'),done:Math.round(done/1024)+'K',total:Math.round(total/1024)+'K'}).appendTo($('#rload_'+id).empty());
@@ -141,7 +141,7 @@ $(document).ready(function() {
 						var ii = evtd.data.img;
 						$("#loadTpl").tmpl().appendTo($('#rload_'+id).empty());
 						$('#rload_'+id).addClass('boxheight');
-						ParallelBatch.get({action:'index.set_thumb', dir:dir.path, updated:dir.name, img:basename(data.imgs[ii]['name'].replace('_m', ''))}, function() {
+						ParallelBatch.get({action:'index.set_thumb', dir:dir.path, partialupdated:dir.name, img:basename(data.imgs[ii]['name'].replace('_m', ''))}, function() {
 							switch_loading(id, false);
 							$('#thumbd_'+id).html('<img src="'+data.thumb_dir+'/'+data.imgs[ii]['name'].replace(/^(.*)\.(.*?)$/,'$1_c.$2')+'?'+new Date().getTime()+'" class="thumb"/>');
 						});

@@ -22,6 +22,7 @@ class File_Pic extends File {
    }
 
    public function getSize() {
+      //This does not take into account jpg exif rotation!
       return @getimagesize($this->completePath);
    }
 }

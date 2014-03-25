@@ -112,7 +112,7 @@ class Pages_Index_Index {
 
    
    static public function setThumbAction() {
-      $dir = new IndexDir(Controller::getParameter('dir'), Controller::getParameter('updated'));
+      $dir = new IndexDir(Controller::getParameter('dir'), Controller::getParameter('partialupdated'));
       if(isset($_GET['upfile'])) {
          $input = fopen("php://input", "r");
          $temp = tempnam(sys_get_temp_dir(), 'th').'.jpg';

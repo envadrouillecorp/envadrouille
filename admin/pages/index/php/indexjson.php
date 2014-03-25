@@ -31,7 +31,7 @@ class IndexJSON extends File_JSON {
    /* Get the directory's thumbs. If dir is updated, reread thumbs dir, else use cache */
    public function getThumbs($limit = -1, $subdir='') {
       $dir = $subdir?$subdir:$this->masterDirectory;
-      if($dir->isUpdated)
+      if($dir->isUpdated || $dir->thumbsChanged)
          return $dir->getThumbsPaths($limit);
       else
          return $this->getJSONEntry('thumbs', $subdir);

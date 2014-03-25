@@ -242,7 +242,6 @@ function jGPX(data) {
         var minHeight = elevations[0];
         var maxHeight = elevations[1];
         elevations = elevations[2];
-
         if(times)
            times.shift(); 
         distances.shift();
@@ -262,6 +261,7 @@ function jGPX(data) {
               backgroundColor:'transparent',
               animation:false,
            },
+           alignTicks:false,
            title: { useHTML:true, text: '<abbr title="'+chartDetails+'" style="border-bottom-width:0">'+jGalleryModel.translate('Statistics')+'</abbr>' },
            xAxis: { title: {text:jGalleryModel.translate('Distance')+' (km)'} },
            yAxis: [{
@@ -275,8 +275,10 @@ function jGPX(data) {
                  text: jGalleryModel.translate('Altitude'),
                  style: { color: '#AA4643' }
               },
-              min:Math.floor(minHeight*100)/100,
-              max:Math.floor(maxHeight*100)/100,
+              tickInterval:Math.floor(maxHeight + 60 - minHeight) / 2,
+              min:minHeight,
+              max:maxHeight + 60,
+              endOnTick:false,
            }, { 
               gridLineWidth: 0,
               title: {
@@ -290,8 +292,10 @@ function jGPX(data) {
                  style: { color: '#89A54E'}
               },
               opposite: true,
+              tickInterval:Math.floor(maxSpeed + 10) / 2,
               min:0,
-              max:Math.floor(maxSpeed*10)/10,
+              max:maxSpeed + 10,
+              endOnTick:false,
            }],
            plotOptions: {
                line: { animation: false, marker:{enabled:false} },
@@ -346,6 +350,7 @@ function jGPX(data) {
             },
            credits: { enabled: false },
         });
+
         for(var i in segments) if (segments.hasOwnProperty(i)) {
            var p = parseInt(i, 10);
            chart.xAxis[0].addPlotBand({
