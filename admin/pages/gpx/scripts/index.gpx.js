@@ -76,5 +76,13 @@ var GPX = {
       tpl.appendTo(ret);
       return ret.html();
    },
+
+   getPluginHeight:function(dir, div) {
+      if($('#geo_use_time_'+div).length) {
+         return 60;
+      } else {
+         return 25;
+      }
+   }
 };
 plugins.push(GPX);

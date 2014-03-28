@@ -10,14 +10,13 @@
  *   * A <tr id='content_xxx'> that contains the various inputs and is hidden (display:none) when loading occurs (this way all information remain on the DOM)
  *   * A <tr id='load_xxx'> that contains the loading information or the list of available thumbnail; display:none'd when content_xxx is visible.
  * - IMPORTANT: always show content_xxx before hidding load_xxx (and vice versa). Otherwise the height of the page is reduced and the browser scrollbar might change value
- * - IMPORTANT: modify the boxheight class to increase the height of the directories boxes
  *
  * All requests are sent via ajax calls using the ParallelBatch utility (or SequentialBatch when writing common files).
  */
 $(document).ready(function() {
 	function switch_loading(id, loading) {
 		if(loading) {
-			$('#rload_'+id).addClass('boxheight');
+         //$('#rload_'+id).addClass('boxheight');
 			$('#load_'+id).css('display', 'block');
 			$('#content_'+id).css('display', 'none');
 		} else {
@@ -35,7 +34,7 @@ $(document).ready(function() {
 	 */
 	function write_json(id, dir) {
 		$("#loadTplProgress").tmpl({descr:t('writing_cache'),done:0,total:1}).appendTo($('#rload_'+id).empty());
-		$('#rload_'+id).addClass('boxheight');
+		//$('#rload_'+id).addClass('boxheight');
 
 		dir.is_starred = $('#c_'+id).is(':checked');
 		dir.is_hidden = $('#h_'+id).is(':checked');
@@ -129,7 +128,7 @@ $(document).ready(function() {
 
    function show_choose_new_thumb(id, data, dir) {
       $("#thumbsTpl").tmpl({id:id}).appendTo($('#rload_'+id).empty());
-				$('#rload_'+id).removeClass('boxheight');
+				//$('#rload_'+id).removeClass('boxheight');
 				$('#thumbs_'+id+' .translate').translate();
 				$('#load_'+id).css('display', 'block');
 				$('#content_'+id).css('display', 'none');
@@ -140,7 +139,7 @@ $(document).ready(function() {
 					$('#'+uid).click({img:img}, function(evtd) {
 						var ii = evtd.data.img;
 						$("#loadTpl").tmpl().appendTo($('#rload_'+id).empty());
-						$('#rload_'+id).addClass('boxheight');
+						//$('#rload_'+id).addClass('boxheight');
 						ParallelBatch.get({action:'index.set_thumb', dir:dir.path, partialupdated:dir.name, img:basename(data.imgs[ii]['name'].replace('_m', ''))}, function() {
 							switch_loading(id, false);
 							$('#thumbd_'+id).html('<img src="'+data.thumb_dir+'/'+data.imgs[ii]['name'].replace(/^(.*)\.(.*?)$/,'$1_c.$2')+'?'+new Date().getTime()+'" class="thumb"/>');
@@ -214,6 +213,13 @@ $(document).ready(function() {
       }
    }
 
+   function set_dir_height(dir, div) {
+      var height = 180;
+      for(var plugin in plugins)
+         if(plugins[plugin].getPluginHeight) height += plugins[plugin].getPluginHeight(dir, div);
+      $('#rcontent_'+div).css('minHeight', height+'px');
+      $('#rload_'+div).css('minHeight', height+'px');
+   }
 
 	function show_subdir(dir, div, key) {
 		var id = 'dir'+key;
@@ -231,6 +237,7 @@ $(document).ready(function() {
 			$('#content_'+id).css('display', 'block');
 			add_buttons_actions(id, dir, null);
 			$('#rcontent_'+id+' .translate').translate();
+			set_dir_height(dir, div);
 			add_form_hooks(dir, id);
 		}
 	}
@@ -267,6 +274,7 @@ $(document).ready(function() {
 				$('#content_'+div).css('display', 'block');
 				add_buttons_actions(div, dir, data);				
 				$('#'+div+' .translate').translate();
+				set_dir_height(dir, div);
 				add_form_hooks(dir, div);
 			} else if(data.dirs.length == 0) {
             inform('no_dir', 'warning', true);
@@ -432,5 +440,4 @@ $(document).ready(function() {
 	$('#a_all').click(function() {
       add_all();
    });
-	
 });

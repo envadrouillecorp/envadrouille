@@ -275,9 +275,9 @@ function jGPX(data) {
                  text: jGalleryModel.translate('Altitude'),
                  style: { color: '#AA4643' }
               },
-              tickInterval:Math.floor(maxHeight + 60 - minHeight) / 2,
-              min:minHeight,
-              max:maxHeight + 60,
+              tickInterval:Math.floor((maxHeight + 60 - minHeight) / 2),
+              min:Math.floor(minHeight),
+              max:Math.ceil(maxHeight + 60),
               endOnTick:false,
            }, { 
               gridLineWidth: 0,
@@ -294,7 +294,7 @@ function jGPX(data) {
               opposite: true,
               tickInterval:Math.floor(maxSpeed + 10) / 2,
               min:0,
-              max:maxSpeed + 10,
+              max:Math.ceil(maxSpeed + 10),
               endOnTick:false,
            }],
            plotOptions: {

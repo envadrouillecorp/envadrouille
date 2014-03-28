@@ -44,6 +44,7 @@ class Controller {
          $ret_val = File::simplifyPath($ret_val);
          break;
       case 'updated':
+      case 'partialupdated':
          if($ret_val === $default_value)
             return $default_value;
          $home_dir = Controller::getParameter('dir').'/';
