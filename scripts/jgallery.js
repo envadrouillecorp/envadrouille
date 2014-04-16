@@ -24,7 +24,9 @@ var jGalleryModel = {
             return encodeURI(url);
          case 2:
             return decodeURIComponent(escape(url));
-	 case 3:
+         case 3:
+            return decodeURIComponent(escape(url.replace(/\+/g, ' ')));
+         case 4:
             return url.replace(/&#x?(.*?);/g, function(s, m) {
                 var unicode_code = parseInt(m, 10);
                 if (unicode_code < (1 << 16)) {
