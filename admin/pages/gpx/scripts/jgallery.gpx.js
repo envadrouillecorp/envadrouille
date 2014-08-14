@@ -542,7 +542,7 @@ function jGPX(data) {
                  var p = new google.maps.LatLng(latlon[0], latlon[1]);
                  geopics.push([p, pic.url]);
                  bounds.extend(p);
-              } else if(xmls && config.geo_use_time) {
+              } else if(xmls && config.geo_use_time && (data.geo_use_time !== "false")) {
                  var p = getPositionWithTime(pic.coords, points, times, data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
                  if(p !== null) {
                     geopics.push([points[p], pic.url, p]);

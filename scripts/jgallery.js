@@ -249,7 +249,6 @@ var jGallery = {
       $('#language').attr('disabled', true);
       if(jGallery.lang != l) {
          jGallery.lang = l;
-         $.cookie('lang', l);
          $script.loaded['langjs'] = false;
          $script('scripts/lang/'+l+'.js', 'langjs', function() {
             if(jGallery.theme && jGallery.theme.changeThemeLang) jGallery.theme.changeThemeLang(l);
@@ -265,24 +264,21 @@ var jGallery = {
    },
 
    /* Change theme and set cookies accordingly */
-   switchTheme: function(t, bg, fg) {
+   switchTheme: function(t) {
       if(jGallery.themeName == t && !jGallery.firstThemeSwitch)
          return;
 
       jGallery.themeName = t;
       $('#theme').attr('disabled', true);
-      $.cookie('bgcolor', bg);
-      $.cookie('fgcolor', fg);
-      $.cookie('theme', t);
       $('.customtheme').trigger('themebeginevt');
-      $('#l').css('backgroundColor', $.cookie('fgcolor'));
+      $('#l').css('backgroundColor', config.getThemes()[t]['FG']);
       /* If the internal representation of the bgcolor is wrong, then animate won't work... */
       $('body').css('backgroundColor', $('body').css('backgroundColor')); // ^Stupid bug fix !
       page.loaded = false;
       page.showLoading();
       $('#m').stop().animate({opacity:0}, jGallery.firstThemeSwitch?0:'slow', function() {
          $('#m').children().remove();
-      $('body').stop().animate({ backgroundColor: bg }, jGallery.firstThemeSwitch?0:'slow', function() {
+      $('body').stop().animate({ backgroundColor: config.getThemes()[t]['BG'] }, jGallery.firstThemeSwitch?0:'slow', function() {
          function showT() {
             jGallery.theme = config.loadedThemes[jGallery.themeName];
             page.loaded = true;
@@ -542,13 +538,14 @@ var jGallery = {
              $('#optcontent').find('.translate').translate();
              $('#theme').val(jGallery.themeName);
              $('#theme').change(function() {
-                 var themes = config.getThemes();
                  var theme = $('#theme').val();
-                 jGallery.switchTheme(theme, themes[theme].BG, themes[theme].FG);
+                 $.cookie('theme', theme);
+                 jGallery.switchTheme(theme);
              });
              $('#language').change(function() {
                  var langs = config.getLang();
                  var lang = $('#language').val();
+                 $.cookie('language', lang);
                  jGallery.switchLang(lang);
              });
          }
@@ -615,13 +612,18 @@ $script.ready(['jquery', 'colorbox', 'themejs'],function() {
          $('#l').css('opacity',0);
 
          /* And... show the theme. */
-         jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
+         var language;
+         if($.cookie('language') && config.getLang().indexOf($.cookie('language')) != -1) {
+           language = $.cookie('language');
+         } else {
+           language = window.navigator.userLanguage || window.navigator.language; 
+           language = language.replace(/-.*$/, '');
+         }
          jGallery.lang = config.getLang()[0];
-         jGallery.switchLang($.cookie('lang')?$.cookie('lang'):(config.getLang()[0]));
+         jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
+         jGallery.switchLang(config.getLang().indexOf(language)!=-1?language:config.getLang()[0]);
          jGallery.switchTheme(
-            $.cookie('theme')?$.cookie('theme'):first(config.getThemes()),
-            $.cookie('bgcolor')?$.cookie('bgcolor'):$('body').css('backgroundColor'),
-            $.cookie('fgcolor')?$.cookie('fgcolor'):$('#l').css('backgroundColor')
+            $.cookie('theme')?$.cookie('theme'):first(config.getThemes())
          );
       });
    }

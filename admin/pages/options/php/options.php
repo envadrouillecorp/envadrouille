@@ -96,9 +96,9 @@ class Options {
          }
          $userContentName = eval('return isset('.$classn.'::$userContentName)?('.$classn.'::$userContentName):false;');
          $hasUserContentPos = eval('return isset('.$classn.'::$userContentDefaultPosition)?('.$classn.'::$userContentDefaultPosition):0;');
-         if($userContentName && !in_array($userContentName, $userContent)) 
+         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $userContent)) 
             array_splice( $userContent, $hasUserContentPos, 0, $userContentName ); 
-         if($userContentName && !in_array($userContentName, $oldUserContent)) 
+         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $oldUserContent)) 
             array_splice( $oldUserContent, $hasUserContentPos, 0, $userContentName ); 
       }
       foreach($options as &$opt) {
