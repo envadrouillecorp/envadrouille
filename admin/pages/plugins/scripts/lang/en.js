@@ -1,0 +1,15 @@
+known_sentences.concat({
+   'avail_plug':'Available plugins',
+   'installed_plug':'Installed plugins',
+   'load_plug':'Loading...',
+   'remove_plug':'Remove plugin',
+   'dl_plug':'Downloading...',
+   'err_plug':'Error!',
+   'rm_plug':'Removing...',
+   'plug_installed':'Plugin installed. You may need to go in the options to activate and configure it.',
+   'plug_installed_conf':'Plugin installed. You may want to configure it in the options.',
+   'plug_installed_noconf':'Plugin installed.',
+   'plug_rm':'Plugin suppressed.',
+   'update_plug':'Update plugin',
+   'create_plug':'<a href="http://dev.envadrouille.org">Create your own plugin!</a>',
+});
