@@ -82,7 +82,7 @@ function jGPX(data) {
         for(var i = 1; i < len; i++) {
            var newSpan = times[i] - times[i-1];
            if(newSpan == 0)
-              ret[i] = {x:ret[i-1][0], y:100, id:i};
+              ret[i] = {x:ret[i-1].x, y:ret[i-1].y, id:i};
            else
               ret[i] = {x:distances[i], y:(distances[i] - distances[i-1]) / (newSpan / 1000 / 3600), id:i};
            if(ret[i].y > max) //store max
@@ -248,7 +248,7 @@ function jGPX(data) {
         speeds.shift();
         elevations.shift();
         segments = shiftSegments(segments);
-        
+       
         var ids = makeHash(distances);
         var pwnMarker;
         var elevationName = '<span>'+jGalleryModel.translate('Altitude - Total Elevation: ')+'</span>'+totalElevation(elev, segments)+'m';
