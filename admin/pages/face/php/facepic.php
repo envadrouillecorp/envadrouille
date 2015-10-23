@@ -118,7 +118,7 @@ class FacePic extends IndexPic {
 
          $i++;
       }
-      
+
       return $faces;
    }
 

@@ -426,7 +426,7 @@ class LiteTemplate{
 
    public $extraJS = array();
 	function showPage($name, $othertpl = null) {
-		global $pages, $lang, $VERSION;
+		global $pages, $lang, $VERSION, $DEBUG;
 		if(!isset($lang))
 			$lang = 'en';
 
@@ -435,9 +435,13 @@ class LiteTemplate{
 			'URL' => $this->extraJS,
 		));
 
+      $shown_version = $VERSION;
+      if($DEBUG)
+         $shown_version = rand();
+
 		$innerpage = new liteTemplate();
 		$this->assign(array(
-			'VERSION' => $VERSION,
+			'VERSION' => $shown_version,
 			'page' => $name,
          'lang' => $lang,
          'notifications' => File_JSON::myjson_encode(Controller::$notifications),

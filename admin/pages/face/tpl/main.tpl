@@ -1,4 +1,7 @@
 <div style="width:100%;position:relative;margin-top:10px;">
+   <div id="API" style="display:none">{$FACE_API}</div>
+   <div id="API_DETECTRATE" style="display:none">{$FACE_API_DETECTRATE}</div>
+   <div id="API_RECORATE" style="display:none">{$FACE_API_RECORATE}</div>
    <div id="help-container" style="position:relative;width:100%;"></div>
    <table>
       <tr>

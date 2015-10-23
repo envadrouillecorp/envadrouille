@@ -20,9 +20,10 @@ function Face(json) {
 
    self.recognized = (self.name !== 'unknown');
    self.recognitionInProgress = false;
+   if(!Face.BatchContainer)
+      Face.BatchContainer = new BatchContainer($('#API_RECORATE').text());
    self.batch = new Batch(Face.BatchContainer, function() {
    }, null);
-   
    self.changeName = function(name) {
       if(name == self.basename || name == '' || name == 'unknown')
          return;
@@ -150,7 +151,7 @@ function Face(json) {
                return;
             self.name = json.name;
             self.recognized = true;
-            if(!self.focused) 
+            if(!self.focused)
                $('#'+self.id+'_name').val(t(self.name)).attr('title', t(self.name));
          });
          self.batch.launch();
@@ -177,7 +178,6 @@ function Face(json) {
       }
    }
 };
-Face.BatchContainer = new BatchContainer(3);
 Face.instances = {};
 Face.getInstance = function(json) {
    if(this.instances[json.uid])

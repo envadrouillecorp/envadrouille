@@ -13,7 +13,8 @@ class Face extends Thumb {
    public $face_rect = null;
    public $recognized_people = null;
    public $uid = null;
-   
+   public $face_id = 0; // # of the face if the picture contains multiple faces
+
    public function __construct($path, $name = '', $basepic = null, $people = null, $uid = null, $width = 0, $height = 0, $face_rect = null) {
       parent::__construct($path, $name, $basepic);
       $this->width = $width;
@@ -27,6 +28,9 @@ class Face extends Thumb {
          $this->recognized_people = Face::$default_name;
       if($this->uid === null)
          $this->uid = base64_encode($this->completePath);
+
+      $path_array = explode(".", $this->completePath);
+      $this->face_id = $path_array[count($path_array) - 2]; // cache/face/path/picname.face_id.ext
    }
 
    public function toArray() {
@@ -35,7 +39,7 @@ class Face extends Thumb {
          'name' => $this->name,
          'basepath' => $this->basepic->path,
          'basename' => $this->basepic->name,
-         'people' => $this->recognized_people, 
+         'people' => $this->recognized_people,
          'uid' => $this->uid,
       );
    }
@@ -67,12 +71,12 @@ class Face extends Thumb {
       $api = FacePic::getFaceAPI();
       if($this->recognized_people !== Face::$default_name
          && $this->recognized_people !== 'trash')
-      $api->faces_enroll($this->getPublicUrl(), $this->recognized_people);
+         $api->faces_enroll($this->getPublicUrl(), $this->recognized_people, $this->face_id);
    }
 
    public function tryToRecognize() {
       $api = FacePic::getFaceAPI();
-      return $api->faces_trydetect($this->getPublicUrl());
+      return $api->faces_trydetect($this->getPublicUrl(), $this->face_id);
    }
 
    private function adaptRec($face_rect) {
@@ -85,7 +89,7 @@ class Face extends Thumb {
 
       $face_w = (int)($extension_factor*$face_rect['width']);
       $face_h = (int)($extension_factor*$face_rect['height']);
-   
+
       // Check that the width/height ratio is the same as that of the thumb
       // Increase the size of $face_w or $face_h is required
       if(((int)(100*$face_w/$face_h)) < ((int)(100*$this->width/$this->height))) {

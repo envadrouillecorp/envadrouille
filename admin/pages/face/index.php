@@ -32,7 +32,7 @@ class Pages_Face_Index {
    static public function getOptions() {
       return array(
          array('id' => 'face_use_xmp', 'type' => 'checkbox', 'cat' => 'Facial Recognition', 'default' => true ),
-         array('id' => 'face_plugin', 'type' => 'select', 'cat' => 'Facial Recognition', 'default' => '', 'vals' => array('' => '', 'rekognition.com' => 'rekognition.com', 'animetrics.com' => 'animetrics.com', 'skybiometry.com' => 'skybiometry.com' )),
+         array('id' => 'face_plugin', 'type' => 'select', 'cat' => 'Facial Recognition', 'default' => '', 'vals' => array('' => '', 'faceplusplus.com' => 'faceplusplus.com', 'skybiometry.com' => 'skybiometry.com', 'kairos.com' => 'kairos.com', 'projectoxford.ai' => 'projectoxford.ai' )),
          array('id' => 'do_recognition', 'type' => 'checkbox', 'cat' => 'Facial Recognition', 'default' => false),
          array('id' => 'face_namespace', 'type' => 'text', 'cat' => 'Facial Recognition', 'default' => ''),
          array('id' => 'face_pub', 'type' => 'text', 'cat' => 'Facial Recognition', 'default' => ''),
@@ -51,6 +51,9 @@ class Pages_Face_Index {
       $template->extraJS[] = './pages/face/scripts/face.js';
       $template->extraJS[] = './pages/face/scripts/people.js';
       $template->showPage('face');
+      $template->assign(array('FACE_API' => FaceAPI::$name));
+      $template->assign(array('FACE_API_DETECTRATE' => FaceAPI::$detectrate));
+      $template->assign(array('FACE_API_RECORATE' => FaceAPI::$recorate));
       $template->view();
    }
 
@@ -86,7 +89,7 @@ class Pages_Face_Index {
    static public function getTodoListAction() {
       $dir = new FaceDir(Controller::getParameter('dir'));
       echo File_JSON::myjson_encode(array(
-         'faces' => $dir->getPicsWithMissingFaces(), 
+         'faces' => $dir->getPicsWithMissingFaces(),
       ));
    }
 
@@ -131,7 +134,7 @@ class Pages_Face_Index {
 
       $people = new People(Controller::getParameter('people'));
       $face->recognize($people);
-      
+
       $dirjson = $dir->getFaceJSON();
       $dirjson->addFace($face);
       $dirjson->writeContent();

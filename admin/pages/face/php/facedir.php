@@ -50,7 +50,7 @@ class FaceDir extends IndexDir {
 
       foreach($pics as $pic) {
          if(!$json->containsUptodatePic($pic) && !$pic->hasMissingThumbs())
-            $ret[] = $pic;	
+            $ret[] = $pic;
       }
       return $ret;
    }

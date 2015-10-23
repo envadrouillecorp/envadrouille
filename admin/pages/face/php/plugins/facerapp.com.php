@@ -3,7 +3,7 @@
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
  *
- * animetrics.com API
+ * animetrics.com API -- does not work well due to rate limit
  * Strongly inspired by the face.com php API.
  */
 
@@ -13,13 +13,17 @@ if(!isset($GLOBALS['face_namespace']) || $GLOBALS['face_namespace'] === ''
    || !isset($GLOBALS['face_pub']) || $GLOBALS['face_pub'] === '')
    Pages_Face_Index::failAction();
 
-if (!function_exists('curl_init'))  throw new Exception('animetrics.com API Client Library requires the CURL PHP extension.');
+if (!function_exists('curl_init'))  throw new Exception('facerapp.com API Client Library requires the CURL PHP extension.');
 
 class FaceAPI
-{	
+{
    private $apiKey;
-   private $apiSecret;	
+   private $apiSecret;
    private $format;
+   private $usage = '';
+   static public $name = 'facerapp';
+   static public $detectrate = 4; // max 4 request in //
+   static public $recorate = 3; // max 3 request in //
 
    private $userAuth = array();
 
@@ -37,7 +41,7 @@ class FaceAPI
    public function faces_detect($url = null)
    {
       $json = $this->call_method(
-         "detect", 
+         "detect",
          array(
             "url" => $url,
             "selector" => "FACE"
@@ -58,37 +62,35 @@ class FaceAPI
       return $faces;
    }
 
-   public function faces_enroll($url, $name)
+   public function faces_enroll($url, $name, $face_id)
    {
       global $face_namespace;
       $json = $this->call_method(
-         "detect", 
+         "detect",
          array(
             "url" => $url,
             "selector" => "FACE"
          )
       );
-      if(!is_array($json) || !isset($json['images']))
-         return;
 
       //var_dump($json);
       if(!isset($json['images'])
          || !isset($json['images'][0])
          || !isset($json['images'][0]['faces'])
-         || !isset($json['images'][0]['faces'][0]))
-         return;
+         || !isset($json['images'][0]['faces'][$face_id]))
+         throw new Exception("Cannot train facerapp.com with picture of $name (face #$face_id of $url).".print_r($json, true));
 
       $json2 = $this->call_method(
-         "enroll", 
+         "enroll",
          array(
             "url" => $url,
             "subject_id" => "$name",
             "gallery_id" => "$face_namespace",
             'image_id' => $json['images'][0]['image_id'],
-            'topLeftX' => $json['images'][0]['faces'][0]['topLeftX'],
-            'topLeftY' => $json['images'][0]['faces'][0]['topLeftY'],
-            'width' => $json['images'][0]['faces'][0]['width'],
-            'height' => $json['images'][0]['faces'][0]['height'],
+            'topLeftX' => $json['images'][0]['faces'][$face_id]['topLeftX'],
+            'topLeftY' => $json['images'][0]['faces'][$face_id]['topLeftY'],
+            'width' => $json['images'][0]['faces'][$face_id]['width'],
+            'height' => $json['images'][0]['faces'][$face_id]['height'],
          ),
          true
       );
@@ -97,11 +99,11 @@ class FaceAPI
          return;
    }
 
-   public function faces_trydetect($url)
+   public function faces_trydetect($url, $face_id)
    {
       global $face_namespace;
       $json = $this->call_method(
-         "detect", 
+         "detect",
          array(
             "url" => $url,
             "selector" => "FACE"
@@ -114,19 +116,19 @@ class FaceAPI
       if(!isset($json['images'])
          || !isset($json['images'][0])
          || !isset($json['images'][0]['faces'])
-         || !isset($json['images'][0]['faces'][0]))
+         || !isset($json['images'][0]['faces'][$face_id]))
          return Face::$default_name;
 
       $json2 = $this->call_method(
-         "recognize", 
+         "recognize",
          array(
             "url" => $url,
             "gallery_id" => "$face_namespace",
             'image_id' => $json['images'][0]['image_id'],
-            'topLeftX' => $json['images'][0]['faces'][0]['topLeftX'],
-            'topLeftY' => $json['images'][0]['faces'][0]['topLeftY'],
-            'width' => $json['images'][0]['faces'][0]['width'],
-            'height' => $json['images'][0]['faces'][0]['height'],
+            'topLeftX' => $json['images'][0]['faces'][$face_id]['topLeftX'],
+            'topLeftY' => $json['images'][0]['faces'][$face_id]['topLeftY'],
+            'width' => $json['images'][0]['faces'][$face_id]['width'],
+            'height' => $json['images'][0]['faces'][$face_id]['height'],
          ),
          true
       );
@@ -147,6 +149,9 @@ class FaceAPI
       return $bestmatch;
    }
 
+   public function getUsage() {
+      return $this->usage;
+   }
 
 
    // ***************
@@ -166,7 +171,7 @@ class FaceAPI
       if (!empty($this->apiKey))
          $authParams['api_key'] = $this->apiKey;
 
-      $params = array_merge($authParams, $params);    	    	
+      $params = array_merge($authParams, $params);
 
       $request = "$method";
       if($get) {
@@ -178,20 +183,21 @@ class FaceAPI
    }
 
    protected function post_request($request, $params)
-   {		
+   {
       $url = API_SERVER . "$request";
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
       if(count($params) > 0) {
-         curl_setopt($ch, CURLOPT_POST, 1);    	
+         curl_setopt($ch, CURLOPT_POST, 1);
          curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
       }
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_TIMEOUT, 20);
       $rawData = curl_exec($ch);
-      curl_close($ch);    
+      curl_close($ch);
 
-      return $this->toObject($rawData);    	
+      return $this->toObject($rawData);
    }
 
    protected function toObject($rawData)

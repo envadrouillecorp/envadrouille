@@ -11,6 +11,8 @@ function Dir(json) {
    self.div = $('#directory-container');
    self.subdiv = $('#directory-container');
    Dir.directories.push(this);
+   if(!Dir.BatchContainer)
+      Dir.BatchContainer = new BatchContainer($('#API_DETECTRATE').text());
 
    self.getDirs = function(cb) {
       var batch = new Batch(ParallelBatch);
@@ -62,7 +64,7 @@ function Dir(json) {
            endcb();
       }
       self.getToDoList(function(dirjson) {
-         var batch = new Batch(ParallelBatch, function() {
+         var batch = new Batch(Dir.BatchContainer, function() {
             var writebatch = new Batch(SequentialBatch, end, null);
             writebatch.get({action:'face.write_faces_json',dir:self.json.path+'/'+self.json.name});
             writebatch.launch();
