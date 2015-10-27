@@ -12,7 +12,7 @@ ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 $DEBUG = 0;
 
-$VERSION = '151024';
+$VERSION = '151027';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
@@ -101,6 +101,11 @@ if(isset($plugins))
    $plugins = File_JSON::myjson_decode($plugins);
 else
    $plugins = array();
+
+if(isset($picpath))
+   $picpath = File::simplifyPath($picpath);
+if(isset($cachepath))
+   $cachepath = File::simplifyPath($cachepath);
 
 // no config.php file or invalid file, route to the installer 
 if(!isset($CONFIG_VERSION)) {
