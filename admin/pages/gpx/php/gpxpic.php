@@ -5,7 +5,7 @@
  *
  * A geotagged picture
  */
-class GpxPic extends File_Pic {
+class GpxPic extends IndexPic {
    private $exif;
 
    private function getGps($exifCoord, $hemi) {

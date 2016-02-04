@@ -131,6 +131,10 @@ class Pages_Gpx_Index {
 
    static public function removeGpxAction() {
       File_Factory::registerExtension("dir", "GPXDir");
+      File_Factory::registerExtension("png", "GpxPic");
+      File_Factory::registerExtension("jpg", "GpxPic");
+      File_Factory::registerExtension("gif", "GpxPic");
+
       $dir = new GPXDir(Controller::getParameter('dir'), Controller::getParameter('updated'));
       $dir->removeGPX();
       $dir->writeJSON();
