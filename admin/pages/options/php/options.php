@@ -47,8 +47,10 @@ class Options {
       foreach($dir->getDirs() as $d) {
          require_once ("$d->path/$d->name/index.php");
          $classn = Controller::getPluginIndex($d->name);
-         $is_plugin = eval('return isset('.$classn.'::$userContentName);');
-         $activated = isset($new_values[$d->name.'_activated']) && $new_values[$d->name.'_activated'];
+         $is_plugin = eval('return isset('.$classn.'::$userContentName);')
+            || eval('return isset('.$classn.'::$isContentPlugin) && '.$classn.'::$isContentPlugin;');
+         $optional = eval('return '.$classn.'::$isOptional;');
+         $activated = !$optional || (isset($new_values[$d->name.'_activated']) && $new_values[$d->name.'_activated']);
          if($activated && $is_plugin) 
             $plugins[] = $d->name;
       }
@@ -136,7 +138,7 @@ class Options {
       $opts = Options::getOptions();
       $ret = array();
       foreach($opts as $opt) {
-         if($opt['type'] == 'text' || $opt['type'] == 'select' || $opt['type'] == 'sortable') {
+         if($opt['type'] == 'text' || $opt['type'] == 'select' || $opt['type'] == 'sortable' || $opt['type'] == 'hidden') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
          } else if($opt['type'] == 'password') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
@@ -212,7 +214,7 @@ class Options {
       $config = new File('.', 'config.php');
       $index = new File('..', 'index.html');
       $rights = array(
-         'config.php'      => $config->isWritable(),
+         'config.php'      => $config->isWritable(true),
          '../index.html'   => $index->isWritable(),
       );
       $failure = false;

@@ -8,11 +8,11 @@
 	{$HEAD}
    <div class="inp">
       <table>
-         <tr>
+         <tr style="display:{$DISPLAY}">
             <td valign="middle">
                <label for="{$DESCR}" style="width:220px;display:inline-block;text-align:right;font-weight:bold;" class="translate">{$DESCR}</label>
                </td><td valign="middle">
-               {$INPUT}
+                  {$INPUT}
                </td><td valign="middle">
                <span id="{$DESCR}_err" style="paddin-left:5px;color:red"></span>
                </td>

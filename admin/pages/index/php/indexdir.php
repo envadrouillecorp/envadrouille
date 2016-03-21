@@ -22,8 +22,13 @@ class IndexDir extends File_Dir {
 
    public function getURL() {
       global $picpath;
+
+      $https= isset($_SERVER['HTTPS']) && (strcasecmp('off', $_SERVER['HTTPS']) !== 0);
+      $hostname = $_SERVER['SERVER_ADDR'];
+      $port = $_SERVER['SERVER_PORT'];
+
       $path_only = implode("/", (explode('/', $_SERVER["REQUEST_URI"], -1)));
-      return 'http://'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).'#!'.str_replace($picpath."/", "", $this->completePath);
+      return 'http'.($https?'s':'').'://'.$_SERVER['SERVER_NAME'].($port!=80?':'.$port:'').str_replace("admin", "", File::simplifyPath($path_only)).'#!'.str_replace($picpath."/", "", $this->completePath);
    }
 
 

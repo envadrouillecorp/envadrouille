@@ -11,4 +11,5 @@ known_sentences.concat({
    'plug_rm':'Plugin supprimé.',
    'update_plug':'Mettre à jour le plugin',
    'create_plug':'<a href="http://dev.envadrouille.org">Créez votre propre plugin!</a>',
+   'outdated_plugins':'Vous avez {0} plugin(s) à mettre à jour.', 
 });

@@ -12,6 +12,9 @@ class Pages_Update_Index {
    public static $isOptional = true;
    public static $activatedByDefault = true;
    public static $showOnMenu = false;
+   public static $isContentPlugin = true;
+
+   public static $updateUrl = "http://update.envadrouille.org/VERSION-JSON";
 
    public static function setupAutoload() {
       require_once('./pages/update/php/update.php');
@@ -25,6 +28,14 @@ class Pages_Update_Index {
       $template->file('./pages/update/tpl/update.tpl');
       $template->assign(array('lang' => $lang));
       $template->view();
+   }
+
+   public static function getUpdateInfoAction() {
+      echo json_encode(array(
+         'update_activated' => (isset($GLOBALS['update_activated']) && $GLOBALS['update_activated'])?'true':'false',
+         'update_url' => Pages_Update_Index::$updateUrl,
+         'VERSION' => $GLOBALS['VERSION'],
+      ));
    }
 
    public static function getFilesToUpdateAction() {

@@ -299,31 +299,6 @@ $.extend({
    }
 });
 
-function remote_check_version(data) {
-	var curr_version = $('#version_update #version').text();
-	var last_version = data?data.version:0;
-	if(curr_version < last_version) {
-		inform('update_gal', 'warning-small', true, [last_version, curr_version], $('#version_update #update'));
-		var min_left = ($('#head #current').position().left + $('#head #current').width() + 130);
-		$('#version_update #update').css('position', 'absolute').css('top', '-5px').css('left', min_left + "px").css('right', "50px").css('opacity', 0).animate({opacity:1}, "5000");
-	}
-}
-
-function check_new_version() {
-   if(window.update_activated) {
-      $.ajax({
-         url: "http://update.envadrouille.org/VERSION",
-         dataType: 'jsonp',
-         crossDomain:true,
-         cache:true,
-         success: function(data){
-         },
-         error: function(data) {
-         }
-      });
-   }
-}
-
 /********************************/
 /** Info toolbar               **/
 function plural(times) {

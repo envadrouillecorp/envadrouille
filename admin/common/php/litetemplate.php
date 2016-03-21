@@ -22,7 +22,7 @@ class LiteTemplate{
 	var $error;
     var $preserveDollar = false;
     var $version;
-	function LiteTemplate(){
+	function __construct(){
 		$this->version = '1.9';
 		$this->tpl = '';
 		$this->tplName = '';
@@ -145,7 +145,6 @@ class LiteTemplate{
    function view(){
       $this->assign(array(
          'RANDOM_SID' => isset(Controller::$sid)?Controller::$sid:'rand_sid',
-         'update_activated' => (isset($GLOBALS['update_activated']) && $GLOBALS['update_activated'])?'true':'false',
          'max_parallel_jobs' => (isset($GLOBALS['max_parallel_jobs']) && is_numeric($GLOBALS['max_parallel_jobs']) && $GLOBALS['max_parallel_jobs'] > 0)?$GLOBALS['max_parallel_jobs']:3,
 		));
 

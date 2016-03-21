@@ -14,5 +14,6 @@ known_sentences.concat({
    'picpath':'Picture directory',
    'cachepath':'Cache directory',
    'Submit':'Submit',
+   'clik_modify_passwd':'Click to modify the password',
 });
 

@@ -10,19 +10,28 @@ class Pages_Plugins_Index {
    public static $description = "Plugins";
    public static $isOptional = false;
    public static $showOnMenu = true;
-   public static $pluginsurl = "http://plugins.envadrouille.org/";
+   public static $isContentPlugin = true;
+
+   public static $pluginsUrl = "http://plugins.envadrouille.org/";
 
    public static function setupAutoload() {
       AutoLoader::$autoload_path[] = "./pages/options/php/";
       AutoLoader::$autoload_path[] = "./pages/plugins/php/";
    }
 
+   public static function getOptions() {
+      $last_visit_plugin = isset($GLOBALS['last_visit_plugin'])?$GLOBALS['last_visit_plugin']:0;
+      return array(
+         array('id' => 'check_plugin_updates', 'type' => 'checkbox', 'cat' => 'Plugins', 'default' => true, 'export' => true),
+         array('id' => 'check_new_plugin', 'type' => 'checkbox', 'cat' => 'Plugins', 'default' => true, 'export' => true),
+         array('id' => 'last_visit_plugin', 'type' => 'hidden', 'cat' => 'Plugins', 'default' => $last_visit_plugin, 'export' => true),
+      );
+   }
 
    static public function mainAction() {
       global $lang;
       $template = new liteTemplate();
       $template->showPage('plugins');
-      $template->assign(array('PLUGURL' => Pages_Plugins_Index::$pluginsurl));
       $template->assign(array('PLUGLANG' => $lang));
       $template->view();
    }
@@ -38,9 +47,22 @@ class Pages_Plugins_Index {
             $version_num = $version->getContent();
          $ret[] = array('name' => $p->name, 'version' => $version_num);
       }
-      echo File_JSON::myjson_encode($ret);
+      echo File_JSON::myjson_encode(array(
+         'plugins' => $ret,
+         'plugin_url' => Pages_Plugins_Index::$pluginsUrl,
+         'check_plugin_updates' => isset($GLOBALS['check_plugin_updates']) && $GLOBALS['check_plugin_updates'] === '1',
+         'check_new_plugin' => isset($GLOBALS['check_new_plugin']) && $GLOBALS['check_new_plugin'] === '1',
+         'last_visit_plugin' => isset($GLOBALS['last_visit_plugin'])?$GLOBALS['last_visit_plugin']:0,
+      ));
    }
 
+
+   static public function updateLastVisitAction() {
+      $new_values = options::getOldOptions();
+      $new_values['last_visit_plugin'] = Controller::getParameter('last_version');
+      options::writeoptions($new_values);
+      echo File_JSON::myjson_encode(array('success' => TRUE));
+   }
 
    static public function installPluginAction() {
       $rights = Options::checkRights();
@@ -54,7 +76,7 @@ class Pages_Plugins_Index {
       if(!$dir->isWritable())
          throw new Exception("Cannot write the ./admin/pages/ directory!");
 
-      if(!copy(Pages_Plugins_Index::$pluginsurl.$plugin.'.zip', "$plugin_dir/$plugin.zip"))
+      if(!copy(Pages_Plugins_Index::$pluginsUrl.$plugin.'.zip', "$plugin_dir/$plugin.zip"))
          throw new Exception("Cannot download $plugin!");
 
 

@@ -39,16 +39,18 @@ class Pages_Options_Index {
       $descr = array();
       $heads = array();
       $inputs = array();
+      $display = array();
       $last_head = '';
       foreach($options as $meta) {
          $inputs[] = $template->createInput($meta);
-         if($meta['cat'] != $last_head) {
+         if($meta['cat'] != $last_head && $meta['type'] != 'hidden') {
             $heads[] = '<h2 class="translate">'.$meta['cat'].'</h2>';
             $last_head = $meta['cat'];
          } else {
             $heads[] = '';
          }
          $descr[] = $meta['id'];
+         $display[] = ($meta['type'] === 'hidden')?'none':'block';
       }
 
       foreach($pages as $page=>$meta) 
@@ -59,6 +61,7 @@ class Pages_Options_Index {
          'HEAD' => $heads,
          'DESCR' => $descr,
          'INPUT' => $inputs,
+         'DISPLAY' => $display,
       ));
       $template->assign(array('DISPLAY_CHANGED' => ($action == 'changed')?'block':'none'));
       $template->assign(array('DISPLAY_UPDATE' => ($action == 'update')?'block':'none'));

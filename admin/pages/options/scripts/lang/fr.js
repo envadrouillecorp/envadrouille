@@ -14,4 +14,5 @@ known_sentences.concat({
    'picpath':'Répertoire photo',
    'cachepath':'Répertoire cache',
    'Submit':'Valider',
+   'clik_modify_passwd':'Cliquez pour modifier le mot de passe',
 });

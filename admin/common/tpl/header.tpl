@@ -6,7 +6,6 @@
 
       <script type="text/javascript">
       var random_sid = '{$RANDOM_SID}';
-      var update_activated = {$update_activated};
       var max_parallel_jobs = {$max_parallel_jobs};
       var plugins = [];
       </script>
@@ -42,8 +41,6 @@
 			$('#head #current').css('position', 'absolute').css('left', ($('#head #menu').find('img').length*39)+'px');
 
 
-         check_new_version();
-
          var __notifications = {$notifications};
          $.each(__notifications, function(id, val) {
             inform(val.msg, val.level, true, val.arg);
@@ -62,7 +59,6 @@
 	{/BALISE}
 				  </ul>
               <div id="current" class="" style="text-indent:20px">{$CURRENT}</div>
-              <div id="version_update"><div id="version" style="display:none">{$VERSION}</div><div id="update"></div></div>
               <div id="logout"><a href="index.php?action=login.logout"><img src="common/css/logout.png" alt="logout" /></a></div>
 			  </div>
 			  <div id="info" style="text-align:left"></div>

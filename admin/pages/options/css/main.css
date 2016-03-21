@@ -4,4 +4,6 @@
 .inp input[type=password] {
 	width:850px;
 }
-
+a.passwd {
+   border-bottom: 1px dashed #999;
+}

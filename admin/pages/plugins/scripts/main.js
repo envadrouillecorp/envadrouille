@@ -1,5 +1,7 @@
 var plug_lang;
+var plugin_url;
 var installed_plugins;
+var nb_outdated = 0;
 
 function Plugin(data) {
    var self = this;
@@ -7,7 +9,11 @@ function Plugin(data) {
    self.version = getVersion(data) || 0;
    self.meta = data;
    self.installed = isInstalled(self.meta);
-   self.toupdate = (self.version < parseInt(self.meta.version, 10));
+   self.toupdate = self.installed && (self.version < parseInt(self.meta.version, 10));
+   if(self.toupdate)
+      nb_outdated++;
+   if(nb_outdated)
+      inform('outdated_plugins', 'warning-small', true, [nb_outdated]);
 
    if(self.meta['descr-'+plug_lang])
       self.meta.descr = self.meta['descr-'+plug_lang];
@@ -106,7 +112,8 @@ function getInstalledPlugins(cb) {
 
    var batch = new Batch(ParallelBatch);
    batch.get({action:'plugins.get_plugins'}, function(json) {
-      installed_plugins = json;
+      installed_plugins = json.plugins;
+      plugin_url = json.plugin_url;
       cb();
    });
    batch.launch();
@@ -158,16 +165,22 @@ function getVersion(meta) {
 }
 
 function getAvailablePlugins() {
-   var url = $('#pluginsurl').text() + 'PLUGINS';
+   var url = plugin_url + 'PLUGINS';
    get_json(url, function(data) {
       $('#plugins_loading').css('display', 'none');
       $('#plugins_container').css('display', 'block');
       if(!data || !Array.isArray(data))
          return;
 
+      var last_version = 0;
       for(var p in data) {
          new Plugin(data[p]);
+         if(data[p].version > last_version)
+            last_version = data[p].version;
       }
+      var batch = new Batch(ParallelBatch);
+      batch.get({action:'plugins.update_last_visit',last_version:last_version}, function(json) {});
+      batch.launch();
    });
 }
 

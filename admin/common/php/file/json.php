@@ -31,7 +31,7 @@ class File_JSON extends File implements ArrayAccess, Iterator{
       $this->container = $_container;
    }
 
-   public function writeContent() {
+   public function writeContent($data=null) {
       parent::writeContent(File_JSON::myjson_encode($this->container));
    }
 
