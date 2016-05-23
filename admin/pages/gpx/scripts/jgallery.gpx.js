@@ -531,7 +531,7 @@ function jGPX(data) {
 
      if(config.geolocalization) {
         var reducedIndexes = null;
-        $script('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclustererplus/src/markerclusterer_packed.js', 'gmapsclusters', function() {
+        $script('./admin/pages/gpx/scripts/markerclusterer_packed.js', 'gmapsclusters', function() {
            var geopics = [];
            for(var i in data.pics) {
               var pic = data.pics[i];

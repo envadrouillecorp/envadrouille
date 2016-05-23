@@ -620,7 +620,18 @@ $script.ready(['jquery', 'colorbox', 'themejs'],function() {
            language = language.replace(/-.*$/, '');
          }
          jGallery.lang = config.getLang()[0];
-         jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
+         var currentUrl = window.location.href, matchUrl;
+         if(matchUrl = currentUrl.match(/_escaped_fragment_=(.*)/)) { // search engine crawling
+            jGallery.currentPage = unescape(matchUrl[1]);
+            var tmp = window.onhashchange;
+            window.onhashchange = null;
+            if(window.history && window.history.replaceState)
+               window.history.replaceState('', '', window.location.pathname+'#!'+matchUrl[1]);
+            jGallery.replaceHash(matchUrl[1]);
+            window.onhashchange = tmp;
+         } else {
+            jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
+         }
          jGallery.switchLang(config.getLang().indexOf(language)!=-1?language:config.getLang()[0]);
          jGallery.switchTheme(
             $.cookie('theme')?$.cookie('theme'):first(config.getThemes())
