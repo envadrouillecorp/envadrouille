@@ -1,5 +1,5 @@
 known_sentences.concat({
-   'Galery download':'Téléchargement des galeries',
-   'download_activated':'Autoriser le téléchargement des galeries',
-   'dlall':'Bouton de téléchargement',
+   'Galery download':'TÃ©lÃ©chargement des galeries',
+   'download_activated':'Autoriser le tÃ©lÃ©chargement des galeries',
+   'dlall':'Bouton de tÃ©lÃ©chargement',
 });

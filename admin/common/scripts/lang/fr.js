@@ -4,10 +4,10 @@
 var known_sentences = {
    /** Header **/
    'permission':function(arg) {
-      var msg = 'Attention, le serveur n\'a pas les droits pour modifier certains fichiers ; les modifications ne seront pas enregistrées:<ul>';
+      var msg = 'Attention, le serveur n\'a pas les droits pour modifier certains fichiers ; les modifications ne seront pas enregistrÃ©es:<ul>';
       for(var id in arg) {
          if(arg[id]) continue;
-         msg += '<li><img src="common/css/no.png" /> '+id+' (Problème de permission)</li>';
+         msg += '<li><img src="common/css/no.png" /> '+id+' (ProblÃ¨me de permission)</li>';
       }
       msg += '</ul>';
       return msg;

@@ -1,4 +1,4 @@
 known_sentences.concat({
-   'Update':'Mises à jour',
-   'update_activated':'Vérifier automatiquement la présence de mises à jour',
+   'Update':'Mises Ã  jour',
+   'update_activated':'VÃ©rifier automatiquement la prÃ©sence de mises Ã  jour',
 });

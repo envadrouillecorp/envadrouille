@@ -1,6 +1,6 @@
 known_sentences.concat({
    'Plugins':'Plugins',
-   'check_new_plugin':'M\'informer de la présence de nouveaux plugins',
-   'check_plugin_updates':'Vérifier la présence de mise à jour pour mes plugins',
+   'check_new_plugin':'M\'informer de la prÃ©sence de nouveaux plugins',
+   'check_plugin_updates':'VÃ©rifier la prÃ©sence de mise Ã  jour pour mes plugins',
 });
 
