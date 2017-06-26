@@ -79,7 +79,8 @@ var photoshowTheme = {
        if(data && data.descr) {
           $('#content').append('<div id="main_descr" class="search">'+data.descr+'</div>');
        }
-       $('#searchbox').focus();
+       if(!jGallery.isMobile)
+           $('#searchbox').focus();
        if($('#searchbox')[0] && $('#searchbox')[0].selectionStart)
           $('#searchbox')[0].selectionStart = $('#searchbox')[0].selectionEnd = ($('#searchbox')[0].value)?$('#searchbox')[0].value.length:0;
     },

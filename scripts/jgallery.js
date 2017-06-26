@@ -235,6 +235,7 @@ var jGallery = {
    theme:null,
    lang:'en',
    plugins:[],
+   isMobile:/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
 
    replaceHash:function(hash) {
       var i = 0, url;

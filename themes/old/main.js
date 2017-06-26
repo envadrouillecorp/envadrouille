@@ -28,7 +28,8 @@ var oldTheme = {
             title = m[4];
          $('#content').append('<div class="subheader"><span class="title">'+title+'</span>'+(dirUrl!=''?'<span class="back"><a href="#!" class="translate">['+jGalleryModel.translate('Back to the index')+']</a></span>':'')+'</div>');
       }
-       $('#searchbox').focus();
+      if(!jGallery.isMobile)
+           $('#searchbox').focus();
        if($('#searchbox')[0] && $('#searchbox')[0].selectionStart)
            $('#searchbox')[0].selectionStart = $('#searchbox')[0].selectionEnd = ($('#searchbox')[0].value)?$('#searchbox')[0].value.length:0;
    },
