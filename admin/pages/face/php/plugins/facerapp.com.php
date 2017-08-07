@@ -194,7 +194,11 @@ class FaceAPI
          curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
       }
       curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+      if(isset($GLOBALS['face_disable_ssl']) && $GLOBALS['face_disable_ssl'] !== '')
+         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
       $rawData = curl_exec($ch);
+      if(curl_errno($ch))
+         throw new Exception("Curl error (if this is a SSL certificate error, see the options or configure certificates on your server):\n".curl_error($ch));
       curl_close($ch);
 
       return $this->toObject($rawData);

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<meta http-equiv="content-Type" content="text/html; charset=windows-1252" />
+		<meta http-equiv="content-Type" content="text/html; charset=UTF-8" />
       <title>Admin</title>
 
       <script type="text/javascript">

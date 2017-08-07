@@ -8,4 +8,5 @@ known_sentences.concat({
    'face_namespace':'API, namespace (ex: le nom de votre galerie sans espace)',
    'face_plugin':'API',
    'face_use_xmp':'Utiliser les tags XMP',
+   'face_disable_ssl':'Désactiver la vérfication du certificat SSL de l\'API',
 });
