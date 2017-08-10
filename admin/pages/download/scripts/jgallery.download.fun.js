@@ -8,7 +8,7 @@
        }
 
        if(jGallery.lang == 'fr') {
-          config.tr['dlall'] = 'Télécharger la galerie';
+          config.tr['dlall'] = 'TÃ©lÃ©charger la galerie';
           config.tr['dlload'] = 'Patientez...';
        } else {
           config.tr['dlall'] = 'Download gallery';

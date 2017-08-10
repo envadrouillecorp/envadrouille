@@ -743,9 +743,9 @@ function jGPX(data) {
 function gpxChangeLang() {
    if(jGallery.lang == 'fr') {
       var tr = {
-         'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
+         'Elevation':'DÃ©nivelÃ©', 'Altitude - Total Elevation: ':'Altitude - DÃ©nivelÃ© positif : ',
          'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
-         'Elapsed time':'Temps écoulé',
+         'Elapsed time':'Temps Ã©coulÃ©',
          'during':'pendant',
          'hours':'heures',
          'Statistics':'Statistiques',

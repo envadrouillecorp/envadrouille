@@ -8,8 +8,8 @@ var oldTheme = {
     animateContent:false,
     changeThemeLang:function(l) {
        if(l == 'fr') {
-          config.tr['Back to the index'] = 'Retour à l\'index';
-          config.tr['Partial result(s):'] = 'Résultat(s) partiel(s)';
+          config.tr['Back to the index'] = 'Retour Ã  l\'index';
+          config.tr['Partial result(s):'] = 'RÃ©sultat(s) partiel(s)';
        }
     },
 
