@@ -14,7 +14,7 @@ class Pages_Update_Index {
    public static $showOnMenu = false;
    public static $isContentPlugin = true;
 
-   public static $updateUrl = "http://update.envadrouille.org/VERSION-JSON";
+   public static $updateUrl = "https://update.envadrouille.org/VERSION-JSON";
 
    public static function setupAutoload() {
       require_once('./pages/update/php/update.php');

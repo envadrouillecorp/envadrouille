@@ -407,7 +407,7 @@ function jGPX(data) {
      if(config.allow_refugesinfo) {
         _Ref_MapType = new google.maps.ImageMapType({
            getTileUrl: function(coord, zoom) {
-              return 'http://maps.refuges.info/hiking/'+zoom+'/'+coord.x+'/'+coord.y+'.png';
+              return 'https://maps.refuges.info/hiking/'+zoom+'/'+coord.x+'/'+coord.y+'.png';
            },
            tileSize: new google.maps.Size(256,256),
            name: 'refuges.info',
@@ -423,7 +423,7 @@ function jGPX(data) {
          var layer = "GEOGRAPHICALGRIDSYSTEMS.MAPS";
          _GPX_ignMapType = new google.maps.ImageMapType({
              getTileUrl: function(coord, zoom) {
-                 return "http://gpp3-wxs.ign.fr/" + config.ign_key + "/geoportail/wmts?LAYER=" + layer + "&EXCEPTIONS=text/xml&FORMAT=image/jpeg&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=" +   zoom + "&TILEROW=" + coord.y + "&TILECOL=" + coord.x;
+                 return "https://gpp3-wxs.ign.fr/" + config.ign_key + "/geoportail/wmts?LAYER=" + layer + "&EXCEPTIONS=text/xml&FORMAT=image/jpeg&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=" +   zoom + "&TILEROW=" + coord.y + "&TILECOL=" + coord.x;
              },
              tileSize: new google.maps.Size(256,256),
              name: "IGN",
@@ -737,7 +737,7 @@ function jGPX(data) {
      }
   }
   gpxChangeLang();
-  $script('http://maps.google.com/maps/api/js?sensor=false&callback=realShowGPX', 'gmaps', window.realShowGPX);
+  $script('https://maps.google.com/maps/api/js?sensor=false&callback=realShowGPX', 'gmaps', window.realShowGPX);
 }
 
 function gpxChangeLang() {

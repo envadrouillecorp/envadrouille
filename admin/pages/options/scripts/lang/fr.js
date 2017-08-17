@@ -15,4 +15,5 @@ known_sentences.concat({
    'cachepath':'Répertoire cache',
    'Submit':'Valider',
    'clik_modify_passwd':'Cliquez pour modifier le mot de passe',
+   'use_https':'Télécharger les mises à jour et plugins en https (peut échouer si PHP n\'est pas correctement configuré)',
 });

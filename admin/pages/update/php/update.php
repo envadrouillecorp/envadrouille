@@ -59,13 +59,16 @@ function get_update_zip() {
    if($ret === FALSE)
       throw new Exception("Cannot create patch dir at $patch_dir (permission denied)");
 
-   $NVERSION = file_get_contents("http://update.envadrouille.org/VERSION");
+   $NVERSION = File::getSslPage("http://update.envadrouille.org/VERSION");
    if($NVERSION == FALSE)
       return array('success' => FALSE);
    $rev = preg_replace('/remote_check_version\({"version":(\d+)}\).*/s', "$1", $NVERSION);
 
-   if(!copy("http://update.envadrouille.org/patch-stable-$VERSION-stable-$rev.zip", "$patch_dir/patch.zip"))
-      return array('success' => FALSE);
+   $patch_file = fopen("$patch_dir/patch.zip", "w");
+   if(!$patch_file)
+      throw new Exception("Cannot create file $patch_dir/patch.zip");
+   fwrite($patch_file, File::getSslPage("http://update.envadrouille.org/patch-stable-$VERSION-stable-$rev.zip"));
+   fclose($patch_file);
 
    chdir($patch_dir);
    unzip("patch.zip");

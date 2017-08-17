@@ -78,7 +78,7 @@ var FacePlugin = {
       $('#content').css('opacity',1);
       $('#searchbox').focus();
       $('#searchText').text(action);
-      $('#permalink').html('<a href="http://'+jQuery.url.attr('host')+jQuery.url.attr('directory')+'#search-'+action+'">[Permalink]</a>');
+      $('#permalink').html('<a href="'+jQuery.url.attr("protocol")+'://'+jQuery.url.attr('host')+jQuery.url.attr('directory')+'#search-'+action+'">[Permalink]</a>');
       $('#search_infob').text('');
       $('#search_results').text('');
       $('#srt').translate();

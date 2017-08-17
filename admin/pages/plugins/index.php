@@ -12,7 +12,7 @@ class Pages_Plugins_Index {
    public static $showOnMenu = true;
    public static $isContentPlugin = true;
 
-   public static $pluginsUrl = "http://plugins.envadrouille.org/";
+   public static $pluginsUrl = "https://plugins.envadrouille.org/";
 
    public static function setupAutoload() {
       AutoLoader::$autoload_path[] = "./pages/options/php/";
@@ -76,9 +76,11 @@ class Pages_Plugins_Index {
       if(!$dir->isWritable())
          throw new Exception("Cannot write the ./admin/pages/ directory!");
 
-      if(!copy(Pages_Plugins_Index::$pluginsUrl.$plugin.'.zip', "$plugin_dir/$plugin.zip"))
-         throw new Exception("Cannot download $plugin!");
-
+      $plugin_file = fopen("$plugin_dir/$plugin.zip", "w");
+      if(!$plugin_file)
+         throw new Exception("Cannot create file $plugin_dir/$plugin.zip");
+      fwrite($plugin_file, File::getSslPage(Pages_Plugins_Index::$pluginsUrl.$plugin.'.zip'));
+      fclose($plugin_file);
 
       $plugin_file = new File_Zip("$plugin_dir/$plugin.zip");
       $plugin_file->unzip();

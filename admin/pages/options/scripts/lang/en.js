@@ -15,5 +15,6 @@ known_sentences.concat({
    'cachepath':'Cache directory',
    'Submit':'Submit',
    'clik_modify_passwd':'Click to modify the password',
+   'use_https':'Use https to download updates and plugins (might fail if PHP is not properly configured)',
 });
 

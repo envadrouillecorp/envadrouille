@@ -380,7 +380,7 @@ var jGallery = {
 
       $('#searchbox').focus();
       $('#searchText').text(txt);
-      $('#permalink').html('<a href="http://'+jQuery.url.attr('host')+jQuery.url.attr('directory')+'#!search-'+txt+'">[Permalink]</a>');
+      $('#permalink').html('<a href="'+jQuery.url.attr("protocol")+'://'+jQuery.url.attr('host')+jQuery.url.attr('directory')+'#!search-'+txt+'">[Permalink]</a>');
       $('#search_infob').text('');
       $('#search_results').text('');
       page.loaded = true;

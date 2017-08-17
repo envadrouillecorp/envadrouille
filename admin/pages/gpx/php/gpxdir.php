@@ -35,7 +35,7 @@ class GPXDir extends IndexDir {
 
       $ret = array();
       foreach($gpx as $g) {
-         $ret[] = 'http://'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).str_replace('../', "", $g->completePath);
+         $ret[] = '//'.$_SERVER['SERVER_NAME'].str_replace("admin", "", File::simplifyPath($path_only)).str_replace('../', "", $g->completePath);
       }
       return implode(',', $ret);
    }

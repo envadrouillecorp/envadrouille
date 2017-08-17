@@ -138,7 +138,7 @@ function start_update() {
    var nversion = getQueryVariable("nversion");
    var oversion = getQueryVariable("oversion");
    $.ajax({
-		url: "http://update.envadrouille.org/CHANGELOG-stable-"+oversion+"-stable-"+nversion,
+		url: "https://update.envadrouille.org/CHANGELOG-stable-"+oversion+"-stable-"+nversion,
 		dataType: 'jsonp',
 		crossDomain:true,
 		cache:true,

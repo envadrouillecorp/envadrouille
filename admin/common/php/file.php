@@ -144,7 +144,8 @@ class File {
 
    public function getPublicUrl() {
       $paths = explode('?', $_SERVER['REQUEST_URI'], 2);
-      return 'http://'.$_SERVER['SERVER_NAME'].$paths[0].'?action=index.get_file&pubdir='.File::base64Encode(File_JSON::forceUTF8($this->path)).'&pubimg='.File::base64Encode(File_JSON::forceUTF8($this->name));
+      $protocol = Controller::isSecure()?'https':'http';
+      return $protocol.'://'.$_SERVER['SERVER_NAME'].$paths[0].'?action=index.get_file&pubdir='.File::base64Encode(File_JSON::forceUTF8($this->path)).'&pubimg='.File::base64Encode(File_JSON::forceUTF8($this->name));
    }
 
    /* Get a file from GET or POST base64 parameters. Used to communicate URLs to services that do not undertand special characters properly */
@@ -160,6 +161,29 @@ class File {
          );
       else
          return $file;
+   }
+
+   public static function getSslPage($url) {
+      if(isset($GLOBALS['use_https']) && $GLOBALS['use_https'] !== '')
+         $url = str_replace("http://", "https://", $url);
+      else
+         $url = str_replace("https://", "http://", $url);
+
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_REFERER, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+      $result = curl_exec($ch);
+      if(curl_errno($ch))
+         throw new Exception("Curl error (if this is a SSL certificate error, see the options to configure downloads via http, or configure certificates on your server):\n".curl_error($ch));
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      if($httpCode != 200)
+         throw new Exception("Cannot open $url, error $httpCode");
+      curl_close($ch);
+      return $result;
    }
 }
 
