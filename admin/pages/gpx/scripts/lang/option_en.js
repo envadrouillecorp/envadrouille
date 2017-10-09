@@ -9,5 +9,6 @@ known_sentences.concat({
    'show_map_coord':'Show geotagged pictures on galeries without gpx',
    'geo_use_time':'Correlate pictures time and gpx track times',
    'default_geo_time_diff':'Default time offset between your camera and your GPS (in hours)',
+   'gmapsKey':'<span style="color:#F00">Google Maps API key</span> (click <a href="https://developers.google.com/maps/documentation/javascript/get-api-key">here</a> to get one)',
 });
 

@@ -9,5 +9,6 @@ known_sentences.concat({
    'show_map_coord':'Afficher les images geotaggées même en l\'absence de gpx',
    'geo_use_time':'Utiliser l\'heure de la prise de vue et le gpx pour trouver les coordonées',
    'default_geo_time_diff':'Différence (en heures) entre l\'appareil photo et le GPS',
+   'gmapsKey':'<span style="color:#F00">Google Maps API key</span> (cliquez <a href="https://developers.google.com/maps/documentation/javascript/get-api-key">ici</a> pour en avoir une)',
 });
 

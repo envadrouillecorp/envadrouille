@@ -11,4 +11,5 @@ config.tr = {
 	'(No item matching search exactly found)':'(Aucun résultat exact trouvé)',
 	'(No search result)':'(Aucun résultat)',
 	'Search results for:':'Recherche de : ',
+   'Invalid regular expression':'Erreur dans l\'expression régulière',
 };

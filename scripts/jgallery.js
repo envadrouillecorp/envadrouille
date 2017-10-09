@@ -144,11 +144,19 @@ var jGalleryModel = {
          var searchReg = [];
          for(var w = 0; w < words.length; w++) {
             /* When searching for a "quoted text", force regex to match beginning of a word */
-            if(words[w][0] == '"' && words[w][words[w].length-1] == '"') {
-               words[w] = words[w].slice(1, words[w].length - 1);
-               searchReg.push(new RegExp('(\\b'+words[w]+')', "gi"));
-            } else {
-               searchReg.push(new RegExp('('+words[w]+')', "gi"));
+            try {
+               if(words[w][0] == '"' && words[w][words[w].length-1] == '"') {
+                  words[w] = words[w].slice(1, words[w].length - 1);
+                  searchReg.push(new RegExp('(\\b'+words[w]+')', "gi"));
+               } else {
+                  searchReg.push(new RegExp('('+words[w]+')', "gi"));
+               }
+            } catch(err) {
+               return {
+                  SearchText:txt,
+                  type:"error",
+                  error:jGalleryModel.translate("Invalid regular expression")
+               };
             }
          }
 
@@ -445,12 +453,18 @@ var jGallery = {
       });
    },
 
+   scrollTo:0,
+   pop:function(e) {
+      if(e.state && e.state.scroll)
+         jGallery.scrollTo = e.state.scroll;
+      else
+         jGallery.scrollTo = 0;
+   },
+
    /* Change view */
    switchPage:function(action) {
       if(action==jGallery.currentPage && !jGallery.canReload)
          return;
-      if(!jGallery.canReload && window._gaq && _gaq.push) 
-         _gaq.push(['_trackPageview', location.pathname + ((action!=null)?action:'') ]);
       jGallery.canReload = 0;
       
       if(action==null || action == -1) {
@@ -522,6 +536,9 @@ var jGallery = {
             }
       }
       jGallery.parseHash(jGallery.currentPage);
+
+      if(!config.noScroll || config.noScroll === true)
+         $(window).scrollTop(jGallery.scrollTo);
    },
 
    addHeader: function() {
@@ -581,6 +598,17 @@ var jGallery = {
 };
 
 $script.ready(['jquery', 'colorbox', 'themejs'],function() {
+   if(window.history && window.history.replaceState) {
+      window.onpopstate = jGallery.pop;
+      $(document).scroll(function() {
+         var scrollTop = $(document).scrollTop();
+         window.history.replaceState({
+            scroll: scrollTop
+         }, 'scroll', location.hash);
+      });
+   }
+
+
    if(config.picsDir)
       jGalleryModel.picsDir = config.picsDir;
    if(config.cacheDir)
@@ -623,7 +651,7 @@ $script.ready(['jquery', 'colorbox', 'themejs'],function() {
          jGallery.lang = config.getLang()[0];
          var currentUrl = window.location.href, matchUrl;
          if(matchUrl = currentUrl.match(/_escaped_fragment_=(.*)/)) { // search engine crawling
-            jGallery.currentPage = unescape(matchUrl[1]);
+            jGallery.currentPage = unescape(decodeURIComponent(matchUrl[1]));
             var tmp = window.onhashchange;
             window.onhashchange = null;
             if(window.history && window.history.replaceState)
@@ -631,7 +659,7 @@ $script.ready(['jquery', 'colorbox', 'themejs'],function() {
             jGallery.replaceHash(matchUrl[1]);
             window.onhashchange = tmp;
          } else {
-            jGallery.currentPage = unescape(location.hash).replace(/#!?/,'');
+            jGallery.currentPage = unescape(decodeURIComponent(location.hash)).replace(/#!?/,'');
          }
          jGallery.switchLang(config.getLang().indexOf(language)!=-1?language:config.getLang()[0]);
          jGallery.switchTheme(
@@ -645,6 +673,7 @@ $script.ready(['jquery', 'colorbox', 'themejs'],function() {
    } else {
       show();
    }
+
 });
 
 window.onhashchange = function(){

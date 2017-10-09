@@ -472,9 +472,17 @@ class LiteTemplate{
          if(file_exists($url)) 
             $extraJSFinal[] = $url;
       }
-
       $this->assignTag('SCRIPT', '1', array(
 			'js_url' => $extraJSFinal,
+      ));
+
+      $extraJSExternal = array();
+      foreach($this->extraJS as $js) {
+         if(substr($js, 0, 4 ) === "http")
+            $extraJSExternal[] = $url;
+      }
+      $this->assignTag('SCRIPT', '2', array(
+			'js_url' => $extraJSExternal,
       ));
    }
 }

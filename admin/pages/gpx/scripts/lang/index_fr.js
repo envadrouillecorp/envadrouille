@@ -6,4 +6,5 @@ known_sentences.concat({
 	't_added_gpx':'(Si vous avez placé un fichier gpx dans ce dossier, il sera ajouté automatiquement.)',
    'gps_time_diff':'Difference&nbsp;entre&nbsp;l\'heure&nbsp;de&nbsp;l\'appareil&nbsp;et&nbsp;le&nbsp;GPS&nbsp;:',
    'geo_all_pics':'Utiliser&nbsp;l\'heure&nbsp;dans&nbsp;la&nbsp;géolocalisation?',
+   'gmapsKeyMissing':'Google Maps requiert maintenant l\'utilisation d\'une clef d\'authentification. Si les cartes s\'affichent mal, configurez la clef dans les options de l\'administation (section GPX)',
 });

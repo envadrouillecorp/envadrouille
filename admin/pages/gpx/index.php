@@ -23,6 +23,7 @@ class Pages_Gpx_Index {
 
    public static function getOptions() {
       return array(
+         array('id' => 'gmapsKey', 'type' => 'text', 'cat' => 'GPX', 'default' => '', 'export' => true),
          array('id' => 'gpx_type', 'type' => 'select', 'cat' => 'GPX', 'default' => 'terrain', 'vals' => array('satellitte' => 'Satellitte', 'roadmap' => 'Road Map', 'terrain' => 'Terrain', 'ign' => 'IGN (France)', 'refuges.info' => 'Refuges.info (France)')),
          array('id' => 'allow_refugesinfo', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
          array('id' => 'ign_key', 'type' => 'text', 'cat' => 'GPX', 'default' => '', 'export' => true),
@@ -40,7 +41,7 @@ class Pages_Gpx_Index {
    }
 
    static public function getTpl() {
-      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff;
+      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff, $gmapsKey;
       $template = new liteTemplate();
       $template->file('pages/gpx/tpl/gps.tpl');
       $template->assign(array('GPX_TYPE' => $gpx_type));
@@ -48,10 +49,12 @@ class Pages_Gpx_Index {
          $template->assign(array('GEOLOCALIZATION_BEG' => ''));
          $template->assign(array('GEOLOCALIZATION_END' => ''));
          $template->assign(array('GPX_TIME_DIFF' => $default_geo_time_diff));
+         $template->assign(array('GMAPS_KEY' => $gmapsKey));
       } else {
          $template->assign(array('GEOLOCALIZATION_BEG' => '<!--'));
          $template->assign(array('GEOLOCALIZATION_END' => '-->'));
          $template->assign(array('GPX_TIME_DIFF' => ''));
+         $template->assign(array('GMAPS_KEY' => ''));
       }
       return $template->returnTpl();
    }

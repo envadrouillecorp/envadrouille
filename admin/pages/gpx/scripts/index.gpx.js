@@ -86,3 +86,9 @@ var GPX = {
    }
 };
 plugins.push(GPX);
+
+$(document).ready(function() {
+   if($('#gmapsKey').text() == '') {
+      inform('gmapsKeyMissing', 'warning', 'true');
+   }
+});

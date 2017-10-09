@@ -737,7 +737,10 @@ function jGPX(data) {
      }
   }
   gpxChangeLang();
-  $script('https://maps.google.com/maps/api/js?sensor=false&callback=realShowGPX', 'gmaps', window.realShowGPX);
+  if(!config.gmapsKey || config.gmapsKey == '')
+     $script('https://maps.google.com/maps/api/js?callback=realShowGPX', 'gmaps', window.realShowGPX);
+  else
+     $script('https://maps.google.com/maps/api/js?callback=realShowGPX&key='+config.gmapsKey, 'gmaps', window.realShowGPX);
 }
 
 function gpxChangeLang() {
@@ -754,3 +757,11 @@ function gpxChangeLang() {
    }
 }
 $('<div class="customtranslate"/>').bind('languagechangeevt', gpxChangeLang).appendTo($('body'));
+
+if(!gm_authFailure) {
+   function gm_authFailure() {
+      $('#content').html('');
+      $('#content').css('opacity', 1);
+      jGallery.theme.showError({Error:"Invalid Google Map key. Please add a correct Google Map key in the administration options."});
+   }
+}

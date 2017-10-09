@@ -21,6 +21,9 @@
       {SCRIPT id=1}
       <script type="text/javascript" src="{$js_url}?{$VERSION}"></script>
       {/SCRIPT}
+      {SCRIPT id=2}
+      <script type="text/javascript" src="{$js_url}"></script>
+      {/SCRIPT}
 
 		<link media="all" type="text/css" href="common/css/utils.css?{$VERSION}" rel="stylesheet">
       <link media="all" type="text/css" href="pages/{$page}/css/main.css?{$VERSION}" rel="stylesheet">

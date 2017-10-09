@@ -1,5 +1,6 @@
 <div id="default_gpx_type" style="display:none">{$GPX_TYPE}</div>
 <div id="default_geo_time_diff" style="display:none">{$GPX_TIME_DIFF}</div>
+<div id="gmapsKey" style="display:none">{$GMAPS_KEY}</div>
 
 <script id="gpxTpl" type="text/x-jquery-tmpl">
                <tr style="height:40px">

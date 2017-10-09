@@ -34,6 +34,8 @@ class Pages_Index_Index {
       $plugin_content = '';
       $template = new liteTemplate();
       foreach($plugins as $plugin) {
+         if(!file_exists('./pages/'.$plugin.'/index.php'))
+            continue;
          require_once('./pages/'.$plugin.'/index.php');
          $classn = Controller::getPluginIndex($plugin);
          $tplFunction = $classn."::getTpl";
@@ -65,6 +67,8 @@ class Pages_Index_Index {
          'url' => $dir->getURL(),
       );
       foreach($plugins as $plugin) {
+         if(!file_exists('./pages/'.$plugin.'/index.php'))
+            continue;
          require_once('./pages/'.$plugin.'/index.php');
          $classn = Controller::getPluginIndex($plugin);
          $contentFunction = $classn."::getContent";
