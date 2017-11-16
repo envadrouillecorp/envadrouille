@@ -72,6 +72,7 @@ class Pages_Face_Index {
          $name = preg_replace('/\..*$/', '', $json->name);
          $ret['people'][$name] = $json->get();
       }
+      ksort($ret['people']);
       echo File_JSON::myjson_encode($ret);
    }
 

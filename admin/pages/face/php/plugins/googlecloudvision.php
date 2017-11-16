@@ -70,6 +70,12 @@ class FaceAPI
          return $faces;
 
       foreach($json['responses'][0]['faceAnnotations'] as $face) {
+         // Google has a bug... sometimes the array is only partially filled, and the default value doesn't seem to be 0, so well, ignore buggy faces...
+         if(!isset($face['boundingPoly']['vertices'][0]['x'])
+            || !isset($face['boundingPoly']['vertices'][0]['y'])
+            || !isset($face['boundingPoly']['vertices'][2]['x'])
+            || !isset($face['boundingPoly']['vertices'][2]['y']))
+            continue;
          $faces[] = array(
             'x' => $face['boundingPoly']['vertices'][0]['x'],
             'y' => $face['boundingPoly']['vertices'][0]['y'],
