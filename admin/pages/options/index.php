@@ -21,6 +21,7 @@ class Pages_Options_Index {
          array('id' => 'lang', 'type' => 'select', 'cat' => 'Global', 'default' => 'en', 'vals' => Options::getAdminLangs()),
          array('id' => 'utheme', 'type' => 'select', 'cat' => 'UserOpt', 'default' => 'default', 'vals' => UserOptions::getThemesOpt()),
          array('id' => 'ulang', 'type' => 'select', 'cat' => 'UserOpt', 'default' => 'en', 'vals' => UserOptions::getLangsOpt()),
+         array('id' => 'ushowall', 'type' => 'checkbox', 'cat' => 'UserOpt', 'default' => false, 'export' => true),
          array('id' => 'use_https', 'type' => 'checkbox', 'cat' => 'UserOpt', 'default' => false),
          array('id' => 'picpath', 'type' => 'text', 'cat' => 'GlobalPath', 'default' => '../pics'),
          array('id' => 'cachepath', 'type' => 'text', 'cat' => 'GlobalPath', 'default' => '../cache'),

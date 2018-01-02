@@ -10,6 +10,7 @@ known_sentences.concat({
    'UserOpt':'Réglages de la galerie',
    'utheme':'Thème',
    'ulang':'Langue',
+   'ushowall':'Afficher toutes les galeries directement (par défaut seules les 4 dernières s\'affichent)',
    'GlobalPath':'Chemins Globaux',
    'picpath':'Répertoire photo',
    'cachepath':'Répertoire cache',

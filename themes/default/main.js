@@ -245,6 +245,8 @@ var defaultTheme = {
 
     init:function() {
        jGallery.addCss('./themes/_common/colorbox.css', 'colorbox');
+       if(typeof config.ushowall !== 'undefined')
+          defaultTheme.default_show_all = config.ushowall;
     },
     clean:function() {
     },
