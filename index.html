@@ -265,23 +265,13 @@
 			</tr>
 		</table>
 	</script>
-	<script id="everytrailTpl" type="text/x-jquery-tmpl">
-		<div class="gpse">
-			<object width="100%" height="100%" codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
-				<param name="movie" value="http://www.everytrail.com/swf/widget.swf"/>
-				<param name="FlashVars" value="${gps}">
-				<param name="wmode" value="opaque" />
-				<embed src="http://www.everytrail.com/swf/widget.swf" quality="high" width="100%" height="100%" FlashVars="${gps}" play="true" quality="high" type="application/x-shockwave-flash" pluginspage="http://www.adobe.com/go/getflashplayer"  wmode="opaque">
-				</embed>
-			</object>
-		</div>
-	</script>
 	<script id="gpsTpl" type="text/x-jquery-tmpl">
 		<div class="gps">
 			<div class="gpsmapwrapper">
 				<div id="map_canvas" class="gpscanvas"></div>
 				<div id="map_advanced" class="gpsadvanced"></div>
 				<div id="map_bigger" class="gpsbigger"></div>
+            <a download="${gpx}" href="${gpx}"><div id="gpx_download" class="gpsdownload"></div></a>
 			</div>
 			<div id="chart_div" class="gpschart"></div>
 		</div>

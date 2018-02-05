@@ -286,6 +286,17 @@ a {
 .gpssmaller {
    background:url(smaller.png) repeat-x center;
 }
+.gpsdownload {
+   position:absolute;
+   background:url(../_common/dlgpx.png) repeat-x center;
+   bottom:0px;
+   left:50%;
+   margin-left:-76px;
+   width:40px;
+   height:40px;
+   cursor:pointer;
+   display:none;
+}
 
 #pics {
    margin:auto;

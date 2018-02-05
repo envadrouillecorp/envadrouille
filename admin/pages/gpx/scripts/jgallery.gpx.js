@@ -705,6 +705,7 @@ function jGPX(data) {
         map.fitBounds(bounds);
      });
 
+     $('.gpsdownload').css('display', 'block');
   }
 
   window.realShowGPX = function(b) {

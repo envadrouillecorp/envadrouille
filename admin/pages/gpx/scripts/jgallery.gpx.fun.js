@@ -17,8 +17,10 @@
        if(!show)
           return;
 
-       if($('.gps').length == 0)
-          $("#gpsTpl").tmpl().appendTo('#content');
+       if($('.gps').length == 0) {
+          var urls = [].concat(data.gpx);
+          $("#gpsTpl").tmpl({gpx:urls[0]}).appendTo('#content');
+       }
        $script('admin/pages/gpx/scripts/jgallery.gpx.js', 'gpx', function() {
           jGPX(data);
        });
