@@ -72,6 +72,7 @@ class Controller {
    static public function route($route=null, $auth_login_redirect=false) {
       global $pages, $adm_pwd;
       $pages['login'] = array('descr' => 'Login', 'pwdfree' => array('login', 'validate', 'logout'));
+      //$pages['index']['pwdfree'] = array('get_file', 'get_file_thumb', 'show_public_url');
       $pages['index']['pwdfree'] = array('get_file');
 
       session_start();

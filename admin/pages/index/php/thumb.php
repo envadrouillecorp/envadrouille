@@ -12,8 +12,14 @@ class Thumb extends File_Pic {
    public $crop;
    public $basepic;
 
-   public function __construct($path, $name = '', $basepic = null, $width = 0, $height = 0, $crop = false) {
-      parent::__construct($path, $name);
+   public function __construct($path, $name = '', $basepic = null, $width = 0, $height = 0, $crop = false, $_quality = 0) {
+      global $quality;
+      if($path != '-')
+         parent::__construct($path, $name);
+      else
+         $this->completePath = '-';
+      if($_quality != 0)
+         $quality = $_quality;
       $this->basepic = $basepic;
       $this->width = $width;
       $this->height = $height;
@@ -27,10 +33,10 @@ class Thumb extends File_Pic {
    public function create() {
       if(!$this->basepic->exists())
          throw new Exception("Cannot read file at ".$this->basepic->completePath);
-      if(!$this->isWritable())
+      if($this->completePath != '-' && !$this->isWritable())
          throw new Exception("Cannot create file at $this->completePath (permission denied)");
-
-      $this->remove();
+      if($this->completePath != '-')
+         $this->remove();
 
       if($this->width > 500 || $this->width > 500 || !function_exists("imagecreatefromjpeg")) {
          $this->createThumbImgmagick();
@@ -38,7 +44,8 @@ class Thumb extends File_Pic {
          $this->createThumbGD();
       }
 
-      @chmod($this->completePath, 0744);
+      if($this->completePath != '-')
+         @chmod($this->completePath, 0744);
    }
 
    protected function getSourceImgGD() {
@@ -124,7 +131,10 @@ class Thumb extends File_Pic {
       $im = imagecreatetruecolor ($dest_width, $dest_height);
       imagecopyresampled($im, $source, 0, 0, $orig_x, $orig_y, $dest_width, $dest_height, $src_width, $src_height);
 
-      imagejpeg ($im, $this->completePath, $quality);
+      if($this->completePath != '-')
+         imagejpeg($im, $this->completePath, $quality);
+      else
+         imagejpeg($im, NULL, $quality);
       imagedestroy($im);
       imagedestroy($source);
    }
@@ -169,7 +179,13 @@ class Thumb extends File_Pic {
          } else {
             $dest_height = $tmp_dest_height;
          }
-         exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize '.$dest_width.'x'.$dest_height.' "'.$this->completePath.'"', $output, $ret);
+         if($this->completePath == "-") {
+            $cmd = $convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -scale '.$dest_width.'x'.$dest_height.' -';
+            passthru($cmd, $ret);
+         } else {
+            $cmd = $convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize '.$dest_width.'x'.$dest_height.' "'.$this->completePath.'"';
+            exec($cmd, $output, $ret);
+         }
       } else {
          if($dest_width > $src_width || $dest_height > $src_height) {
             exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
@@ -177,7 +193,7 @@ class Thumb extends File_Pic {
             exec($convert.' -auto-orient -limit thread 1 "'.$this->basepic->completePath.'" -quality '.$quality.' -resize "'.$dest_width.'x'.$dest_height.'^" -gravity center -crop '.$dest_width.'x'.$dest_height.'+0+0 +repage "'.$this->completePath.'"', $output, $ret);
          }
       }
-      if(!$this->exists())
+      if($this->completePath != '-' && !$this->exists())
          throw new Exception("Failed to create picture $this->completePath\nThis is probably due to temporary server overload.\nTry to update the directory again.\nImageMagick output (return value $ret):\n".implode("\n", $output)."\n");
    }
 

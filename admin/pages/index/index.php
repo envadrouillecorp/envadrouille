@@ -135,9 +135,9 @@ class Pages_Index_Index {
 
    static public function getFileAction() {
       //SECURITY
-      global $cachepath;
+      global $cachepath, $picpath;
       $file = File::fromPublicUrl();
-      if(!$file->exists() || strpos($file->path, $cachepath) !== 0)
+      if(!$file->exists() || (strpos($file->path, $cachepath) !== 0 && strpos($file->path, $picpath) !== 0))
          throw new Exception("Invalid file $file->completePath");
 
       $extension = strtolower($file->extension);
@@ -148,6 +148,31 @@ class Pages_Index_Index {
       else
          header("Content-Type: image/jpg");
       readfile($file->completePath);
+   }
+
+   static public function getFileThumbAction() {
+      //SECURITY
+      global $cachepath, $picpath;
+      $file = File::fromPublicUrl();
+      if(!$file->exists() || (strpos($file->path, $cachepath) !== 0 && strpos($file->path, $picpath) !== 0))
+         throw new Exception("Invalid file $file->completePath");
+
+      $height = (int)Controller::getParameter('h');
+      $width = (int)Controller::getParameter('w');
+      $extension = strtolower($file->extension);
+      if($extension === "png")
+         header("Content-Type: image/png");
+      else if($extension == "gif")
+         header("Content-Type: image/gif");
+      else
+         header("Content-Type: image/jpg");
+      $t = new Thumb('-', '', new IndexPic($file->completePath), $width, $height, false, 80);
+      $t->create();
+   }
+
+   static public function showPublicUrlAction() {
+      $pic = new IndexPic(Controller::getParameter('dir'), Controller::getParameter('img'), true);
+      echo File_JSON::myjson_encode(array('url' => $pic->getPublicUrl()));
    }
 };
 
