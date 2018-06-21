@@ -91,7 +91,8 @@ a,span,div {
    position:fixed;
    bottom:0;
    width:100%;
-   text-align:center;
+   text-align:right;
+   left:-20px;
    z-index:999999;
 }
 #fullscreenDiv #cboxControls span {
