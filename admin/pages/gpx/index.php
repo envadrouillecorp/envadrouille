@@ -23,13 +23,15 @@ class Pages_Gpx_Index {
 
    public static function getOptions() {
       return array(
-         array('id' => 'gmapsKey', 'type' => 'text', 'cat' => 'GPX', 'default' => '', 'export' => true),
-         array('id' => 'gpx_type', 'type' => 'select', 'cat' => 'GPX', 'default' => 'terrain', 'vals' => array('satellitte' => 'Satellitte', 'roadmap' => 'Road Map', 'terrain' => 'Terrain', 'ign' => 'IGN (France)', 'refuges.info' => 'Refuges.info (France)')),
-         array('id' => 'allow_refugesinfo', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
-         array('id' => 'ign_key', 'type' => 'text', 'cat' => 'GPX', 'default' => '', 'export' => true),
-         array('id' => 'geolocalization', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
+         array('id' => 'gpx_tiles', 'type' => 'sortables', 'cat' => 'GPX', 'fields' => array('Name' => 'text', 'URL' => 'text', 'Attribution' => 'text', 'Enabled'=>'checkbox'), 'export' => 'true', 'default' => array(
+            array('Name' => 'CartoDB', 'URL' => 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', 'Attribution' => '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>', 'Enabled'=>true),
+            array('Name' => 'OSM', 'URL' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'Attribution' => '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors', 'Enabled'=>true),
+            array('Name' => 'Refuges.info', 'URL' => 'https://maps.refuges.info/hiking/{z}/{x}/{y}.png', 'Attribution' => '&copy; <a href="https://www.refuges.info">Refuges.info</a>', 'Enabled'=>true),
+         )),
+         array('id' => 'geolocalization', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
          array('id' => 'show_map_coord', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
-         array('id' => 'geo_use_time', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
+         array('id' => 'geo_use_time', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
+         array('id' => 'gpx_fix_elevation', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
          array('id' => 'default_geo_time_diff', 'type' => 'text', 'cat' => 'GPX', 'default' => 0, 'export' => true),
       );
    }
@@ -41,20 +43,19 @@ class Pages_Gpx_Index {
    }
 
    static public function getTpl() {
-      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff, $gmapsKey;
+      global $gpx_type, $geolocalization, $geo_use_time, $default_geo_time_diff, $gpx_tiles;
       $template = new liteTemplate();
       $template->file('pages/gpx/tpl/gps.tpl');
       $template->assign(array('GPX_TYPE' => $gpx_type));
+      $template->assign(array('TILES' => $gpx_tiles));
       if($geolocalization === '1' && $geo_use_time === '1') {
          $template->assign(array('GEOLOCALIZATION_BEG' => ''));
          $template->assign(array('GEOLOCALIZATION_END' => ''));
          $template->assign(array('GPX_TIME_DIFF' => $default_geo_time_diff));
-         $template->assign(array('GMAPS_KEY' => $gmapsKey));
       } else {
          $template->assign(array('GEOLOCALIZATION_BEG' => '<!--'));
          $template->assign(array('GEOLOCALIZATION_END' => '-->'));
          $template->assign(array('GPX_TIME_DIFF' => ''));
-         $template->assign(array('GMAPS_KEY' => ''));
       }
       return $template->returnTpl();
    }
@@ -64,7 +65,7 @@ class Pages_Gpx_Index {
       Pages_Gpx_Index::setupAutoload();
 
       $o_json = GPXJson::fromIndexJSON($args['old_json']);
-      
+
       $new_json = &$args['json'];
       $new_json['gpx'] = $o_json->getGPX();
       $new_json['gpxtype'] = $o_json->getGPXType();
@@ -88,7 +89,7 @@ class Pages_Gpx_Index {
             $hash = array();
             $pics = $o_json->get('pics');
             if($pics) {
-               foreach($pics as &$pic) 
+               foreach($pics as &$pic)
                   $hash[$pic['url']] = $pic;
             }
 

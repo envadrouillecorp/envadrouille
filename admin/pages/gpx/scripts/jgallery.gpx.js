@@ -45,13 +45,47 @@ Date.prototype.setExifDateTimeOriginal = function (string, diff) {
    return this;
 }
 
-function jGPX(data) {
-  var maxNbPoints = 400;
-  var alwaysUseGMapsElevation = true;
-  var minMeaningfulElevationDiff = 40;
-  var chartDetails = '';
-  var chart;
-  var distances;
+function gpxChangeLang() {
+   if(jGallery.lang == 'fr') {
+      var tr = {
+         'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
+         'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
+         'Elapsed time':'Temps écoulé',
+         'during':'pendant',
+         'hours':'heures',
+         'Statistics':'Statistiques',
+      };
+      config.tr = $.extend(config.tr, tr);
+   }
+}
+$('<div class="customtranslate"/>').bind('languagechangeevt', gpxChangeLang).appendTo($('body'));
+
+function map(data, options) {
+   var self = this;
+
+   self.map;
+   self.bounds;
+   self.xmls;
+   self.layers = {};
+
+   /* Default options */
+   self.mapDiv = "map_canvas";
+   self.charDiv = "chart_div";
+   self.maxNbPoints = 400;
+   self.fixElevation = (config.gpx_fix_elevation === '1');
+   self.minMeaningfulElevationDiff = 40;
+   if(options)
+      $.extend(self, options);
+
+   self.points = [];
+   self.times = [];
+   self.elevations = [];
+   self.polypoints = [];
+   self.segments = {};
+   self.nbsegments = 0;
+
+   var chart;
+   var distances;
 
   function distance(points, segments) {
      var ret = [];
@@ -61,7 +95,7 @@ function jGPX(data) {
         if(segments[i] == 1) {
            ret[i] = ret[i-1];
         } else {
-           ret[i] = ret[i-1] + google.maps.geometry.spherical.computeDistanceBetween(points[i-1], points[i]) / 1000; //km
+           ret[i] = ret[i-1] + self.map.distance(points[i-1], points[i]) / 1000; //km
         }
      }
 
@@ -117,7 +151,7 @@ function jGPX(data) {
   }
 
   function reduceSegments(segments, len) {
-     var stripe = Math.floor(len / maxNbPoints);
+     var stripe = Math.floor(len / self.maxNbPoints);
      if(stripe==0)
         return segments;
 
@@ -134,7 +168,7 @@ function jGPX(data) {
 
   function indexesToReducedIndexes(points, segments) {
      var len = points.length;
-     var stripe = Math.floor(len / maxNbPoints);
+     var stripe = Math.floor(len / self.maxNbPoints);
      var ret = [];
      var j = -1;
      for(var i = 0; i < len; i++) {
@@ -147,7 +181,7 @@ function jGPX(data) {
 
   function reduce(points, segments) {
      var len = points.length;
-     var stripe = Math.floor(len / maxNbPoints);
+     var stripe = Math.floor(len / self.maxNbPoints);
      if(stripe==0)
         return points;
      var ret = [];
@@ -201,7 +235,7 @@ function jGPX(data) {
            lastElevation = el[e].elevation;
            continue;
         }
-        if(Math.abs(el[e].elevation - lastElevation) > minMeaningfulElevationDiff) {
+        if(Math.abs(el[e].elevation - lastElevation) > self.minMeaningfulElevationDiff) {
            if(lastElevation < el[e].elevation) {
               total += el[e].elevation - lastElevation;
            }
@@ -211,26 +245,31 @@ function jGPX(data) {
      return Math.round(total);
   }
 
-  function getElevations(points, i, cb, args) {
-     /* Get the elevation from Google Elevation service. */
-     /* Google cannot handle very long URLS => we send N requests of 200 points */
-     var elevator = new google.maps.ElevationService();
-     var subset = points.slice(i*200,(i+1)*200);
-     elevator.getElevationForLocations({'locations':subset}, function(results, st) {
-        if (st == google.maps.ElevationStatus.OK) {
-           args.result = args.result.concat(results);
-           if((i+1)*200 >= points.length) {
+   self.getElevations = function(points, i, cb, args) {
+      var granularity = 50; // # points per call of the API
+      var subset = points.slice(i*granularity,(i+1)*granularity).map(function(x) { return '('+x.lat+','+x.lng+')' });
+      var url = "https://elevation-api.io/api/elevation?points="+subset.join(',');
+      $.ajax({
+         type: "GET",
+         url: url,
+         success: function(json) {
+            var elevations = json.elevations.map(function(x) { return {'elevation':x.elevation};});
+            args.result = args.result.concat(elevations);
+            if((i+1)*granularity >= points.length) {
               cb(args);
            } else {
-              getElevations(points, i+1, cb, args);
+              self.getElevations(points, i+1, cb, args);
            }
-        } else {
-           $("map_canvas").css('opacity', 0);
-        }
+         },
+         error:function(e, f) {
+            console.log(e);
+            console.log(f);
+            $('#'+self.mapDiv).removeClass('canvas_loading').html('Error while getting elevations '+url+' ('+f+')');
+         },
      });
   }
 
-  function drawElevation(elev, points, times, map, segments) {
+  self.drawElevation = function(elev, points, times, segments) {
      function drawChart() {
         distances = distance(points, segments);
         var speeds = speed(distances, times);
@@ -256,13 +295,13 @@ function jGPX(data) {
 
         chart = new Highcharts.Chart({
            chart: {
-              renderTo: 'chart_div',
+              renderTo: self.charDiv,
               zoomType: 'xy',
               backgroundColor:'transparent',
               animation:false,
            },
            alignTicks:false,
-           title: { useHTML:true, text: '<abbr title="'+chartDetails+'" style="border-bottom-width:0">'+jGalleryModel.translate('Statistics')+'</abbr>' },
+           title: { useHTML:true, text: '<abbr style="border-bottom-width:0">'+jGalleryModel.translate('Statistics')+'</abbr>' },
            xAxis: { title: {text:jGalleryModel.translate('Distance')+' (km)'} },
            yAxis: [{
               labels: {
@@ -318,13 +357,11 @@ function jGPX(data) {
                     this.id = ids[this.x];
 
                  if(!pwnMarker)
-                    pwnMarker = new google.maps.Marker({
-                       position: points[this.id],
-                       map: map,
-                       icon: 'themes/_common/here.png'
-                    });
+                    pwnMarker = new L.marker(points[this.id], {
+                       icon: L.icon({iconUrl:'themes/_common/here.png', iconSize:[18, 18], iconAnchor:[9, 18]}),
+                    }).addTo(self.map);
                  else
-                    pwnMarker.setPosition(points[this.id]);
+                    pwnMarker.setLatLng(points[this.id]);
 
                  var ret = jGalleryModel.translate('Altitude') + ': ' + (Math.round(elevations[this.id].y*10)/10) + 'm<br/>'
                     + jGalleryModel.translate('Speed') + ': '+ (Math.round(speeds[this.id].y*10)/10) + 'km/h<br/>'
@@ -361,15 +398,12 @@ function jGPX(data) {
            });
         }
 
-        $('#chart_div').removeClass('loading_chart');
+        $('#'+self.charDiv).removeClass('loading_chart');
      }
      $script('./scripts/highcharts.js', 'highcharts', drawChart);
   }
 
   function binSearch(needle, haystack) {
-     if(chartDetails == '')
-        chartDetails = 'Track begins '+new Date(haystack[0])+' and ends '+new Date(haystack[haystack.length-1])+', first pic time (with offset) is '+new Date(needle)+'.';
-
      if(needle < haystack[0])
         return -1;
      if(needle > haystack[haystack.length-1])
@@ -391,7 +425,7 @@ function jGPX(data) {
      return high;
   }
 
-  function getPositionWithTime(coord, points, times, diff) {
+  self.getPositionWithTime = function(coord, points, times, diff) {
      var date = new Date().setExifDateTimeOriginal(coord, diff).getTime();
      if(date === 0)
         return null;
@@ -402,367 +436,330 @@ function jGPX(data) {
      return index;
   }
 
-  function addRefugeInfo(options)  {
-     var _Ref_MapType = null;
-     if(config.allow_refugesinfo) {
-        _Ref_MapType = new google.maps.ImageMapType({
-           getTileUrl: function(coord, zoom) {
-              return 'https://maps.refuges.info/hiking/'+zoom+'/'+coord.x+'/'+coord.y+'.png';
-           },
-           tileSize: new google.maps.Size(256,256),
-           name: 'refuges.info',
-           maxZoom: 18
-        });
-        options['mapTypeControlOptions'].mapTypeIds.unshift('refuges.info');
-     }
-     return _Ref_MapType;
-  } 
-  function addIGN(options) {
-     var _GPX_ignMapType = null;
-     if(config.ign_key && config.ign_key !== '') {
-         var layer = "GEOGRAPHICALGRIDSYSTEMS.MAPS";
-         _GPX_ignMapType = new google.maps.ImageMapType({
-             getTileUrl: function(coord, zoom) {
-                 return "https://gpp3-wxs.ign.fr/" + config.ign_key + "/geoportail/wmts?LAYER=" + layer + "&EXCEPTIONS=text/xml&FORMAT=image/jpeg&SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=" +   zoom + "&TILEROW=" + coord.y + "&TILECOL=" + coord.x;
-             },
-             tileSize: new google.maps.Size(256,256),
-             name: "IGN",
-             maxZoom: 18
+   
+   self.first_chart_show = true;
+   self.chart_shown = false;
+   self.showElevationChart = function() {
+      if(self.chart_shown) {
+         $('#'+self.charDiv).css('display', 'none');
+         self.chart_shown = false;
+         return;
+      } else if(!self.first_chart_show) {
+         $('#'+self.charDiv).css('display', 'block');
+         self.chart_shown = true;
+         return;
+      }
+
+      $('#'+self.charDiv).css('display', 'block').addClass('loading_chart');
+      self.chart_shown = true;
+      self.first_chart_show = false;
+
+      var _points = self.points, _times = self.times, _elevations = self.elevations, _segments = self.segments;
+      /* Only consider a subset of the points for the graph */
+      if(self.points.length > self.maxNbPoints) {
+         var len = _points.length;
+         _points = reduce(_points, _segments);
+         _times = reduce(_times, _segments);
+         _elevations = reduce(_elevations, _segments);
+         _segments = reduceSegments(_segments, len);
+      }
+
+      if(_times.length != _points.length)
+         _times = null;
+      if(self.fixElevation || _elevations.length != _points.length)  { 
+         self.getElevations(_points, 0, function(args) {
+            self.drawElevation(args.result, args.points, args.times, _segments);
+         }, { result:[], points:_points, times:_times });
+      } else {
+         self.drawElevation(_elevations, _points, _times, _segments);
+      }
+   }
+
+   self.showButtons = function() {
+      $('.gpsadvanced').css({display:self.xmls?'block':'none',zIndex:8999}).unbind('click').click(function() {
+         self.showElevationChart();
+      });
+
+      $('.gpsbigger').css({display:'block',zIndex:8999}).unbind('click').click(function() {
+         if($('#'+self.mapDiv).hasClass('gpscanvasbig')) {
+            $('#'+self.mapDiv).removeClass('gpscanvasbig');
+            $('.gpsbigger').removeClass('gpssmaller');
+         } else {
+            $('#'+self.mapDiv).addClass('gpscanvasbig');
+            $('.gpsbigger').addClass('gpssmaller');
+         }
+         self.map.invalidateSize();
+         self.fitBounds();
+      });
+
+      $('.gpsdownload').css({display:self.xmls?'block':'none',zIndex:8999});
+   }
+
+   self.showClusters = function(pics, use_time, time_offset) {
+      var geopics = [];
+      /* Find coord of pics on map */
+      for(var i in pics) {
+         var pic = pics[i];
+         if(!pic.coords)
+            continue;
+         if(pic.coords.charAt(0) !== '@') {
+            var latlon = pic.coords.split(',');
+            var p = new L.LatLng(latlon[0], latlon[1]);
+            geopics.push([p, pic.url]);
+         } else if(self.points.length && config.geo_use_time && use_time) {
+            var p = self.getPositionWithTime(pic.coords, self.points, self.times, time_offset);
+            if(p !== null)
+               geopics.push([self.points[p], pic.url, p]);
+         }
+      }
+
+      /* Add a bounce effect on clusters when images are hovered. */
+      var mc = new L.markerClusterGroup({showCoverageOnHover:false, disableClusteringAtZoom:14});
+      function bounce(div, bounce) {
+         if(!div || !div._icon)
+            return;
+         var d = $(div._icon);
+         if(bounce) {
+            for(var i = 0; i < 5; i++)
+               d.animate({top:(i%2==0)?-13:-3}, 100);
+            d.animate({top:-8}, 100);
+         } else {
+            d.stop(true).animate({top:-8}, 100);
+         }
+      }
+      $(geopics).each(function(i) {
+         var marker = new L.marker(geopics[i][0], {
+            icon: L.icon({iconUrl:'admin/pages/gpx/css/picture.png', iconSize:[16, 16], iconAnchor:[8, 8]}),
          });
-         options['mapTypeControlOptions'].mapTypeIds.unshift('IGN');
-     }
-     return _GPX_ignMapType;
-  }
+         marker.on('click', function() {
+            $('a[href$="'+geopics[i][1]+'"]').click();
+         });
+         $('a[href$="'+geopics[i][1]+'"]').find('img').mouseenter(function() {
+            bounce(mc.getVisibleParent(marker), true);
+         }).mouseout(function() {
+            bounce(mc.getVisibleParent(marker), false);
+         });
+         mc.addLayer(marker);
+         self.bounds.extend(geopics[i][0]);
+      });
+      self.map.addLayer(mc);
+   }
 
-  function showMap(xmls) {
-     $('#map_canvas').removeClass('canvas_loading');
+   self.parseTracks = function(xmls) {
+      var ret = [];
+      /* Create polylines */
+      for(var i in xmls) {
+         self.segments[self.points.length] = 1;
+         self.nbsegments++;
 
-     var map;
-     var options = {
-        center: new google.maps.LatLng(-34.397, 150.644),
-        zoom: 8,
-        scaleControl: true,
-        mapTypeId: data.gpxtype?data.gpxtype:'satellite',
-        mapTypeControlOptions: {
-           mapTypeIds: [google.maps.MapTypeId.TERRAIN, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.ROADMAP],
-           style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR
-        },
-     };
-     var ign = addIGN(options);
-     var refuges = addRefugeInfo(options);
-     var bounds = new google.maps.LatLngBounds ();
-
-     /* Show map */
-     map = new google.maps.Map(document.getElementById("map_canvas"), options);
-     if(ign)
-        map.mapTypes.set('IGN', ign);
-     if(refuges)
-        map.mapTypes.set('refuges.info', refuges);
+         $(self.xmls[i]).find("trkpt").each(function() {
+            var lat = $(this).attr("lat");
+            var lon = $(this).attr("lon");
+            var p = new L.LatLng(lat, lon);
+            self.points.push(p);
+            self.bounds.extend(p);
 
 
-     var points = [];
-     var polypoints = [];
-     var times = [];
-     var elevations = [];
-     var segments = {};
-     var nbsegments = 0;
+            var time = $(this).find('time');
+            try {
+               if(time.length) 
+                  self.times.push(new Date().setISO8601(time.text()).getTime());
+            } catch(err) {};
 
-     /* Get points */
-     function tag(x) { return x.tagName.toLowerCase(); }
-     for(var i in xmls) {
-        segments[points.length] = 1;
-        nbsegments++;
+            var ele = $(this).find('ele');
+            if(ele.length && parseInt(ele.text(), 10) != 32768) 
+               self.elevations.push({elevation:parseFloat(ele.text(),10)});
 
-        $(xmls[i]).find("trkpt").each(function() {
-          var lat = $(this).attr("lat");
-          var lon = $(this).attr("lon");
-          var p = new google.maps.LatLng(lat, lon);
-          points.push(p);
-          bounds.extend(p);
+            if(($(this).is(':first-child')) && (self.segments[self.points.length - 1] != 1)) {
+               self.segments[self.points.length - 1] = 1;
+               self.nbsegments++;
+            }
+            if(!self.polypoints[self.nbsegments-1]) {
+               self.polypoints[self.nbsegments-1] = [];
+               ret.push(self.nbsegments-1);
+            }
+            self.polypoints[self.nbsegments-1].push(p);
+         });
+         return ret;
+      }
+   }
 
+   self.drawTracks = function() {
+      /* Draw track */
+      for(var i in self.polypoints) {
+         var poly = new L.Polyline(self.polypoints[i], {
+            color: "#" + (0x1000000 | ((i%2)?(0x880be8):(0xFF00AA))).toString(16).substring(1),
+            opacity: .7,
+            weight: 4
+         });
+         poly.addTo(self.map);
+      }
 
-          var time = $(this).find('time');
-          try {
-             if(time.length) 
-                times.push(new Date().setISO8601(time.text()).getTime());
-          } catch(err) {};
+      /* Draw start / stop of track */
+      if(self.points.length) {
+         L.marker(self.points[0], {
+            icon: L.icon({iconUrl:'admin/pages/gpx/css/flag_green.png', iconSize:[27, 16], iconAnchor:[13, 8]})
+         }).addTo(self.map);
+         L.marker(self.points[self.points.length - 1], {
+            icon: L.icon({iconUrl:'admin/pages/gpx/css/flag_red.png', iconSize:[27, 16], iconAnchor:[13, 8]})
+         }).addTo(self.map);
+      }
+   }
 
-          var ele = $(this).find('ele');
-          if(ele.length && parseInt(ele.text(), 10) != 32768) 
-             elevations.push({elevation:parseFloat(ele.text(),10)});
+   self.fitBounds = function(world) {
+      if(world) {
+         self.map.fitBounds([[-60,180],[70,-180]]);
+      } else {
+         self.map.fitBounds(self.bounds);
+      }
+   }
 
-          if(($(this).is(':first-child')) && (segments[points.length - 1] != 1)) {
-             segments[points.length - 1] = 1;
-             nbsegments++;
-          }
-          if(!polypoints[nbsegments-1])
-             polypoints[nbsegments-1] = [];
-          polypoints[nbsegments-1].push(p);
-        });
-     }
+   self.addWaypoints = function() {
+      for(var i in self.xmls) {
+         $(self.xmls[i]).find("wpt").each(function() {
+            var lat = $(this).attr("lat");
+            var lon = $(this).attr("lon");
+            var p = new L.LatLng(lat, lon);
+            self.bounds.extend(p);
+            
+            var content = $(this).find('name').text();
+            if(content != '') content += '<br/>';
+            content += $(this).find('desc').text();
+            content = '<span style="color:#000">'+content+'</span>';
 
-     /* Draw track */
-     for(var i in polypoints) {
-        var poly = new google.maps.Polyline({
-          path: polypoints[i],
-          strokeColor: "#" + (0x1000000 | ((i%2)?(0x880be8):(0xFF00AA))).toString(16).substring(1),
-          strokeOpacity: .7,
-          strokeWeight: 4
-        });
-        poly.setMap(map);
-     }
-     map.fitBounds(bounds);
+            var marker = new L.marker(p, {
+               icon: L.icon({iconUrl:'admin/pages/gpx/css/waypoint_end.png', iconSize:[12, 21], iconAnchor:[6, 10]}),
+            }).addTo(self.map).bindPopup(content);
+         });
+      }
+   }
 
-     if(xmls) {
-        /* Draw start / stop of track */
-        var start = new google.maps.Marker({
-           map:map,
-           animation: google.maps.Animation.DROP,
-           position: points[0],
-           icon:'admin/pages/gpx/css/flag_green.png'
-        });
-        var end = new google.maps.Marker({
-           map:map,
-           animation: google.maps.Animation.DROP,
-           position: points[points.length - 1],
-           icon:'admin/pages/gpx/css/flag_red.png'
-        });
-     }
+   self.addImages = function(cb) {
+      /* Add images on map */
+      if(config.geolocalization) {
+         self.loadLeafletCluster(function() {
+            self.showClusters(data.pics, data.geo_use_time!=="false", data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
+            if(cb)
+               cb;
+         });
+      }
+   }
 
-     if(config.geolocalization) {
-        var reducedIndexes = null;
-        $script('./admin/pages/gpx/scripts/markerclusterer_packed.js', 'gmapsclusters', function() {
-           var geopics = [];
-           for(var i in data.pics) {
-              var pic = data.pics[i];
-              if(!pic.coords)
-                 continue;
-              if(pic.coords.charAt(0) !== '@') {
-                 var latlon = pic.coords.split(',');
-                 var p = new google.maps.LatLng(latlon[0], latlon[1]);
-                 geopics.push([p, pic.url]);
-                 bounds.extend(p);
-              } else if(xmls && config.geo_use_time && (data.geo_use_time !== "false")) {
-                 var p = getPositionWithTime(pic.coords, points, times, data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
-                 if(p !== null) {
-                    geopics.push([points[p], pic.url, p]);
-                    bounds.extend(points[p]);
-                 }
-              }
-           }
+   self.loadXmls = function(urls, cb) {
+      self.xmls = [];
+      if(urls.length) {
+         for(var url in urls) {
+            $.ajax({
+               type: "GET",
+               url: urls[url],
+               success: function(xml) {
+                  self.xmls.push(xml);
+                  if(self.xmls.length == urls.length) {
+                     cb();
+                  }
+               },
+               error:function(e, f) {
+                  $('#'+self.mapDiv).removeClass('canvas_loading').html('Error while loading '+urls[url]+' ('+f+')');
+               },
+            });
+         }
+      } else {
+         $('#'+self.mapDiv).removeClass('canvas_loading');
+         cb();
+      }
+   }
 
-           var markers = [];
-           function findCluster(marker) {
-              var clusters = mc.getClusters();
-              for(var i = 0; i < clusters.length;++i){
-                 if(clusters[i].markers_.length > 1 && clusters[i].clusterIcon_.div_){
-                    if(clusters[i].markers_.indexOf(marker)>-1){
-                       return clusters[i].clusterIcon_.div_;
-                    } 
-                 }
-              }
-              return null;
-           }
-           function bounce(cluster) {
-              if(cluster.attr('bounce') == "false")
-                 return;
+   self.addTiles = function(layer) {
+      var layers = { };
+      if(!config.gpx_tiles || config.gpx_tiles === '' || config.gpx_tiles === '[]') {
+         $('#'+self.mapDiv).removeClass('canvas_loading').html('Please configure tiles in the administration.');
+         return layers;
+      }
+      var tiles = JSON.parse(config.gpx_tiles);
+      var first = undefined;
+      for(var i in tiles) {
+         var tile = tiles[i];
+         if(tile['Enabled'] === true) {
+            layers[tile['Name']] = L.tileLayer(tile['URL'], {attribution:tile['Attribution']});
+            if(!first)
+               first = layers[tile['Name']];
+         }
+      }
+      if(layer && layers[layer])
+         layers[layer].addTo(self.map);
+      else if(first)
+         first.addTo(self.map);
+      L.control.layers.buttons(layers).addTo(self.map);
 
-              cluster.stop().animate({marginTop: '-='+5},370)
-                 .animate({marginTop: '+='+5},370, function() {
-                    setTimeout(function() { bounce(cluster)}, 20);
-                 });
-           }
+      if(!first)
+         $('#'+self.mapDiv).removeClass('canvas_loading').html('Please configure tiles in the administration.');
+      self.layers = layers;
+      return layers;
+   }
 
-           for(var i in geopics) {
-              var marker = new google.maps.Marker({
-                 position: geopics[i][0],
-                 icon:'admin/pages/gpx/css/picture.png'
-              });
-              marker.set('geopicid', i);
-              google.maps.event.addListener(marker, 'click', function() {
-                 $('a[href$="'+geopics[this.get('geopicid')][1]+'"]').click();
-              });
-              $('a[href$="'+geopics[i][1]+'"]').find('img').mouseenter({index:geopics[i][2],marker:marker}, function(event) {
-                 event.data.marker.setAnimation(google.maps.Animation.BOUNCE);
-                 var cluster = findCluster(event.data.marker);
-                 if(cluster) {
-                    cluster = $(cluster);
-                    if(!cluster.attr('bounce') || cluster.attr('bounce') == "false") {
-                       $(cluster).attr('bounce', "true");
-                       bounce($(cluster));
-                    }
-                 }
-                 if(chart && distances) {
-                    if(reducedIndexes == null)
-                       reducedIndexes = indexesToReducedIndexes(points, segments);
-                    var index = reducedIndexes[event.data.index];
-                    if(index >= 0 && (index + 1 < distances.length)) {
-                       var from = distances[index];
-                       var to = distances[index + 1];
-                       chart.xAxis[0].addPlotBand({from:from, to:to, color:'#F00', id:'pichover'+event.data.index});
-                    }
-                 }
-              }).mouseout({index:geopics[i][2],marker:marker}, function(event) {
-                 event.data.marker.setAnimation(null);
-                 var cluster = findCluster(event.data.marker);
-                 if(cluster) {
-                    cluster = $(cluster);
-                    if(cluster.attr('bounce') == "true") {
-                       $(cluster).attr('bounce', "false");
-                       $(cluster).stop().stop().css('marginTop', '0');
-                    }
-                 }
-                 if(chart && distances) {
-                    chart.xAxis[0].removePlotBand('pichover'+event.data.index);
-                 }
-              });
-              markers.push(marker);
-           }
-           var mc = new MarkerClusterer(map, markers);
-           mc.setZoomOnClick(false);
-           google.maps.event.addListener(mc, 'click', function(cluster) {
-              var markers = cluster.getMarkers();
-              google.maps.event.trigger(markers[0], 'click');
-           });
-           map.fitBounds(bounds);
-        });
-     }
+   self.getCurrentTileLayers = function() {
+      var layers = [];
+      self.map.eachLayer(function(layer) {
+         if(layer instanceof L.TileLayer)
+            layers.push(layer);
+      });
+      return layers;
 
-     for(var i in xmls) {
-        $(xmls[i]).find("wpt").each(function() {
-           var lat = $(this).attr("lat");
-           var lon = $(this).attr("lon");
-           var p = new google.maps.LatLng(lat, lon);
-           var marker = new google.maps.Marker({
-              map:map,
-              animation: google.maps.Animation.DROP,
-              position: p,
-              icon:'admin/pages/gpx/css/waypoint_end.png',
-              optimized:false, /* so that it appears on top of clusters */
-           });
+   }
+   self.showMap = function() {
+      if(document.getElementById(self.mapDiv) == null)
+         return;
+      $('#'+self.mapDiv).addClass('canvas_loading');
 
-           var content = $(this).find('name').text();
-           if(content != '') content += '<br/>';
-           content += $(this).find('desc').text();
-           content = '<span style="color:#000">'+content+'</span>';
+      self.map = L.map(self.mapDiv).setView([44.33956524809713, 38.67187500000001], 2);
+      if(!self.bounds)
+         self.bounds = new L.latLngBounds;
+      else
+         self.fitBounds();
+      self.addTiles(data?data.gpxtype:undefined);
+      return self.map;
+   }
 
-           var infowindow = new google.maps.InfoWindow({ content: content });
-           google.maps.event.addListener(marker, 'click', function() {
-              infowindow.open(map,marker);
-           });
-        });
-     }
+   self.showDefault = function() {
+      $('#'+self.mapDiv).addClass('canvas_loading');
 
+      var urls = [];
+      if(data.gpx)
+         urls = [].concat(data.gpx);
+      self.loadXmls(urls, function() {
+         /* Show tracks and waypoints */
+         self.bounds = new L.latLngBounds;
+         self.parseTracks(self.xmls);
+         self.showMap();
+         $('#'+self.mapDiv).removeClass('canvas_loading');
+         self.drawTracks();
+         self.addWaypoints();
+         self.fitBounds();
 
-     
-     var first_chart_show = true;
-     var chart_shown = false;
-     $('.gpsadvanced').css('display', xmls?'block':'none').unbind('click').click(function() {
-        if(chart_shown) {
-           $('#chart_div').css('display', 'none');
-           chart_shown = false;
-           return;
-        } else if(!first_chart_show) {
-           $('#chart_div').css('display', 'block');
-           chart_shown = true;
-           return;
-        }
+         self.addImages(self.fitBounds);
 
-        $('#chart_div').css('display', 'block').addClass('loading_chart');
-        chart_shown = true;
-        first_chart_show = false;
+         self.showButtons();
+      });
+   }
 
-        var _points = points, _times = times, _elevations = elevations, _segments = segments;
-        /* Only consider a subset of the points for the graph */
-        if(points.length > maxNbPoints) {
-           var len = _points.length;
-           _points = reduce(_points, segments);
-           _times = reduce(_times, segments);
-           _elevations = reduce(_elevations, segments);
-           _segments = reduceSegments(_segments, len);
-        }
+   self.loadLeaflet = function(cb) {
+      gpxChangeLang();
+      jGallery.addCss("admin/pages/gpx/css/gpxmap.css", "leafletcss", function() {
+         $script("admin/pages/gpx/scripts/leaflet.js", "leaflet", function() {
+            $script("admin/pages/gpx/scripts/leaflet-control.js", "leafletcontrol", function() {
+               cb();
+            });
+         });
+      });
+   }
 
-        if(_times.length != _points.length)
-           _times = null;
-        if(alwaysUseGMapsElevation || _elevations.length != _points.length)  { 
-           getElevations(_points, 0, function(args) {
-              drawElevation(args.result, args.points, args.times, args.map, _segments);
-           }, { result:[], points:_points, times:_times, map:map });
-        } else {
-           drawElevation(_elevations, _points, _times, map, _segments);
-        }
-     });
-
-     $('.gpsbigger').css('display', 'block').unbind('click').click(function() {
-        if($('#map_canvas').hasClass('gpscanvasbig')) {
-           $('#map_canvas').removeClass('gpscanvasbig');
-           $('.gpsbigger').removeClass('gpssmaller');
-        } else {
-           $('#map_canvas').addClass('gpscanvasbig');
-           $('.gpsbigger').addClass('gpssmaller');
-        }
-        google.maps.event.trigger(map, "resize");
-        map.fitBounds(bounds);
-     });
-
-     $('.gpsdownload').css('display', 'block');
-  }
-
-  window.realShowGPX = function(b) {
-     if(b === true)
-        return;
-     if(document.getElementById("map_canvas") == null)
-        return;
-
-     $('#map_canvas').addClass('canvas_loading');
-
-     if(data.gpx) {
-        var urls = [].concat(data.gpx);
-        var xmls = [];
-        for(var url in urls) {
-           $.ajax({
-             type: "GET",
-             url: urls[url],
-             success: function(xml) {
-                xmls.push(xml);
-                if(xmls.length == urls.length)
-                  showMap(xmls);
-             },
-             error:function(e, f) {
-                $('#map_canvas').removeClass('canvas_loading').html('Error while loading '+urls[url]+' ('+f+')');
-             },
-           });
-        }
-     } else {
-        showMap(null);
-     }
-  }
-  gpxChangeLang();
-  if(!config.gmapsKey || config.gmapsKey == '')
-     $script('https://maps.google.com/maps/api/js?callback=realShowGPX', 'gmaps', window.realShowGPX);
-  else
-     $script('https://maps.google.com/maps/api/js?callback=realShowGPX&key='+config.gmapsKey, 'gmaps', window.realShowGPX);
-}
-
-function gpxChangeLang() {
-   if(jGallery.lang == 'fr') {
-      var tr = {
-         'Elevation':'Dénivelé', 'Altitude - Total Elevation: ':'Altitude - Dénivelé positif : ',
-         'Speed':'Vitesse','Speed - Average: ':'Vitesse - Moyenne : ',
-         'Elapsed time':'Temps écoulé',
-         'during':'pendant',
-         'hours':'heures',
-         'Statistics':'Statistiques',
-      };
-      config.tr = $.extend(config.tr, tr);
+   self.loadLeafletCluster = function(cb) {
+      jGallery.addCss("admin/pages/gpx/css/cluster.css", "clustercss", function() {
+         $script('admin/pages/gpx/scripts/leaflet.markercluster.js', 'clusters', function() {
+            cb();
+         });
+      });
    }
 }
-$('<div class="customtranslate"/>').bind('languagechangeevt', gpxChangeLang).appendTo($('body'));
 
-if(!gm_authFailure) {
-   function gm_authFailure() {
-      $('#content').html('');
-      $('#content').css('opacity', 1);
-      jGallery.theme.showError({Error:"Invalid Google Map key. Please add a correct Google Map key in the administration options."});
-   }
-}
+

@@ -63,10 +63,27 @@ var GPX = {
       return [$('#sel_gps_type_'+div), $('#gxt_'+div), $('#gxtdiff_'+div), $('#geo_use_time_'+div)];
    },
 
+   addTileOptions:function(div, id, selected) {
+      var select = $(div).find("#sel_gps_type_"+id);
+      if(!config.gpx_tiles || config.gpx_tiles === '' || config.gpx_tiles === '[]') {
+         return;
+      }
+      var tiles = JSON.parse(config.gpx_tiles);
+      for(var i in tiles) {
+         var name = tiles[i]['Name'];
+         if(name == selected) {
+            $(select).append('<option value="'+name+'" selected>'+name+'</option>');
+         } else {
+            $(select).append('<option value="'+name+'">'+name+'</option>');
+         }
+      }
+   },
+
    getUnparsedDirTpl:function(dir, div, id) {
       var tpl = $("#gpxTpl").tmpl({id:id, gpx:t('t_added_gpx'), gpxtype:$('#default_gpx_type').text(), gpxtdiff:$('#default_geo_time_diff').text(), geo_use_time:true});
       var ret = $('<div></div>');
       tpl.appendTo(ret);
+      GPX.addTileOptions(ret, id, $('#default_gpx_type').text());
       return ret.html();
    },
 
@@ -74,6 +91,7 @@ var GPX = {
       var tpl = $("#gpxTpl").tmpl({id:div,parsed:true,gps:data.json.gps, gpx:data.gpx,gpxtype:data.json.gpxtype?data.json.gpxtype:$('#default_gpx_type').text(),gpxtdiff:data.json.gxtdiff!==undefined?data.json.gxtdiff:$('#default_geo_time_diff').text(),geo_use_time:data.json.geo_use_time!==undefined?(data.json.geo_use_time==="true"):true});
       var ret = $('<div></div>');
       tpl.appendTo(ret);
+      GPX.addTileOptions(ret, div, data.json.gpxtype?data.json.gpxtype:$('#default_gpx_type').text());
       return ret.html();
    },
 
@@ -86,9 +104,3 @@ var GPX = {
    }
 };
 plugins.push(GPX);
-
-$(document).ready(function() {
-   if($('#gmapsKey').text() == '') {
-      inform('gmapsKeyMissing', 'warning', 'true');
-   }
-});

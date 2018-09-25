@@ -1,9 +1,22 @@
 .inp input[type=text] {
-	width:850px;
+	width:650px;
 }
 .inp input[type=password] {
-	width:850px;
+	width:650px;
 }
 a.passwd {
    border-bottom: 1px dashed #999;
+}
+.smallinp {
+   list-style: none;
+}
+.smallinp input[type=text] {
+	width:450px;
+}
+.closesortable {
+   position:absolute;right:-27px;background:url('../../index/css/cross.png') 0px no-repeat #EAEAD7;width:19px;height:19px;display:block;top: 50%;margin-top: -10px;cursor:pointer;
+}
+.addsortable {
+   background:url('add.png') center no-repeat #EAEAD7;width:19px;height:19px;display:block;width:100%;
+   background-size: 19px 19px;cursor:pointer;
 }

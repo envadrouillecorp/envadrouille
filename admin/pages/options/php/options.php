@@ -11,7 +11,7 @@ class Options {
    public static function getPages($check_activation, $new_values = null) {
       $pages = array();
       $dir = new File_Dir("./pages");
-      
+
       // Let index and options be the first two pages
       $pages['index'] = '';
       $pages['options'] = '';
@@ -43,7 +43,7 @@ class Options {
     public static function getPlugins($new_values) {
       $plugins = array();
       $dir = new File_Dir("./pages");
-      
+
       foreach($dir->getDirs() as $d) {
          require_once ("$d->path/$d->name/index.php");
          $classn = Controller::getPluginIndex($d->name);
@@ -51,7 +51,7 @@ class Options {
             || eval('return isset('.$classn.'::$isContentPlugin) && '.$classn.'::$isContentPlugin;');
          $optional = eval('return '.$classn.'::$isOptional;');
          $activated = !$optional || (isset($new_values[$d->name.'_activated']) && $new_values[$d->name.'_activated']);
-         if($activated && $is_plugin) 
+         if($activated && $is_plugin)
             $plugins[] = $d->name;
       }
       return $plugins;
@@ -98,10 +98,10 @@ class Options {
          }
          $userContentName = eval('return isset('.$classn.'::$userContentName)?('.$classn.'::$userContentName):false;');
          $hasUserContentPos = eval('return isset('.$classn.'::$userContentDefaultPosition)?('.$classn.'::$userContentDefaultPosition):0;');
-         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $userContent)) 
-            array_splice( $userContent, $hasUserContentPos, 0, $userContentName ); 
-         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $oldUserContent)) 
-            array_splice( $oldUserContent, $hasUserContentPos, 0, $userContentName ); 
+         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $userContent))
+            array_splice( $userContent, $hasUserContentPos, 0, $userContentName );
+         if($hasUserContentPos != -1 && $userContentName && !in_array($userContentName, $oldUserContent))
+            array_splice( $oldUserContent, $hasUserContentPos, 0, $userContentName );
       }
       foreach($options as &$opt) {
          $opt['val'] = isset($GLOBALS[$opt['id']])?$GLOBALS[$opt['id']]:null;
@@ -140,13 +140,16 @@ class Options {
       foreach($opts as $opt) {
          if($opt['type'] == 'text' || $opt['type'] == 'select' || $opt['type'] == 'sortable' || $opt['type'] == 'hidden') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
+         } else if($opt['type'] == 'sortables') {
+            $ret[$opt['id']] = base64_decode(Controller::getParameter($opt['id']));
+            $ret[$opt['id']] = str_replace('\\', '\\\\\\\\', $ret[$opt['id']]);
          } else if($opt['type'] == 'password') {
             $ret[$opt['id']] = Controller::getParameter($opt['id']);
             if((!isset($opt['val']) || $ret[$opt['id']] != $opt['val']) && $ret[$opt['id']] != '')
                $ret[$opt['id']] = sha1($ret[$opt['id']]);
          } else if($opt['type'] == 'checkbox') {
             $ret[$opt['id']] = isset($_POST[$opt['id']]);
-         } 
+         }
       }
       return $ret;
    }
@@ -405,7 +408,7 @@ class UserOptions {
          $optional = eval('return '.$classn.'::$isOptional;');
          $userContentName = eval('return isset('.$classn.'::$userContentName)?('.$classn.'::$userContentName):false;');
          if($userContentName) {
-            if(!$optional)               
+            if(!$optional)
                $content_activated[$userContentName] = 1;
             else if(isset($new_values[$d->name.'_activated']))
                $content_activated[$userContentName] = 1;

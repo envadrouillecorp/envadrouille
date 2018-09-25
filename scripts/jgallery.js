@@ -344,6 +344,7 @@ var jGallery = {
          $('#'+name+'_tmp').attr('id', name);
          jGallery.loadedCss[name] = true;
          every(jGallery.loadedCssCb[name], function(cb) { cb(); });
+         jGallery.loadedCssCb[name] = [];
          if(cb) cb();
       }
       img.src = url;

@@ -29,8 +29,8 @@ class LiteTemplate{
 		$this->time = microtime();
 		// cache
 		$this->cache_folder = '_cache/';
-		$this->cache_life = '60'; 
-		$this->cache_activate = false; 
+		$this->cache_life = '60';
+		$this->cache_activate = false;
 		$this->cache_compression = false;
 		$this->debug = false;
 		$this->cache_isExpired = true;
@@ -69,9 +69,9 @@ class LiteTemplate{
 			if( $this->checkArray($tag_array) ){
 
 				reset($tag_array);
-				$num_key = count($tag_array); 
-				$num_value = count($tag_array[key($tag_array)]); 
-				$tmp = $this->findTag($tag,$id); 
+				$num_key = count($tag_array);
+				$num_value = count($tag_array[key($tag_array)]);
+				$tmp = $this->findTag($tag,$id);
 
             $array = array('');
 				for($i=0;$i<$num_value;$i++){
@@ -213,7 +213,7 @@ class LiteTemplate{
 			if(!mkdir($this->cache_folder, 0755)){
 				$this->error[] = 'Warning! Cache folder "'.$this->cache_folder.'" cannot be created';
 			}
-		} 
+		}
 
 		$filename_md5 = md5($filename);
 		$path_file = $this->cache_folder.$filename_md5;
@@ -237,7 +237,7 @@ class LiteTemplate{
 	function version($value="0"){
 		if($value){
 			return array('autor'=>'telnes',
-				'version'=>$this->version, 
+				'version'=>$this->version,
 			);
 		} else {
 			return 'Page généré avec LiteTemplate'.$this->version.', un moteur de template - création telnes';
@@ -342,6 +342,8 @@ class LiteTemplate{
           return $this->creatHtmlSelect($meta['id'], $meta['vals'], (empty($meta['val'])?$meta['default']:$meta['val']));
       } else if($meta['type'] == 'sortable') {
           return $this->createSortable($meta['id'], (empty($meta['val'])?$meta['default']:$meta['val']));
+      } else if($meta['type'] == 'sortables') {
+          return $this->createSortableInputs($meta['id'], $meta);
       } else {
          $val = (!isset($meta['val']) || $meta['val'] === null)?$meta['default']:$meta['val'];
          return '<input type="'.$meta['type'].'" name="'.$meta['id'].'" value="'.htmlspecialchars($val).'" '.(($meta['type'] == 'checkbox' && $val == true)?'checked':'').'/>';
@@ -367,6 +369,59 @@ class LiteTemplate{
       return $tmp;
    }
 
+   function _createSortableIntputsLine($array, $val) {
+      $tmp = '';
+      $tmp .= '<li class="smallinp" style="position:relative">';
+      foreach($array['fields'] as $k=>$meta) {
+         $subval = isset($val[$k])?$val[$k]:'';
+         $tmp .= '<span class="translate" style="width:100px;display:inline-block;text-align:right">'.$k.':&nbsp;</span><span><input id="'.$k.'" type="'.$meta.'" name="'.$k.'_ignore" value="'.htmlspecialchars($subval).'" '.(($meta == 'checkbox' && $subval === true)?'checked':'').'/></span><br/>';
+      }
+      $tmp .= '<span class="closesortable"></span>';
+      $tmp .= '</li><br/>';
+      return $tmp;
+   }
+   function createSortableInputs($name,$array){
+      $tmp = '<ul class="" style="margin:0" id="'.$name.'_ul">'."\n";
+      $vals = $array['default'];
+      if(isset($array['val']) && $array['val'] !== null) {
+         $vals = str_replace('\\\\', '\\', $array['val']);
+         $vals = json_decode($vals, true);
+      }
+      foreach($vals as $val){
+         $tmp .= $this->_createSortableIntputsLine($array, $val);
+      }
+      $tmp .= '</ul>';
+      $tmp .= '<span id="'.$name.'_add" class="addsortable"></span>';
+      $tmp .= '<input type="hidden" id="'.$name.'" name="'.$name.'" value="'.base64_encode(json_encode($vals)).'" />';
+      $tmp .= "<script>\n"
+         . "function update_${name}() {\n"
+         . "  var content=[];\n"
+         . "  $$('#${name}_ul li').each(function(i, el) {\n"
+         . "     content[i] = {};\n"
+         . "     $$(el).find('input').each(function(j, inp) {\n"
+         . "        if($$(inp).attr('type') == 'checkbox')\n"
+         . "            content[i][$$(inp).attr('id')] = $$(inp).is(':checked');\n"
+         . "        else\n"
+         . "           content[i][$$(inp).attr('id')] = $$(inp).val();\n"
+         . "     });\n"
+         . "  });\n"
+         . "  $$('#${name}').val(btoa(JSON.stringify(content)));\n"
+         . "}"
+         . "function remove_${name}() {"
+         . "   $$(this).parent().remove();"
+         . "   update_${name}();"
+         . "}"
+         . "$$('#${name}_ul .closesortable').click(remove_${name});"
+         . "$$('#${name}_add').click(function() {\n"
+         . "   $$('#${name}_ul').append('".$this->_createSortableIntputsLine($array, array())."');\n"
+         . "   update_${name}();"
+         . "   $$('#${name}_ul .closesortable').unbind('click').click(remove_${name});"
+         . "});"
+         . "$$('#${name}_ul input').bind('keyup change', update_${name});\n"
+         . "</script>";
+      return $tmp;
+   }
+
 	function creatHtmlSelect($name,$array,$selected,$attribut=''){
 		$tmp = '<Select name="'.$name.'" '.$attribut.' >'."\n";
 
@@ -376,11 +431,11 @@ class LiteTemplate{
 				$tmp .= '<option value="'.$key.'" SELECTED >'.$value.'</option>'."\n";
 			}
 			else{
-				$tmp .= '<option value="'.$key.'">'.$value.'</option>'."\n";	
-			}	
+				$tmp .= '<option value="'.$key.'">'.$value.'</option>'."\n";
+			}
 		}
 		$tmp .= '</select>';
-		return $tmp;	
+		return $tmp;
 	}
 
 	function assignAutoInclude(){
@@ -467,9 +522,9 @@ class LiteTemplate{
       $extraJSFinal = array();
       foreach($this->extraJS as $js) {
          $url = str_replace('{$lang}', $lang, $js);
-         if(!file_exists($url)) 
+         if(!file_exists($url))
             $url = str_replace('{$lang}', 'en', $js);
-         if(file_exists($url)) 
+         if(file_exists($url))
             $extraJSFinal[] = $url;
       }
       $this->assignTag('SCRIPT', '1', array(

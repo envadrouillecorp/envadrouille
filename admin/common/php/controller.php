@@ -8,7 +8,7 @@
  * Performs important security checks. Beyond this point no security is enforced.
  * Check in the global $pages variable if the user has the right to do the action.
  *    If the action is "pwdfree", then the action is performed.
- *    Otherwise the user has to be logged in. 
+ *    Otherwise the user has to be logged in.
  *       If it is not logged in, it will be redirected to the login screen.
  *    To prevent hacking via a clicking on a malicious URL, we also check that a 'random_sid'
  *    has been passed for all actions that modify the system (basically everything except 'main'
@@ -29,9 +29,9 @@ class Controller {
       if(isset($_POST[$name]))
          $ret_val = $_POST[$name];
 
-      if (get_magic_quotes_gpc()) 
+      if (get_magic_quotes_gpc())
          $ret_val = stripslashes_deep($ret_val);
-      
+
 
       switch($name) {
       case 'dir':
@@ -79,7 +79,7 @@ class Controller {
 
       if($route == null)
          $route = Controller::getParameter('action', 'index.main');
-      if(!is_string($route)) 
+      if(!is_string($route))
          die("action not a string");
 
       $action = explode ('.', $route);
@@ -122,7 +122,7 @@ class Controller {
          if($action[1] !== "main" && $route !== "options.update" && !Controller::$sid_match)
             throw new Exception("Tried to perform AJAX request without providing the random SID");
          if(($action[1] === "main" || $route === "options.update")
-            && !Controller::$sid_match 
+            && !Controller::$sid_match
             && (!isset($_SESSION['random_sid']) || !is_numeric($_SESSION['random_sid']))) {
             $_SESSION['random_sid'] = rand();
             Controller::$sid_match = true;

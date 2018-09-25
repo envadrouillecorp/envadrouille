@@ -8,6 +8,7 @@
       var random_sid = '{$RANDOM_SID}';
       var max_parallel_jobs = {$max_parallel_jobs};
       var plugins = [];
+      var config = { VERSION:{$VERSION} };
       </script>
 
 		<script type="text/javascript" src="common/scripts/jquery.min.js?{$VERSION}"></script>

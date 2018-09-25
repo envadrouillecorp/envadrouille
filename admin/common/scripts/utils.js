@@ -7,7 +7,27 @@
  * Copyright (c) 2013 Baptiste Lepers
  * Released under MIT License
  */
-var jGallery = {};
+var jGallery = {
+   addCss:function(url, name, cb) {
+      if(url.indexOf('http') !== 0) url = '../' + url + '?' + config.VERSION;
+
+      var link = document.createElement('link');
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      link.id = name+'_tmp';
+      link.href = url;
+
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+      var img = document.createElement('img');
+      img.onerror = function(){
+         $('#'+name).remove();
+         $('#'+name+'_tmp').attr('id', name);
+         if(cb) cb();
+      }
+      img.src = url;
+   },
+};
 
 /*
  * JS Data::Dumper. Essential to debug the unknown.
@@ -326,3 +346,39 @@ if(!console)
 		log:function() {}
 	};
 
+
+
+/* $script util */
+function every(ar, fn) {
+   if(!ar) return;
+   for (var i = 0, j = ar.length; i < j; ++i) { fn(ar[i]) };
+}
+function first(ar) { for (var firstKey in ar) break; return firstKey; }
+$script = function(path, name, cb) {
+   if(path.indexOf('http') !== 0) path = '../' + path + '?' + config.VERSION;
+   if($script.loaded[name]) { if(cb) cb(false); return; }
+   var e = document.createElement('script'); $script.loaded[name] = false;
+   e.onload = e.onerror = e['onreadystatechange'] = function () {
+      if ((e['readyState'] && !(/^c|loade/.test(e['readyState']))) || $script.loaded[name]) return;
+      e.onload = e['onreadystatechange'] = null;
+      $script.loaded[name] = 1;
+      every($script.cb[name], function(f) { f() });
+      if($script.loaded[name]) { if(cb) cb(true); return; }
+   }
+   e.id = name;
+   e.async = 1;
+   e.src = path;
+   var s = document.getElementsByTagName('script')[0]; s.parentNode.appendChild(e);
+}
+$script.loaded = [];
+$script.cb = [];
+$script.ready = function(names, cb) {
+   var depl = names.length;
+   function decr() { depl--; if(depl == 0) cb(); };
+   every(names, function(n) {
+      if($script.loaded[n]) 
+         decr();
+      else
+         ($script.cb[n])?$script.cb[n].push(decr):($script.cb[n]=[decr]);
+   });
+}

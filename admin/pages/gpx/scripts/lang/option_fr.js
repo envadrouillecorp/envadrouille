@@ -1,6 +1,8 @@
 known_sentences.concat({
-   'GPX':'GPX<br/><p style="font-size:12px;font-style:normal">Pour afficher les cartes IGN, vous devez obtenir une clef de dévelopement <a href="http://professionnels.ign.fr/api-web">ici</a> (cochez toutes les fonctions de l\'API lorsque le site le demande). Note: les cartes IGN ne couvrent que le territoire français.<br/>Pour régler le décallage en heure entre l\'appareil photo et le GPS, une petite astuce: affichez une galerie avec des photos et une trace GPS puis affichez les statistiques du parcours. En survolant le titre "Statistiques" du graphique, une popup contenant les dates de début et de fin du parcours + la date de la première photo apparaitra. Note: il est possible de configurer ce décallage par galerie sur la page des galeries.</p>',
+   'GPX':'GPX<br/><p style="font-size:12px;font-style:normal">D\'autres fonds de cartes sont disponibles ici: <a href="https://leaflet-extras.github.io/leaflet-providers/preview/">https://leaflet-extras.github.io/leaflet-providers/preview/</a><br/>Les fichiers GPX utilisent l\'heure GMT. Si vous êtes sur un autre fuseau horaire (e.g., France GMT+2), indiquez "2" dans la différence entre l\'appareil photo et le GPS (sinon les photos seront mal placées sur la carte).</p>',
    'gpx_activated':'Activer le support des gpx',
+   'gpx_fix_elevation':'Corriger les erreur d\'altitude des fichiers gpx (utilise https://elevation-api.io/)',
+   'gpx_tiles':'Fonds de carte',
    'gpx_type':'Carte par défaut',
    'ign_key':'Clef pour l\'API IGN (optionnel)',
    'allow_refugesinfo':'Autoriser l\'affichage des fonds de refuges.info',

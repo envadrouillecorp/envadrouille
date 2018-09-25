@@ -22,7 +22,8 @@
           $("#gpsTpl").tmpl({gpx:urls[0]}).appendTo('#content');
        }
        $script('admin/pages/gpx/scripts/jgallery.gpx.js', 'gpx', function() {
-          jGPX(data);
+          var m = new map(data);
+          m.loadLeaflet(m.showDefault);
        });
     };
     config.contentPlugins['gpx'] = config.showGPX;

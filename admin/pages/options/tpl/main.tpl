@@ -10,7 +10,7 @@
       <table>
          <tr style="display:{$DISPLAY}">
             <td valign="middle">
-               <label for="{$DESCR}" style="width:220px;display:inline-block;text-align:right;font-weight:bold;" class="translate">{$DESCR}</label>
+               <label for="{$DESCR}" style="width:420px;display:inline-block;text-align:right;font-weight:bold;" class="translate">{$DESCR}</label>
                </td><td valign="middle">
                   {$INPUT}
                </td><td valign="middle">

@@ -1,12 +1,15 @@
 <div id="default_gpx_type" style="display:none">{$GPX_TYPE}</div>
 <div id="default_geo_time_diff" style="display:none">{$GPX_TIME_DIFF}</div>
-<div id="gmapsKey" style="display:none">{$GMAPS_KEY}</div>
-
+<script>
+   if(!config)
+      window.config = {};
+   config.gpx_tiles = '{$TILES}';
+</script>
 <script id="gpxTpl" type="text/x-jquery-tmpl">
                <tr style="height:40px">
 						<td class="translate">gps</td>
 						<td width="100%">
-                     <select id="sel_gps_type_${id}" name="sel_gps_type" style="float:left;height:23px;margin-right:2px;box-sizing:border-box;-moz-box-sizing:border-box;"><option value="satellite" {{if gpxtype=='satellite'}}selected{{/if}}>Satellite</option><option value="roadmap" {{if gpxtype=='roadmap'}}selected{{/if}}>Road Map</option><option value="terrain" {{if gpxtype=='terrain'}}selected{{/if}}>Terrain</option><option value="IGN" {{if gpxtype=='ign'}}selected{{/if}}>IGN</option><option value="refuges.info" {{if gpxtype=='refuges.info'}}selected{{/if}}>Refuges.info</option></select>
+                     <select id="sel_gps_type_${id}" name="sel_gps_type" style="float:left;height:23px;margin-right:2px;box-sizing:border-box;-moz-box-sizing:border-box;"></select>
                      <input id='gpx_rm_${id}' class='rm translate' style="float:right;position:relative;box-sizing:border-box;-moz-box-sizing:border-box;" type="button" value="rm_gpx" />
                      <div id="gpx_${id}" style="overflow:hidden;position:relative; float:right">
                         <input type="file" id="gx_${id}" style="font-size: 118px;height: 23px;opacity: 0;position: absolute;right: 0; z-index:10" />
