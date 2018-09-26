@@ -128,6 +128,8 @@ class Options {
             $ret[$opt['id']] = $opt['default'];
          else
             $ret[$opt['id']] = '';
+         if($opt['type'] == 'sortables')
+            $ret[$opt['id']] = str_replace('\\', '\\\\', $ret[$opt['id']]);
       }
       return $ret;
    }
