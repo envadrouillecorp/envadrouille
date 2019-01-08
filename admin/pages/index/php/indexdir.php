@@ -24,7 +24,6 @@ class IndexDir extends File_Dir {
       global $picpath;
 
       $https= isset($_SERVER['HTTPS']) && (strcasecmp('off', $_SERVER['HTTPS']) !== 0);
-      $hostname = $_SERVER['SERVER_ADDR'];
       $port = $_SERVER['SERVER_PORT'];
 
       $path_only = implode("/", (explode('/', $_SERVER["REQUEST_URI"], -1)));

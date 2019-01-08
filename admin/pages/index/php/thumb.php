@@ -141,7 +141,7 @@ class Thumb extends File_Pic {
 
    private function createThumbImgmagick() {
       global $convert, $quality;
-      if($convert == "" || !file_exists($convert))
+      if($convert == "" || @is_executable($convert) !== TRUE)
          return $this->createThumbGD();
 
       $dest_width = $this->width;

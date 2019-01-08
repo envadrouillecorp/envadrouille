@@ -6,13 +6,18 @@
  * Entry point
  */
 
+$version = explode('.', phpversion());
+if($version[0] < 5 || ($version[0] == 5 && $version[1] < 6)) {
+   die("EnVadrouille only runs on PHP5.6 or newer. Your current version is ".phpversion().". Please upgrade (if you use a shared hosting you might also be able to configure the PHP version using a .htaccess file).");
+}
+
 error_reporting(E_ALL ^ E_STRICT);
 ini_set('display_errors', '1');
 ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 $DEBUG = 0;
 
-$VERSION = '180926';
+$VERSION = '190109';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
@@ -38,7 +43,7 @@ spl_autoload_register('AutoLoader::loadClass');
 
 /* 2/ Set custom error handler */
 function myErrorHandler($errno, $errstr, $errfile, $errline) {
-   if (!(error_reporting() & $errno)) 
+   if (!(error_reporting() & $errno))
       return;
    if($errno == 2048)
       return;
@@ -107,7 +112,7 @@ if(isset($picpath))
 if(isset($cachepath))
    $cachepath = File::simplifyPath($cachepath);
 
-// no config.php file or invalid file, route to the installer 
+// no config.php file or invalid file, route to the installer
 if(!isset($CONFIG_VERSION)) {
    $pages = array(
       'options' => array(
@@ -126,10 +131,10 @@ if(!isset($CONFIG_VERSION)) {
          )
       );
       Controller::route(Controller::getParameter('action', 'options.update'), true);
-// everything looks ok, route the request 
+// everything looks ok, route the request
 } else {
    $pages = File_JSON::myjson_decode($pages);
    Controller::route();
 }
- 
+
 ?>
