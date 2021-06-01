@@ -31,7 +31,6 @@ class Pages_Gpx_Index {
          array('id' => 'geolocalization', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
          array('id' => 'show_map_coord', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
          array('id' => 'geo_use_time', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => true, 'export' => true),
-         array('id' => 'gpx_fix_elevation', 'type' => 'checkbox', 'cat' => 'GPX', 'default' => false, 'export' => true),
          array('id' => 'default_geo_time_diff', 'type' => 'text', 'cat' => 'GPX', 'default' => 0, 'export' => true),
       );
    }

@@ -22,7 +22,7 @@ class GpxPic extends IndexPic {
 
    private function gps2Num($coordPart) {
        $parts = explode('/', $coordPart);
-       if (count($parts) <= 0)
+       if (count($parts) <= 0  || $coordPart == '0/0')
            return 0;
 
        if (count($parts) == 1)
@@ -38,7 +38,7 @@ class GpxPic extends IndexPic {
       if($exif === false)
          $ret = '';
 
-      if($ret === null && isset($exif['GPS']) && isset($exif['GPS']["GPSLongitude"])) {
+      if($ret === null && isset($exif['GPS']) && isset($exif['GPS']["GPSLongitude"]) && isset($exif['GPS']['GPSLatitude'])) {
          $ret = $this->getGps($exif['GPS']["GPSLatitude"], $exif['GPS']['GPSLatitudeRef'])
                .','
                .$this->getGps($exif['GPS']["GPSLongitude"], $exif['GPS']['GPSLongitudeRef']);

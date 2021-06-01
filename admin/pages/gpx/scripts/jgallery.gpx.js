@@ -245,30 +245,6 @@ function map(data, options) {
      return Math.round(total);
   }
 
-   self.getElevations = function(points, i, cb, args) {
-      var granularity = 50; // # points per call of the API
-      var subset = points.slice(i*granularity,(i+1)*granularity).map(function(x) { return '('+x.lat+','+x.lng+')' });
-      var url = "https://elevation-api.io/api/elevation?points="+subset.join(',');
-      $.ajax({
-         type: "GET",
-         url: url,
-         success: function(json) {
-            var elevations = json.elevations.map(function(x) { return {'elevation':x.elevation};});
-            args.result = args.result.concat(elevations);
-            if((i+1)*granularity >= points.length) {
-              cb(args);
-           } else {
-              self.getElevations(points, i+1, cb, args);
-           }
-         },
-         error:function(e, f) {
-            console.log(e);
-            console.log(f);
-            $('#'+self.mapDiv).removeClass('canvas_loading').html('Error while getting elevations '+url+' ('+f+')');
-         },
-     });
-  }
-
   self.drawElevation = function(elev, points, times, segments) {
      function drawChart() {
         distances = distance(points, segments);
@@ -466,13 +442,7 @@ function map(data, options) {
 
       if(_times.length != _points.length)
          _times = null;
-      if(self.fixElevation || _elevations.length != _points.length)  { 
-         self.getElevations(_points, 0, function(args) {
-            self.drawElevation(args.result, args.points, args.times, _segments);
-         }, { result:[], points:_points, times:_times });
-      } else {
-         self.drawElevation(_elevations, _points, _times, _segments);
-      }
+      self.drawElevation(_elevations, _points, _times, _segments);
    }
 
    self.showButtons = function() {
@@ -547,12 +517,29 @@ function map(data, options) {
 
    self.parseTracks = function(xmls) {
       var ret = [];
-      /* Create polylines */
+      /* Sort xmls by date */
+      var sortedXmls = [];
       for(var i in xmls) {
+         var firstPoint = $(self.xmls[i]).find("trkpt").first();
+         var xmlTime = $(firstPoint).find('time');
+         var pointTime = 0;
+         try {
+            if(time.length) 
+               pointTime = new Date().setISO8601(xmlTime.text()).getTime();
+         } catch(err) {
+            pointTime = 0;
+         };
+         sortedXmls.push({ xml: i, time: pointTime });
+      }
+      sortedXmls.sort(function(a, b) { return a.time - b.time });
+
+      /* Create polylines */
+      for(var idx in sortedXmls) {
+         var xml = sortedXmls[idx].xml;
          self.segments[self.points.length] = 1;
          self.nbsegments++;
 
-         $(self.xmls[i]).find("trkpt").each(function() {
+         $(self.xmls[xml]).find("trkpt").each(function() {
             var lat = $(this).attr("lat");
             var lon = $(this).attr("lon");
             var p = new L.LatLng(lat, lon);
@@ -580,8 +567,8 @@ function map(data, options) {
             }
             self.polypoints[self.nbsegments-1].push(p);
          });
-         return ret;
       }
+      return ret;
    }
 
    self.drawTracks = function() {

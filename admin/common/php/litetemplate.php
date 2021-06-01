@@ -522,10 +522,14 @@ class LiteTemplate{
       $extraJSFinal = array();
       foreach($this->extraJS as $js) {
          $url = str_replace('{$lang}', $lang, $js);
-         if(!file_exists($url))
-            $url = str_replace('{$lang}', 'en', $js);
-         if(file_exists($url))
+         if(substr( $url, 0, 4 ) === "http") { // remote file
             $extraJSFinal[] = $url;
+         } else {
+            if(!file_exists($url))
+               $url = str_replace('{$lang}', 'en', $js);
+            if(file_exists($url))
+               $extraJSFinal[] = $url;
+         }
       }
       $this->assignTag('SCRIPT', '1', array(
 			'js_url' => $extraJSFinal,

@@ -22,30 +22,15 @@ require_once("Diff/ThreeWay/BlockBuilder.php");
 require_once("Diff/ThreeWay.php");
 
 function unzip($zipfile) {
-    $zip = zip_open($zipfile);
-    while ($zip_entry = zip_read($zip))    {
-        zip_entry_open($zip, $zip_entry);
-        if (substr(zip_entry_name($zip_entry), -1) == '/') {
-            $zdir = substr(zip_entry_name($zip_entry), 0, -1);
-            if (file_exists($zdir)) {
-                trigger_error('Directory "<b>' . $zdir . '</b>" exists', E_USER_ERROR);
-                return false;
-            }
-            mkdir($zdir);
-        }
-        else {
-            $name = zip_entry_name($zip_entry);
-            if (file_exists($name)) {
-                trigger_error('File "<b>' . $name . '</b>" exists', E_USER_ERROR);
-                return false;
-            }
-            $fopen = fopen($name, "w");
-            fwrite($fopen, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)), zip_entry_filesize($zip_entry));
-        }
-        zip_entry_close($zip_entry);
-    }
-    zip_close($zip);
-    return true;
+	$zip = new ZipArchive();
+	$res = $zip->open($zipfile, ZipArchive::RDONLY);
+	if($res !== true)
+		throw new Exception("Cannot open Zip archive");
+	$res = $zip->extractTo('.');
+	if($res !== true)
+		throw new Exception("Cannot extract Zip archive to ".getcwd()." (check permissions?)");
+	$zip->close();
+	return true;
 }
 
 function get_update_zip() {

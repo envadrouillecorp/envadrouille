@@ -60,7 +60,7 @@ var jGalleryModel = {
       if(!callback)
          callback = function() { jGallery.switchPage(dir); /* reload */ };
 
-      realurl = jGalleryModel.alternateURL(url, attemptNumber);
+      var realurl = jGalleryModel.alternateURL(url, attemptNumber);
       if(realurl == null) {
          jGalleryModel.savedJSON[url] = {
             Error:"URL: "+jGalleryModel.urlToJSON(url)+" cannot be accessed.",

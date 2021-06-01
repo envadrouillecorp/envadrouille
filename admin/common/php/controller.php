@@ -29,8 +29,10 @@ class Controller {
       if(isset($_POST[$name]))
          $ret_val = $_POST[$name];
 
-      if (get_magic_quotes_gpc())
-         $ret_val = stripslashes_deep($ret_val);
+      if (version_compare(PHP_VERSION, '7.2.0') <= 0) {
+         if (get_magic_quotes_gpc())
+            $ret_val = stripslashes_deep($ret_val);
+      }
 
 
       switch($name) {

@@ -189,28 +189,29 @@ class Horde_Text_Diff_Engine_Native
                     continue;
                 }
                 $matches = $ymatches[$line];
-                reset($matches);
-                while (list(, $y) = each($matches)) {
-                    if (empty($this->in_seq[$y])) {
-                        $k = $this->_lcsPos($y);
-                        assert($k > 0);
-                        $ymids[$k] = $ymids[$k - 1];
-                        break;
-                    }
-                }
-                while (list(, $y) = each($matches)) {
-                    if ($y > $this->seq[$k - 1]) {
-                        assert($y <= $this->seq[$k]);
-                        /* Optimization: this is a common case: next match is
-                         * just replacing previous match. */
-                        $this->in_seq[$this->seq[$k]] = false;
-                        $this->seq[$k] = $y;
-                        $this->in_seq[$y] = 1;
-                    } elseif (empty($this->in_seq[$y])) {
-                        $k = $this->_lcsPos($y);
-                        assert($k > 0);
-                        $ymids[$k] = $ymids[$k - 1];
-                    }
+					 $break_done = 0;
+					 foreach ($matches as $__xxx=>$y) {
+						 if (!$break_done) {
+							 if (empty($this->in_seq[$y])) {
+								 $k = $this->_lcsPos($y);
+								 assert($k > 0);
+								 $ymids[$k] = $ymids[$k - 1];
+								 $break_done = 1;
+							 }
+						 } else {
+							 if ($y > $this->seq[$k - 1]) {
+								 assert($y <= $this->seq[$k]);
+								 /* Optimization: this is a common case: next match is
+								  * just replacing previous match. */
+								 $this->in_seq[$this->seq[$k]] = false;
+								 $this->seq[$k] = $y;
+								 $this->in_seq[$y] = 1;
+							 } elseif (empty($this->in_seq[$y])) {
+								 $k = $this->_lcsPos($y);
+								 assert($k > 0);
+								 $ymids[$k] = $ymids[$k - 1];
+							 }
+						 }
                 }
             }
         }
