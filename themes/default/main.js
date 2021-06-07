@@ -84,9 +84,6 @@ var defaultTheme = {
                     data.dirs[i].title = data.dirs[i].url;
                     data.dirs[i].month = '';
                 }
-
-                if(data.dirs[i].title.length > 18)
-                    data.dirs[i].title = data.dirs[i].title.substr(0,14)+"...";
             }
             if(!data.dirs[i].completeurl)
                 data.dirs[i].completeurl = dirUrl+data.dirs[i].url;

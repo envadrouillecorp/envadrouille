@@ -597,7 +597,10 @@ function map(data, options) {
       if(world) {
          self.map.fitBounds([[-60,180],[70,-180]]);
       } else {
-         self.map.fitBounds(self.bounds);
+			if(!self.bounds)
+				self.bounds = new L.latLngBounds;
+			else if(self.bounds.isValid())
+				self.map.fitBounds(self.bounds);
       }
    }
 
@@ -627,7 +630,7 @@ function map(data, options) {
          self.loadLeafletCluster(function() {
             self.showClusters(data.pics, data.geo_use_time!=="false", data.gxtdiff!==undefined?data.gxtdiff:config.default_geo_time_diff);
             if(cb)
-               cb;
+               cb();
          });
       }
    }
@@ -699,10 +702,7 @@ function map(data, options) {
       $('#'+self.mapDiv).addClass('canvas_loading');
 
       self.map = L.map(self.mapDiv).setView([44.33956524809713, 38.67187500000001], 2);
-      if(!self.bounds)
-         self.bounds = new L.latLngBounds;
-      else
-         self.fitBounds();
+		self.fitBounds();
       self.addTiles(data?data.gpxtype:undefined);
       return self.map;
    }
@@ -721,7 +721,7 @@ function map(data, options) {
          $('#'+self.mapDiv).removeClass('canvas_loading');
          self.drawTracks();
          self.addWaypoints();
-         self.fitBounds();
+			self.fitBounds();
 
          self.addImages(self.fitBounds);
 
