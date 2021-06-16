@@ -23,7 +23,7 @@ require_once("Diff/ThreeWay.php");
 
 function unzip($zipfile) {
 	$zip = new ZipArchive();
-	$res = $zip->open($zipfile, ZipArchive::RDONLY);
+	$res = $zip->open($zipfile);
 	if($res !== true)
 		throw new Exception("Cannot open Zip archive");
 	$res = $zip->extractTo('.');

@@ -11,7 +11,7 @@ class File_Zip extends File {
       $zipfile = $this->completePath;
 
       $zip = new ZipArchive();
-      $res = $zip->open($zipfile, ZipArchive::RDONLY);
+      $res = $zip->open($zipfile);
       if($res !== true)
          throw new Exception("Cannot open Zip archive");
       $res = $zip->extractTo($this->path.'/');

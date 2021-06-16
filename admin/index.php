@@ -17,7 +17,7 @@ ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 $DEBUG = 0;
 
-$VERSION = '210607';
+$VERSION = '210608';
 
 /* 1/ Set up autoloading */
 class AutoLoader {
