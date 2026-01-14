@@ -93,12 +93,12 @@ class File_JSON extends File implements ArrayAccess, Iterator{
             } else { //doesn't look like UTF8, but should be converted
                $cc1 = (chr(ord($c1) / 64) | "\xc0");
                $cc2 = (($c1 & "\x3f") | "\x80");
-               $buf .= $cc1 . $cc2;				
+               $buf .= $cc1 . $cc2;
             }
          } elseif(($c1 & "\xc0") == "\x80"){ // needs conversion
             $cc1 = (chr(ord($c1) / 64) | "\xc0");
             $cc2 = (($c1 & "\x3f") | "\x80");
-            $buf .= $cc1 . $cc2;				
+            $buf .= $cc1 . $cc2;
          } else { // it doesn't need convesion
             $buf .= $c1;
          }
@@ -120,7 +120,7 @@ class File_JSON extends File implements ArrayAccess, Iterator{
       $ret = $arr;
       array_walk_recursive($ret, "File_JSON::r_array_convert", $out_charset);
       return $ret;
-   } 
+   }
 
    public static function myjson_encode($arr) {
       return json_encode(File_JSON::recursive_convert($arr, "utf-8"));
@@ -131,35 +131,35 @@ class File_JSON extends File implements ArrayAccess, Iterator{
    }
 
    /* AccessArray and Iterator implementation */
-   public function offsetSet($offset, $value) {
+   public function offsetSet($offset, $value):void {
       if (is_null($offset)) {
          $this->container[] = $value;
       } else {
          $this->container[$offset] = $value;
       }
    }
-   public function offsetExists($offset) {
+   public function offsetExists($offset):bool {
       return isset($this->container[$offset]);
    }
-   public function offsetUnset($offset) {
+   public function offsetUnset($offset):void {
       unset($this->container[$offset]);
    }
-   public function offsetGet($offset) {
+   public function offsetGet($offset): mixed {
       return isset($this->container[$offset]) ? $this->container[$offset] : null;
    }
-   public function rewind() {
+   public function rewind():void {
       $this->position = 0;
    }
-   public function current() {
+   public function current():mixed {
       return $this->container[$this->position];
    }
-   public function key() {
+   public function key():mixed {
       return $this->position;
    }
-   public function next() {
+   public function next():void {
       ++$this->position;
    }
-   public function valid() {
+   public function valid():bool {
       return isset($this->container[$this->position]);
    }
 

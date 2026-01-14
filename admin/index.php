@@ -11,13 +11,13 @@ if($version[0] < 5 || ($version[0] == 5 && $version[1] < 6)) {
    die("EnVadrouille only runs on PHP5.6 or newer. Your current version is ".phpversion().". Please upgrade (if you use a shared hosting you might also be able to configure the PHP version using a .htaccess file).");
 }
 
-error_reporting(E_ALL ^ E_STRICT);
+error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('session.use_trans_sid', 0);
 ini_set('session.use_only_cookies', 1);
 $DEBUG = 0;
 
-$VERSION = '210608';
+$VERSION = '250116';
 
 /* 1/ Set up autoloading */
 class AutoLoader {

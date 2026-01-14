@@ -54,9 +54,9 @@ class LiteTemplate{
 		if(!$this->cache_activate or $this->cache_isExpired){
 			foreach( $tag_array as $key => $value){
 
-            $this->tpl = str_replace('{$'.$key.'}', $value,$this->tpl);
+            $this->tpl = str_replace('{$'.$key.'}', $value??'',$this->tpl);
             if($value == true) {
-               $this->tpl = preg_replace('/{if '.$key.'}(.*?){fi}/si', '${1}', $this->tpl);
+               $this->tpl = preg_replace('/{if '.$key.'}(.*?){fi}/si', '{$1}', $this->tpl);
             } else {
                $this->tpl = preg_replace('/{if '.$key.'}(.*?){fi}/si', '', $this->tpl);
             }
@@ -358,12 +358,12 @@ class LiteTemplate{
       $tmp .= '</ul>';
       $tmp .= '<input type="hidden" id="'.$name.'" name="'.$name.'" value="'.join(',',$array).'" />';
       $tmp .= "<script>"
-         . "$$('#${name}_ul').sortable().bind('sortupdate', function(e, ui) {"
+         . "$$('#{$name}_ul').sortable().bind('sortupdate', function(e, ui) {"
          . "  var content=[];"
-         . "  $$('#${name}_ul li').each(function(i, el) {"
+         . "  $$('#{$name}_ul li').each(function(i, el) {"
          . "     content.push($$(el).attr('id'));"
          . "  });"
-         . "  $$('#${name}').val(content.join(','));"
+         . "  $$('#{$name}').val(content.join(','));"
          . "});"
          . "</script>";
       return $tmp;
@@ -394,9 +394,9 @@ class LiteTemplate{
       $tmp .= '<span id="'.$name.'_add" class="addsortable"></span>';
       $tmp .= '<input type="hidden" id="'.$name.'" name="'.$name.'" value="'.base64_encode(json_encode($vals)).'" />';
       $tmp .= "<script>\n"
-         . "function update_${name}() {\n"
+         . "function update_{$name}() {\n"
          . "  var content=[];\n"
-         . "  $$('#${name}_ul li').each(function(i, el) {\n"
+         . "  $$('#{$name}_ul li').each(function(i, el) {\n"
          . "     content[i] = {};\n"
          . "     $$(el).find('input').each(function(j, inp) {\n"
          . "        if($$(inp).attr('type') == 'checkbox')\n"
@@ -405,19 +405,19 @@ class LiteTemplate{
          . "           content[i][$$(inp).attr('id')] = $$(inp).val();\n"
          . "     });\n"
          . "  });\n"
-         . "  $$('#${name}').val(btoa(JSON.stringify(content)));\n"
+         . "  $$('#{$name}').val(btoa(JSON.stringify(content)));\n"
          . "}"
-         . "function remove_${name}() {"
+         . "function remove_{$name}() {"
          . "   $$(this).parent().remove();"
-         . "   update_${name}();"
+         . "   update_{$name}();"
          . "}"
-         . "$$('#${name}_ul .closesortable').click(remove_${name});"
-         . "$$('#${name}_add').click(function() {\n"
-         . "   $$('#${name}_ul').append('".$this->_createSortableIntputsLine($array, array())."');\n"
-         . "   update_${name}();"
-         . "   $$('#${name}_ul .closesortable').unbind('click').click(remove_${name});"
+         . "$$('#{$name}_ul .closesortable').click(remove_{$name});"
+         . "$$('#{$name}_add').click(function() {\n"
+         . "   $$('#{$name}_ul').append('".$this->_createSortableIntputsLine($array, array())."');\n"
+         . "   update_{$name}();"
+         . "   $$('#{$name}_ul .closesortable').unbind('click').click(remove_{$name});"
          . "});"
-         . "$$('#${name}_ul input').bind('keyup change', update_${name});\n"
+         . "$$('#{$name}_ul input').bind('keyup change', update_{$name});\n"
          . "</script>";
       return $tmp;
    }

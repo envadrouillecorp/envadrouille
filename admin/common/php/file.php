@@ -182,7 +182,7 @@ class File {
       $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       if($httpCode != 200)
          throw new Exception("Cannot open $url, error $httpCode");
-      curl_close($ch);
+      //curl_close($ch); // deprecated since PHP 8.0 for some reason...
       return $result;
    }
 }

@@ -128,15 +128,15 @@ class Thumb extends File_Pic {
          }
       }
 
-      $im = imagecreatetruecolor ($dest_width, $dest_height);
-      imagecopyresampled($im, $source, 0, 0, $orig_x, $orig_y, $dest_width, $dest_height, $src_width, $src_height);
+      $im = imagecreatetruecolor ((int)$dest_width, (int)$dest_height);
+      imagecopyresampled($im, $source, 0, 0, (int)$orig_x, (int)$orig_y, (int)$dest_width, (int)$dest_height, (int)$src_width, (int)$src_height);
 
       if($this->completePath != '-')
          imagejpeg($im, $this->completePath, $quality);
       else
          imagejpeg($im, NULL, $quality);
-      imagedestroy($im);
-      imagedestroy($source);
+      //imagedestroy($im); // deprecated since PHP 8.0
+      //imagedestroy($source); // deprecated since PHP 8.0
    }
 
    private function createThumbImgmagick() {
