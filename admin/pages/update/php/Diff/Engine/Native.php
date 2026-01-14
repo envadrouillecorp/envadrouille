@@ -26,6 +26,7 @@
  * @author  Geoffrey T. Dairiki <dairiki@dairiki.org>
  * @package Text_Diff
  */
+#[\AllowDynamicProperties]
 class Horde_Text_Diff_Engine_Native
 {
     public function diff($from_lines, $to_lines)
