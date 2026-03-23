@@ -140,7 +140,7 @@ class FaceAPI
       $rawData = curl_exec($ch);
       if(curl_errno($ch))
          throw new Exception("Curl error (if this is a SSL certificate error, see the options or configure certificates on your server):\n".curl_error($ch));
-      curl_close($ch);
+      //curl_close($ch); // deprecated
 
       return $this->toObject($rawData);
    }

@@ -52,8 +52,8 @@ class Face extends Thumb {
       $thumb = imagecreatetruecolor($this->width, $this->height);
       imagecopyresampled($thumb, $source, 0, 0, $this->face_rect['x'], $this->face_rect['y'], $this->width, $this->height, $this->face_rect['width'], $this->face_rect['height']);
       imagejpeg($thumb, $this->completePath, 100);
-      imagedestroy($thumb);
-      imagedestroy($source);
+      //imagedestroy($thumb); // deprecated
+      //imagedestroy($source); // deprecated
    }
 
    public function recognize($people) {
